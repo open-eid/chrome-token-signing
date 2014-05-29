@@ -51,10 +51,10 @@ public:
 };
 
 TEST(Signer, getReaderIdByCertHash) {
-  byte correctCertArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
+  unsigned char correctCertArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
   std::vector<unsigned char> correctCert(correctCertArray, correctCertArray + 4);
 
-  byte wrongCertArray[] = {(unsigned char)0x70, (unsigned char)0x71, (unsigned char)0x72, (unsigned char)0x73};
+  unsigned char wrongCertArray[] = {(unsigned char)0x70, (unsigned char)0x71, (unsigned char)0x72, (unsigned char)0x73};
   std::vector<unsigned char> wrongCert(wrongCertArray, wrongCertArray + 4);
   
   MockCardManager manager;
@@ -71,10 +71,10 @@ TEST(Signer, getReaderIdByCertHash) {
 }
 
 TEST(Signer, readerForCertHashNotFound) {
-  byte correctCertArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
+  unsigned char correctCertArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
   std::vector<unsigned char> correctCert(correctCertArray, correctCertArray + 4);
 
-  byte wrongCertArray[] = {(unsigned char)0x70, (unsigned char)0x71, (unsigned char)0x72, (unsigned char)0x73};
+  unsigned char wrongCertArray[] = {(unsigned char)0x70, (unsigned char)0x71, (unsigned char)0x72, (unsigned char)0x73};
   std::vector<unsigned char> wrongCert(wrongCertArray, wrongCertArray + 4);
   
   MockCardManager manager;
@@ -90,10 +90,10 @@ TEST(Signer, readerForCertHashNotFound) {
 }
 
 TEST(Signer, foundNotValidCertificate) {
-  byte correctCertArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
+  unsigned char correctCertArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
   std::vector<unsigned char> correctCert(correctCertArray, correctCertArray + 4);
 
-  byte wrongCertArray[] = {(unsigned char)0x70, (unsigned char)0x71, (unsigned char)0x72, (unsigned char)0x73};
+  unsigned char wrongCertArray[] = {(unsigned char)0x70, (unsigned char)0x71, (unsigned char)0x72, (unsigned char)0x73};
   std::vector<unsigned char> wrongCert(wrongCertArray, wrongCertArray + 4);
   
   MockCardManager manager;
@@ -308,9 +308,9 @@ TEST(Signer, sign) {
   EXPECT_CALL(cardManager, isPinpad()).WillRepeatedly(Return(FALSE));
   
   string hash = "FAFA0101FAFA0101FAFA0101FAFA0101FAFA0101";
-  byte *hashAsBinaryArray = BinaryUtils::hex2bin(hash.c_str());
+  unsigned char *hashAsBinaryArray = BinaryUtils::hex2bin(hash.c_str());
   std::vector<unsigned char> hashAsBinary(hashAsBinaryArray, hashAsBinaryArray + (hash.length() / 2));
-  byte expectedSignatureArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
+  unsigned char expectedSignatureArray[] = {(unsigned char)0x30, (unsigned char)0x31, (unsigned char)0x32, (unsigned char)0x33};
   std::vector<unsigned char> expectedSignature(expectedSignatureArray, expectedSignatureArray+4);
   EXPECT_CALL(cardManager, sign(hashAsBinary, PinString("12345"))).WillOnce(Return(expectedSignature));
   

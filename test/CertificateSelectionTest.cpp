@@ -97,8 +97,8 @@ TEST(CertificateSelection, skipReadersWithoutCard) {
   EXPECT_CALL(manager, getValidFrom()).WillOnce(Return(timeFromString("12.12.2013")));
   EXPECT_CALL(manager, getIssuerCN()).WillOnce(Return("SK"));
   EXPECT_CALL(manager, getCertSerialNumber()).WillOnce(Return("1000"));
-  byte certBinary[] = {(unsigned char) 0x30, (unsigned char) 0x31, (unsigned char) 0x32, (unsigned char) 0x33};
-  std::vector<unsigned char> certVector(certBinary, certBinary + 4);
+  unsigned char certBinary[] = {(unsigned char) 0x30, (unsigned char) 0x31, (unsigned char) 0x32, (unsigned char) 0x33};
+  vector<unsigned char> certVector(certBinary, certBinary + 4);
   EXPECT_CALL(manager, getSignCert()).WillOnce(Return(certVector));
   
   MockCertificateSelection cert(&dialog, &manager);
@@ -124,8 +124,8 @@ TEST(CertificateSelection, getCert) {
   EXPECT_CALL(manager, getValidFrom()).WillOnce(Return(timeFromString("12.12.2013")));
   EXPECT_CALL(manager, getIssuerCN()).WillOnce(Return("SK"));
   EXPECT_CALL(manager, getCertSerialNumber()).WillOnce(Return("1000"));
-  byte certBinary[] = {(unsigned char) 0x30, (unsigned char) 0x31, (unsigned char) 0x32, (unsigned char) 0x33};
-  std::vector<unsigned char> certVector(certBinary, certBinary + 4);
+  unsigned char certBinary[] = {(unsigned char) 0x30, (unsigned char) 0x31, (unsigned char) 0x32, (unsigned char) 0x33};
+  vector<unsigned char> certVector(certBinary, certBinary + 4);
   EXPECT_CALL(manager, getSignCert()).WillOnce(Return(certVector));
   EXPECT_CALL(manager, isCardInReader()).WillOnce(Return(true));
 
