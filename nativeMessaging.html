@@ -1,0 +1,31 @@
+<html>
+<head>
+    <title>Chrome extension test</title>
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+</head>
+<body>
+<div id="errorMessage"></div>
+hash:<input type="text" id="hash" value="3021300906052B0E03021A05000414FAFA0101FAFA0101FAFA0101FAFA0101FAFA0101"
+            size="128">
+<input type="button" value="Sign" onclick="sign()"/><br/>
+allkiri:<br/>
+<textarea id="signature" cols="96" rows="5"></textarea>
+
+<script>
+    function sign() {
+	$('#signature').val('');
+	$('#errorMessage').html('');
+	new IdCardPluginHandler().sign('', $('#hash').val(), handleSignature, signingFailed);
+    }
+
+    function handleSignature(signature) {
+        $('#signature').val(signature);
+    }
+
+    function signingFailed(error) {
+	console.log(error);
+	$('#errorMessage').html(error.returnCode + ": " + error.message);
+    }
+</script>
+</body>
+</html>

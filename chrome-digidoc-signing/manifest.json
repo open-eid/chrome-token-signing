@@ -1,0 +1,22 @@
+{
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoewkZbDLaAcs25ddwQMPrAa2gks4Zw3ObyRNBCxmygt6Woty5T35MlZOvXh5fPSQepPr7ZLtramIEV48feExAu1vET5fgSkn9pDnk+lKWf2B5fZIlBWyNiVLju4s0owewtsrwO+JXdehWVaM9Ngi8EV0ZLdJqRahNvQ+Y8iMMTSeIs0a54+dXy8T7ZnYe36r8i2MwYQkIgnQUbTFHFhvCUHa/NPoBk4wlg+6oIr8ba2UxRfOM6sJKzGnnkCFfHMl+LvbsK6bgS+CEn7HRdrj9z8pm5zPNZom3w9xAmnt3wgvrpF1HYctgeWdACwZZCp9CKcd0VfcBFarIm+AQSBEWQIDAQAB",
+    "name": "EstEid signing",
+    "update_url": "http://10.0.25.57/chrome-extension/update.xml",
+    "version": "0.2",
+    "manifest_version": 2,
+    "description": "Signing extension for chrome",
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "web_accessible_resources": ["pluginHandler.js"],
+    "permissions": [
+        "nativeMessaging"
+    ]
+}

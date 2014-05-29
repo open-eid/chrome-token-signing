@@ -1,0 +1,11 @@
+Release 3.9 Chrome Linux plugin release notes
+--------------------------------------------
+
+- First release instead of NPAPI for Linux
+
+
+
+
+
+
+
