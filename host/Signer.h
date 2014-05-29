@@ -117,8 +117,8 @@ class Signer : public ExtensionDialog {
 			try {
 				PinString pin(pinDialog->getPin().c_str());
 				unsigned char *hashAsBinary = BinaryUtils::hex2bin(this->hash.c_str());
-				ByteVec hash(hashAsBinary, (hashAsBinary + this->hash.length() / 2));
-				ByteVec signature = manager->sign(hash, pin);
+				std::vector<unsigned char> hash(hashAsBinary, (hashAsBinary + this->hash.length() / 2));
+				std::vector<unsigned char> signature = manager->sign(hash, pin);
 
 				free(hashAsBinary);
 	
@@ -189,7 +189,7 @@ class Signer : public ExtensionDialog {
 				FREE_MANAGER;
 				continue;
 			}
-			ByteVec cert = manager->getSignCert();
+			std::vector<unsigned char> cert = manager->getSignCert();
 			std::string certHash = std::string(BinaryUtils::bin2hex(BinaryUtils::md5(cert)));
 			if (certHash == certId && currentTime <= manager->getValidTo()) {
 				_log("Got readerId %i from certId ", token, certId.c_str());

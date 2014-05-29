@@ -63,7 +63,7 @@ class CertificateSelection : public ExtensionDialog {
 
 			int readerId = dialog->getSelectedCertIndex();
 			CleverCardManager *manager = cardManager->getManagerForReader(readerId);
-			ByteVec cert = manager->getSignCert();
+			std::vector<unsigned char> cert = manager->getSignCert();
 
 			std::string certHex = std::string(BinaryUtils::bin2hex(cert));
 			std::string md5hex = std::string(BinaryUtils::bin2hex(BinaryUtils::md5(cert)));

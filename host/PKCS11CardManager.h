@@ -29,7 +29,7 @@ class PKCS11CardManager : public CardManager {
  private:
 	bool isMainManager;
 	void *library;
-	vector<unsigned int> signingSlotIDs;
+	std::vector<unsigned int> signingSlotIDs;
 	X509 *cert;
 	X509_name_st *subject;
 	X509_name_st *issuer;
@@ -37,7 +37,7 @@ class PKCS11CardManager : public CardManager {
 	CK_SLOT_ID slotID;
 	CK_FUNCTION_LIST_PTR fl;
 	CK_TOKEN_INFO tokenInfo;
-	ByteVec signCert;
+	std::vector<unsigned char> signCert;
 
 	void *loadModule(std::string moduleName) {
 		void *library = dlopen(moduleName.c_str(), RTLD_LOCAL | RTLD_NOW);
@@ -137,7 +137,7 @@ class PKCS11CardManager : public CardManager {
 		getX509Cert(certificate, certificateLength);
 
 		_log("ASN X509 cert: %p", cert);
-		signCert = ByteVec(certificate, certificate + certificateLength);
+		signCert = std::vector<unsigned char>(certificate, certificate + certificateLength);
 		free(certificate);
 	}
 	
@@ -209,20 +209,20 @@ class PKCS11CardManager : public CardManager {
 		return manager;
 	}
 
-	ByteVec getHashWithPadding(const ByteVec &hash) {
-		ByteVec hashWithPadding;
+	std::vector<unsigned char> getHashWithPadding(const std::vector<unsigned char> &hash) {
+		std::vector<unsigned char> hashWithPadding;
 		switch (hash.size()) {
 		case BINARY_SHA1_LENGTH:
-			hashWithPadding = ByteVec(RSA_SHA1_DESIGNATOR_PREFIX, RSA_SHA1_DESIGNATOR_PREFIX + sizeof(RSA_SHA1_DESIGNATOR_PREFIX));
+			hashWithPadding = std::vector<unsigned char>(RSA_SHA1_DESIGNATOR_PREFIX, RSA_SHA1_DESIGNATOR_PREFIX + sizeof(RSA_SHA1_DESIGNATOR_PREFIX));
 			break;
 		case BINARY_SHA224_LENGTH:
-			hashWithPadding = ByteVec(RSA_SHA224_DESIGNATOR_PREFIX, RSA_SHA224_DESIGNATOR_PREFIX + sizeof(RSA_SHA224_DESIGNATOR_PREFIX));
+			hashWithPadding = std::vector<unsigned char>(RSA_SHA224_DESIGNATOR_PREFIX, RSA_SHA224_DESIGNATOR_PREFIX + sizeof(RSA_SHA224_DESIGNATOR_PREFIX));
 			break;
 		case BINARY_SHA256_LENGTH:
-			hashWithPadding = ByteVec(RSA_SHA256_DESIGNATOR_PREFIX, RSA_SHA256_DESIGNATOR_PREFIX + sizeof(RSA_SHA256_DESIGNATOR_PREFIX));
+			hashWithPadding = std::vector<unsigned char>(RSA_SHA256_DESIGNATOR_PREFIX, RSA_SHA256_DESIGNATOR_PREFIX + sizeof(RSA_SHA256_DESIGNATOR_PREFIX));
 			break;
 		case BINARY_SHA512_LENGTH:
-			hashWithPadding = ByteVec(RSA_SHA512_DESIGNATOR_PREFIX, RSA_SHA512_DESIGNATOR_PREFIX + sizeof(RSA_SHA512_DESIGNATOR_PREFIX));
+			hashWithPadding = std::vector<unsigned char>(RSA_SHA512_DESIGNATOR_PREFIX, RSA_SHA512_DESIGNATOR_PREFIX + sizeof(RSA_SHA512_DESIGNATOR_PREFIX));
 			break;
 		default:
 			_log("incorrect digest length, dropping padding");
@@ -231,7 +231,7 @@ class PKCS11CardManager : public CardManager {
 		return hashWithPadding;
 	}
 	
-	ByteVec sign(const ByteVec &hash, const PinString &pin) {
+	std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin) {
 		CK_OBJECT_HANDLE privateKeyHandle;
 		CK_ULONG objectCount;
 		CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
@@ -260,7 +260,7 @@ class PKCS11CardManager : public CardManager {
 		checkError("C_SignInit", fl->C_SignInit(session, &mechanism, privateKeyHandle));
 		CK_ULONG signatureLength;
 		
-		ByteVec hashWithPadding = getHashWithPadding(hash);
+		std::vector<unsigned char> hashWithPadding = getHashWithPadding(hash);
 		checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), NULL, &signatureLength));
 		CK_BYTE_PTR signature = (CK_BYTE_PTR) malloc(signatureLength);
 		
@@ -271,7 +271,7 @@ class PKCS11CardManager : public CardManager {
 		checkError("C_Sign", result);
 		checkError("C_Logout", fl->C_Logout(session));
 		
-		ByteVec resultSignature(signature, signature + signatureLength);
+		std::vector<unsigned char> resultSignature(signature, signature + signatureLength);
 		free(signature);
 		return resultSignature;
 	}
@@ -291,7 +291,7 @@ class PKCS11CardManager : public CardManager {
 		else return 3;
 	}
 
-	ByteVec getSignCert() {
+	std::vector<unsigned char> getSignCert() {
 		return signCert;
 	}
 

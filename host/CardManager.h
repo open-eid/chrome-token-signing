@@ -16,7 +16,7 @@
 #define BINARY_SHA256_LENGTH 32
 #define BINARY_SHA512_LENGTH 64
 
-#include "EstEIDManager.h"
+#include "PinString.h"
 
 class CardManager {
  public:
@@ -26,11 +26,11 @@ class CardManager {
 	}
 	virtual bool isCardInReader() {return false;}
 	CardManager *getManagerForReader(int readerId) {return new CardManager();}
-	virtual ByteVec sign(const ByteVec &hash, const PinString &pin){return ByteVec();}
+	virtual std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin){return std::vector<unsigned char>();}
   virtual	std::string getCardName(){return "Mari-Liis Mannik";}
  	virtual	std::string getPersonalCode(){return "47101010033";}
   virtual int getPIN2RetryCount(){return 3;}
-  virtual ByteVec getSignCert() {return ByteVec();}
+  virtual std::vector<unsigned char> getSignCert() {return std::vector<unsigned char>();}
 	virtual std::string getCN() {return "";}
 	virtual std::string getType() {return "";}
 	virtual time_t getValidTo() {return 0;}

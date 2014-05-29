@@ -25,14 +25,14 @@ class MockCardManager : public CardManager {
 	MOCK_METHOD0(getPersonalCode, std::string());
 	MOCK_METHOD0(isCardInReader, bool());
 	MOCK_METHOD0(getPIN2RetryCount, int());
-	MOCK_METHOD2(sign, ByteVec(const ByteVec&, const PinString&));
+	MOCK_METHOD2(sign, std::vector<unsigned char>(const std::vector<unsigned char>&, const PinString&));
 	MOCK_METHOD0(getCN, std::string());
 	MOCK_METHOD0(getType, std::string());
 	MOCK_METHOD0(getValidTo, time_t());
 	MOCK_METHOD0(getValidFrom, time_t());
 	MOCK_METHOD0(getIssuerCN, std::string());
 	MOCK_METHOD0(getCertSerialNumber, std::string());
-	MOCK_METHOD0(getSignCert, ByteVec());
+	MOCK_METHOD0(getSignCert, std::vector<unsigned char>());
 	MOCK_METHOD0(isPinpad, bool());
 
 	bool parentIsReaderPresent() {
