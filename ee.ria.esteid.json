@@ -1,7 +1,7 @@
 {
     "name": "ee.ria.esteid",
     "description": "EstEid chrome extension for signing",
-    "path": "/usr/bin/chrome-digidoc-signing",
+    "path": "/usr/bin/chrome-token-signing",
     "type": "stdio",
     "allowed_origins": [
         "chrome-extension://knbfaekihfoeoceefceadfonbmgpfeok/"

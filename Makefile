@@ -6,8 +6,8 @@ SOURCE_PATH = host/
 SMARTCARDPP_SOURCE_PATH = smartcardpp/
 JSON_SOURCE_PATH = json/
 TEST_PATH = test/
-EXE = $(OUTPUT_PATH)chrome-digidoc-signing
-TEST_EXE = $(OUTPUT_PATH)chrome-digidoc-signing-test
+EXE = $(OUTPUT_PATH)chrome-token-signing
+TEST_EXE = $(OUTPUT_PATH)chrome-token-signing-test
 
 OBJ = o
 COPT = -O2
