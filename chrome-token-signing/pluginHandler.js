@@ -47,6 +47,14 @@ function loadSigningPlugin(lang, pluginToLoad) {
     return;
 }
 
+function checkIfPluginIsLoaded(pluginName, lang) {
+  return true;
+}
+
+function isPluginSupported(pluginName) {
+  return true;
+}
+
 function IdCardPluginHandler(lang) {
     if (!lang || lang === undefined) {
         lang = 'eng';
