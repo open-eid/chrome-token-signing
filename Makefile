@@ -13,11 +13,11 @@ COPT = -O2
 CCMD = g++
 OBJFLAG = -o
 EXEFLAG = -o
-INCLUDES = -Igooglemock/include -Igtest/include -Ihost -Ijson -Ipkcs11 -I/usr/include/openssl `pkg-config --cflags gtk+-3.0` `pkg-config --cflags gtkmm-3.0` `pkg-config --cflags libpcsclite`
-LIBS = -ldl `pkg-config --libs gtk+-3.0` `pkg-config --libs gtkmm-3.0` `pkg-config --libs libpcsclite` `pkg-config --libs openssl`
+INCLUDES := -Igooglemock/include -Igtest/include -Ihost -Ijson -Ipkcs11 -I/usr/include/openssl `pkg-config --cflags gtk+-3.0` `pkg-config --cflags gtkmm-3.0` `pkg-config --cflags libpcsclite`
+LIBS := -ldl `pkg-config --libs gtk+-3.0` `pkg-config --libs gtkmm-3.0` `pkg-config --libs libpcsclite` `pkg-config --libs openssl`
 LIBPATH = 
-CPPFLAGS = $(COPT) -g $(INCLUDES) -std=c++0x -pthread 
-LDFLAGS = $(LIBPATH) -g $(LIBS)
+CPPFLAGS := $(COPT) -g $(INCLUDES) -std=c++0x -pthread 
+LDFLAGS := $(LIBPATH) -g $(LIBS)
 DEP = dep
 GTEST_DIR=gtest
 GMOCK_DIR=googlemock
