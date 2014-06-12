@@ -48,7 +48,7 @@ test: $(JSON_OBJS) $(filter-out $(SOURCE_PATH)chrome-host.o, $(OBJS)) $(TEST_OBJ
 	$(TEST_EXE) --gtest_output=xml:test_report.xml
 	
 clean:
-	rm -rf $(SOURCE_PATH)*.$(OBJ) $(EXE) $(TEST_PATH)*.$(OBJ)
+	rm -rf $(SOURCE_PATH)*.$(OBJ) $(EXE) $(TEST_PATH)*.$(OBJ) $(JSON_SOURCE_PATH)*.$(OBJ) *.$(OBJ)
 	rm -rf googlemock/make/g*
 
 install:
