@@ -4,3 +4,17 @@ before_install:
 
 script:
   - make
+
+env:
+  global:
+   - secure: ""
+
+addons:
+  coverity_scan:
+    project:
+      name: "open-eid/chrome-token-signing"
+      description: "Chrome Native Client plugin"
+    notification_email: martin@martinpaljak.net
+    build_command_prepend:
+    build_command: make
+    branch_pattern: coverity_scan
