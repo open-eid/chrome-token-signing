@@ -6,6 +6,10 @@ TEST_PATH := test/
 EXE := $(OUTPUT_PATH)chrome-token-signing
 TEST_EXE := $(EXE)-test
 
+# Attempt to probe for Chromium configuration location,
+# allows overriding with environment variables during install
+CHROMIUM_CONFIG := $(firstword $(wildcard $(CHROMIUM_CONFIG) /etc/chromium-browser/ /etc/chromium/))
+
 CPP := g++
 CFLAGS := -O2
 CXXFLAGS := $(CFLAGS) -g -std=c++0x -pthread -D_GLIBCXX_USE_NANOSLEEP
@@ -61,23 +65,17 @@ install:
 	# For Google Chrome
 	install -d $(DESTDIR)/etc/opt/chrome/native-messaging-hosts/
 	install -d $(DESTDIR)/etc/opt/chrome/policies/managed/
-	ln -s /usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json \
+	ln -sf /usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json \
 		$(DESTDIR)/etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
-	ln -s /usr/share/chrome-token-signing/policies/managed/esteid_policy.json \
+	ln -sf /usr/share/chrome-token-signing/policies/managed/esteid_policy.json \
 		$(DESTDIR)/etc/opt/chrome/policies/managed/esteid_policy.json
 
-	# For Chromium on Debian
-	install -d $(DESTDIR)/etc/chromium/native-messaging-hosts/
-	install -d $(DESTDIR)/etc/chromium/policies/managed/
-	ln -s /usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json \
-		$(DESTDIR)/etc/chromium/native-messaging-hosts/ee.ria.esteid.json
-	ln -s /usr/share/chrome-token-signing/policies/managed/esteid_policy.json \
-		$(DESTDIR)/etc/chromium/policies/managed/esteid_policy.json
-
-	# For Chromium on Ubuntu
-	install -d $(DESTDIR)/etc/chromium-browser/native-messaging-hosts/
-	install -d $(DESTDIR)/etc/chromium-browser/policies/managed/
-	ln -s /usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json \
-		$(DESTDIR)/etc/chromium-browser/native-messaging-hosts/ee.ria.esteid.json
-	ln -s /usr/share/chrome-token-signing/policies/managed/esteid_policy.json \
-		$(DESTDIR)/etc/chromium-browser/policies/managed/esteid_policy.json
+	# Install extension for Chromium at $(CHROMIUM_CONFIG)
+ifneq (,$(CHROMIUM_CONFIG))
+	install -d $(DESTDIR)$(CHROMIUM_CONFIG)/native-messaging-hosts/
+	install -d $(DESTDIR)$(CHROMIUM_CONFIG)/policies/managed/
+	ln -sf /usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json \
+		$(DESTDIR)$(CHROMIUM_CONFIG)/native-messaging-hosts/ee.ria.esteid.json
+	ln -sf /usr/share/chrome-token-signing/policies/managed/esteid_policy.json \
+		$(DESTDIR)$(CHROMIUM_CONFIG)/policies/managed/esteid_policy.json
+endif
