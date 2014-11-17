@@ -1,0 +1,5 @@
+./out/chrome-token-signing /usr/bin
+ee.ria.esteid.json /usr/share/chrome-token-signing/native-messaging-hosts
+esteid_policy.json /usr/share/chrome-token-signing/policies/managed
+update.xml /usr/share/chrome-token-signing
+chrome-token-signing.crx /usr/share/chrome-token-signing

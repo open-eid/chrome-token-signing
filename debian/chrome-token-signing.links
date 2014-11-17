@@ -1,0 +1,4 @@
+/usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json /etc/chromium/native-messaging-hosts/ee.ria.esteid.json
+/usr/share/chrome-token-signing/policies/managed/esteid_policy.json /etc/chromium/policies/managed/esteid_policy.json
+/usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json /etc/chromium-browser/native-messaging-hosts/ee.ria.esteid.json
+/usr/share/chrome-token-signing/policies/managed/esteid_policy.json /etc/chromium-browser/policies/managed/esteid_policy.json
