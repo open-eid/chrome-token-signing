@@ -34,8 +34,8 @@ window.addEventListener("message", function(event) {
             console.log("failure");
             EstEidCallbackHolder.failureCallback(new IdCardException(event.data.returnCode, event.data.message));
         }
-        EstEidCallbackHolder.successCallback = null;
-        EstEidCallbackHolder.failureCallback = null;
+        //EstEidCallbackHolder.successCallback = null;
+        //EstEidCallbackHolder.failureCallback = null;
     }
 }, false);
 
