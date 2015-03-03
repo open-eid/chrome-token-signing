@@ -1,0 +1,376 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4E2028281AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json in Resources */ = {isa = PBXBuildFile; fileRef = 4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */; };
+		4E46FD221A979DA400D0F3C8 /* PINDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */; };
+		4E46FD241A979DA400D0F3C8 /* PINPadDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */; };
+		4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E46FD251A97A07000D0F3C8 /* PINDialog.mm */; };
+		4E46FD361A9B423800D0F3C8 /* locked_allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */; };
+		4E532D0B1A96393D00D28E40 /* chrome-host.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D091A96393D00D28E40 /* chrome-host.m */; };
+		4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E532D0C1A96399600D28E40 /* CertificateSelection.xib */; };
+		4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */; };
+		4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D1B1A96843700D28E40 /* libcrypto.dylib */; };
+		4E532D1F1A96846900D28E40 /* DateUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D1D1A96846900D28E40 /* DateUtils.cpp */; };
+		4E532D221A96848400D28E40 /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D201A96848400D28E40 /* Logger.cpp */; };
+		4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D231A97941800D28E40 /* BinaryUtils.cpp */; };
+		4E532D271A97943400D28E40 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D261A97943400D28E40 /* libiconv.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ckjefchnfjhjfedoccjbhjpbncimppeg.json; sourceTree = SOURCE_ROOT; };
+		4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINDialog.xib; sourceTree = "<group>"; };
+		4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINPadDialog.xib; sourceTree = "<group>"; };
+		4E46FD251A97A07000D0F3C8 /* PINDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PINDialog.mm; sourceTree = "<group>"; };
+		4E46FD271A97A08600D0F3C8 /* PINDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PINDialog.h; sourceTree = "<group>"; };
+		4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = locked_allocator.cpp; sourceTree = "<group>"; };
+		4E46FD351A9B423800D0F3C8 /* locked_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = locked_allocator.h; sourceTree = "<group>"; };
+		4E490EC21A9DF45E00309C5B /* ee.ria.esteid.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ee.ria.esteid.json; sourceTree = "<group>"; };
+		4E532CE01A96379500D28E40 /* chrome-token-signing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "chrome-token-signing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E532D081A96393D00D28E40 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "host-osx/Info.plist"; sourceTree = SOURCE_ROOT; };
+		4E532D091A96393D00D28E40 /* chrome-host.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "chrome-host.m"; sourceTree = "<group>"; };
+		4E532D0C1A96399600D28E40 /* CertificateSelection.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CertificateSelection.xib; sourceTree = "<group>"; };
+		4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CertificateSelection.mm; sourceTree = "<group>"; };
+		4E532D101A963AEF00D28E40 /* CertificateSelection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CertificateSelection.h; sourceTree = "<group>"; };
+		4E532D121A96421900D28E40 /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
+		4E532D131A96421900D28E40 /* content.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = content.js; sourceTree = "<group>"; };
+		4E532D141A96421900D28E40 /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		4E532D151A96421900D28E40 /* page.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = page.js; sourceTree = "<group>"; };
+		4E532D1B1A96843700D28E40 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
+		4E532D1D1A96846900D28E40 /* DateUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DateUtils.cpp; sourceTree = "<group>"; };
+		4E532D1E1A96846900D28E40 /* DateUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateUtils.h; sourceTree = "<group>"; };
+		4E532D201A96848400D28E40 /* Logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
+		4E532D211A96848400D28E40 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		4E532D231A97941800D28E40 /* BinaryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinaryUtils.cpp; sourceTree = "<group>"; };
+		4E532D241A97941800D28E40 /* BinaryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinaryUtils.h; sourceTree = "<group>"; };
+		4E532D261A97943400D28E40 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
+		4E894C171AA655F70059CB93 /* stateless-test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "stateless-test.py"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4E532CDD1A96379500D28E40 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E532D271A97943400D28E40 /* libiconv.dylib in Frameworks */,
+				4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4E46FD371A9B546700D0F3C8 /* Host-shared */ = {
+			isa = PBXGroup;
+			children = (
+				4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */,
+				4E532D241A97941800D28E40 /* BinaryUtils.h */,
+				4E532D231A97941800D28E40 /* BinaryUtils.cpp */,
+				4E532D1E1A96846900D28E40 /* DateUtils.h */,
+				4E532D1D1A96846900D28E40 /* DateUtils.cpp */,
+				4E46FD351A9B423800D0F3C8 /* locked_allocator.h */,
+				4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */,
+				4E532D211A96848400D28E40 /* Logger.h */,
+				4E532D201A96848400D28E40 /* Logger.cpp */,
+			);
+			name = "Host-shared";
+			path = "host-shared";
+			sourceTree = "<group>";
+		};
+		4E532CD71A96379500D28E40 = {
+			isa = PBXGroup;
+			children = (
+				4E532D111A96421900D28E40 /* Extension */,
+				4E46FD371A9B546700D0F3C8 /* Host-shared */,
+				4E532CE21A96379500D28E40 /* Host-OSX */,
+				4E894C161AA655F70059CB93 /* host-test */,
+				4E532CE11A96379500D28E40 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4E532CE11A96379500D28E40 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4E532CE01A96379500D28E40 /* chrome-token-signing.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4E532CE21A96379500D28E40 /* Host-OSX */ = {
+			isa = PBXGroup;
+			children = (
+				4E490EC21A9DF45E00309C5B /* ee.ria.esteid.json */,
+				4E532D101A963AEF00D28E40 /* CertificateSelection.h */,
+				4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */,
+				4E532D0C1A96399600D28E40 /* CertificateSelection.xib */,
+				4E532D091A96393D00D28E40 /* chrome-host.m */,
+				4E46FD271A97A08600D0F3C8 /* PINDialog.h */,
+				4E46FD251A97A07000D0F3C8 /* PINDialog.mm */,
+				4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */,
+				4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */,
+				4E532CE31A96379500D28E40 /* Supporting Files */,
+			);
+			name = "Host-OSX";
+			path = "host-osx";
+			sourceTree = "<group>";
+		};
+		4E532CE31A96379500D28E40 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E532D261A97943400D28E40 /* libiconv.dylib */,
+				4E532D1B1A96843700D28E40 /* libcrypto.dylib */,
+				4E532D081A96393D00D28E40 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4E532D111A96421900D28E40 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				4E532D121A96421900D28E40 /* background.js */,
+				4E532D131A96421900D28E40 /* content.js */,
+				4E532D141A96421900D28E40 /* manifest.json */,
+				4E532D151A96421900D28E40 /* page.js */,
+			);
+			name = Extension;
+			path = extension;
+			sourceTree = "<group>";
+		};
+		4E894C161AA655F70059CB93 /* host-test */ = {
+			isa = PBXGroup;
+			children = (
+				4E894C171AA655F70059CB93 /* stateless-test.py */,
+			);
+			path = "host-test";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4E532CDF1A96379500D28E40 /* chrome-token-signing */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E532CFD1A96379500D28E40 /* Build configuration list for PBXNativeTarget "chrome-token-signing" */;
+			buildPhases = (
+				4E532CDC1A96379500D28E40 /* Sources */,
+				4E532CDD1A96379500D28E40 /* Frameworks */,
+				4E532CDE1A96379500D28E40 /* Resources */,
+				4E490EC11A9DF42100309C5B /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "chrome-token-signing";
+			productName = "chrome-token-signing";
+			productReference = 4E532CE01A96379500D28E40 /* chrome-token-signing.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4E532CD81A96379500D28E40 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = RIA;
+				TargetAttributes = {
+					4E532CDF1A96379500D28E40 = {
+						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = ET847QJV9F;
+					};
+				};
+			};
+			buildConfigurationList = 4E532CDB1A96379500D28E40 /* Build configuration list for PBXProject "chrome-token-signing" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4E532CD71A96379500D28E40;
+			productRefGroup = 4E532CE11A96379500D28E40 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E532CDF1A96379500D28E40 /* chrome-token-signing */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4E532CDE1A96379500D28E40 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */,
+				4E46FD241A979DA400D0F3C8 /* PINPadDialog.xib in Resources */,
+				4E2028281AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json in Resources */,
+				4E46FD221A979DA400D0F3C8 /* PINDialog.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4E490EC11A9DF42100309C5B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/host-osx/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E532CDC1A96379500D28E40 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E46FD361A9B423800D0F3C8 /* locked_allocator.cpp in Sources */,
+				4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */,
+				4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */,
+				4E532D1F1A96846900D28E40 /* DateUtils.cpp in Sources */,
+				4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */,
+				4E532D0B1A96393D00D28E40 /* chrome-host.m in Sources */,
+				4E532D221A96848400D28E40 /* Logger.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4E532CFB1A96379500D28E40 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				KEY_FILE = "$(SRCROOT)/chrome-token-signing.pem";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4E532CFC1A96379500D28E40 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				KEY_FILE = "$(SRCROOT)/chrome-token-signing.pem";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4E532CFE1A96379500D28E40 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/host-osx/Info.plist";
+				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4E532CFF1A96379500D28E40 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/host-osx/Info.plist";
+				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4E532CDB1A96379500D28E40 /* Build configuration list for PBXProject "chrome-token-signing" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E532CFB1A96379500D28E40 /* Debug */,
+				4E532CFC1A96379500D28E40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E532CFD1A96379500D28E40 /* Build configuration list for PBXNativeTarget "chrome-token-signing" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E532CFE1A96379500D28E40 /* Debug */,
+				4E532CFF1A96379500D28E40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4E532CD81A96379500D28E40 /* Project object */;
+}

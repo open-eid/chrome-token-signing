@@ -1,0 +1,9 @@
+{
+    "name": "ee.ria.esteid",
+    "description": "EstEid chrome extension for signing",
+    "path": "/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app/Contents/MacOS/chrome-token-signing",
+    "type": "stdio",
+    "allowed_origins": [
+        "chrome-extension://ckjefchnfjhjfedoccjbhjpbncimppeg/" // development-key.pem
+    ]
+}
