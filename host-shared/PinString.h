@@ -11,6 +11,7 @@
 */
 #include <openssl/x509.h>
 #include "locked_allocator.h"
+#include <string>
 
 typedef std::basic_string<char, std::char_traits<char>, locked_allocator<char> > base_str;
 

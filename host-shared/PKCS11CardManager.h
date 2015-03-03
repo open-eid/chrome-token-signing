@@ -20,11 +20,6 @@
 #ifndef PKCS11CARDMANAGER_H
 #define	PKCS11CARDMANAGER_H
 
-CK_BYTE RSA_SHA1_DESIGNATOR_PREFIX[] = {48, 33, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20};
-CK_BYTE RSA_SHA224_DESIGNATOR_PREFIX[] = {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c};
-CK_BYTE RSA_SHA256_DESIGNATOR_PREFIX[] = {48, 49, 48, 13, 6, 9, 96, 134, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32};
-CK_BYTE RSA_SHA512_DESIGNATOR_PREFIX[] = {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
-
 class PKCS11CardManager : public CardManager {
  private:
 	bool isMainManager;
@@ -115,7 +110,6 @@ class PKCS11CardManager : public CardManager {
 		CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
 		CK_ATTRIBUTE attribute = {CKA_VALUE, NULL_PTR, 0};
 		CK_ULONG certificateLength;
-		CK_BYTE_PTR certificate;
 
 		
 		checkError("C_OpenSession", fl->C_OpenSession(slotID, CKF_SERIAL_SESSION, NULL_PTR, NULL_PTR, &session));
@@ -129,37 +123,34 @@ class PKCS11CardManager : public CardManager {
 		
 		checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle, &attribute, 1));
 		certificateLength = attribute.ulValueLen;
-		certificate = (CK_BYTE_PTR) malloc(certificateLength);
-		attribute.pValue = certificate;
+        std::vector<unsigned char> certificate(certificateLength, 0);
+		attribute.pValue = &certificate[0];
 		checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle, &attribute, 1));
-		_log("certificate = %p, certificateLength = %i", certificate, certificateLength);
+		_log("certificate = %p, certificateLength = %i", &certificate[0], certificateLength);
 
-		getX509Cert(certificate, certificateLength);
+		getX509Cert(certificate);
 
 		_log("ASN X509 cert: %p", cert);
-		signCert = std::vector<unsigned char>(certificate, certificate + certificateLength);
-		free(certificate);
+		signCert = certificate;
 	}
 	
-	void getX509Cert(unsigned char* certificate, int certificateLength) {
-		const unsigned char* p = certificate;
-		cert = d2i_X509(NULL, &p, certificateLength);
+    void getX509Cert(const std::vector<unsigned char> &certificate) {
+		const unsigned char* p = &certificate[0];
+		cert = d2i_X509(NULL, &p, certificate.size());
 		subject = X509_get_subject_name(cert);
 		issuer = X509_get_issuer_name(cert);
 	}
 
  public:
 	PKCS11CardManager(CK_TOKEN_INFO *tokenInfo, std::string certAsHEX) {
-	  unsigned char *certificate = BinaryUtils::hex2bin(certAsHEX.c_str());
-		getX509Cert(certificate, certAsHEX.length()/2);
-		free(certificate);
+		getX509Cert(BinaryUtils::hex2bin(certAsHEX.c_str()));
 		this->tokenInfo = *tokenInfo;
 		isMainManager = false;
 		session = 0;
 	}
 
 	PKCS11CardManager() {
-		library = loadModule("opensc-pkcs11.so");
+		library = loadModule("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
 		fl->C_Initialize(NULL_PTR);
 		initSlotIDs();
 		session = 0;
@@ -168,7 +159,7 @@ class PKCS11CardManager : public CardManager {
 		subject = issuer = NULL;
 	}
 
-	~PKCS11CardManager() {
+	virtual ~PKCS11CardManager() {
 		if (session) {
 			fl->C_CloseSession(session);
 			session = 0;
@@ -210,6 +201,10 @@ class PKCS11CardManager : public CardManager {
 	}
 
 	std::vector<unsigned char> getHashWithPadding(const std::vector<unsigned char> &hash) {
+        static CK_BYTE RSA_SHA1_DESIGNATOR_PREFIX[] = {48, 33, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20};
+        static CK_BYTE RSA_SHA224_DESIGNATOR_PREFIX[] = {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c};
+        static CK_BYTE RSA_SHA256_DESIGNATOR_PREFIX[] = {48, 49, 48, 13, 6, 9, 96, 134, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32};
+        static CK_BYTE RSA_SHA512_DESIGNATOR_PREFIX[] = {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
 		std::vector<unsigned char> hashWithPadding;
 		switch (hash.size()) {
 		case BINARY_SHA1_LENGTH:

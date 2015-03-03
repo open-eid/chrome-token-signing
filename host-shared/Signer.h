@@ -116,14 +116,11 @@ class Signer : public ExtensionDialog {
 		do {
 			try {
 				PinString pin(pinDialog->getPin().c_str());
-				unsigned char *hashAsBinary = BinaryUtils::hex2bin(this->hash.c_str());
-				std::vector<unsigned char> hash(hashAsBinary, (hashAsBinary + this->hash.length() / 2));
+				std::vector<unsigned char> hash = BinaryUtils::hex2bin(this->hash.c_str());
 				std::vector<unsigned char> signature = manager->sign(hash, pin);
 
-				free(hashAsBinary);
-	
 				jsonxx::Object json;
-				json << "signature" << std::string(BinaryUtils::bin2hex(signature));
+				json << "signature" << BinaryUtils::bin2hex(signature);
 
 				FREE_MANAGER;
 				pinDialog->hide();
@@ -190,7 +187,7 @@ class Signer : public ExtensionDialog {
 				continue;
 			}
 			std::vector<unsigned char> cert = manager->getSignCert();
-			std::string certHash = std::string(BinaryUtils::bin2hex(BinaryUtils::md5(cert)));
+			std::string certHash = BinaryUtils::bin2hex(BinaryUtils::md5(cert));
 			if (certHash == certId && currentTime <= manager->getValidTo()) {
 				_log("Got readerId %i from certId ", token, certId.c_str());
 				FREE_MANAGER;

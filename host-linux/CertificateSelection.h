@@ -65,8 +65,8 @@ class CertificateSelection : public ExtensionDialog {
 			CleverCardManager *manager = cardManager->getManagerForReader(readerId);
 			std::vector<unsigned char> cert = manager->getSignCert();
 
-			std::string certHex = std::string(BinaryUtils::bin2hex(cert));
-			std::string md5hex = std::string(BinaryUtils::bin2hex(BinaryUtils::md5(cert)));
+			std::string certHex = BinaryUtils::bin2hex(cert);
+			std::string md5hex = BinaryUtils::bin2hex(BinaryUtils::md5(cert));
 			_log("cert binary size = %i md5 = %s", cert.size(), md5hex.c_str());
 			jsonxx::Object json;
 			json << "id" << md5hex <<

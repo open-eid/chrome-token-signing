@@ -18,6 +18,8 @@
 
 #include "PinString.h"
 
+#include <vector>
+
 class CardManager {
  public:
 	virtual std::vector<unsigned int> getAvailableTokens() {return std::vector<unsigned int>();}

@@ -11,14 +11,15 @@
 #ifndef BINARYUTILITY_H
 #define	BINARYUTILITY_H
 
+#include <string>
 #include <vector>
 
 namespace BinaryUtils {
-  unsigned char *hex2bin(const char *hex);
-  char *bin2hex(std::vector<unsigned char> bin);
-  unsigned char *intToBytesLittleEndian(int number);
+    std::vector<unsigned char> hex2bin(const char *hex);
+    std::string bin2hex(const std::vector<unsigned char> &bin);
+    unsigned char *intToBytesLittleEndian(int number);
 	void cp1250_to_utf8(char *out, char *in);
-	std::vector<unsigned char> md5(std::vector<unsigned char> data);
+	std::vector<unsigned char> md5(const std::vector<unsigned char> &data);
 };
 
 #endif	/* BINARYUTILITY_H */

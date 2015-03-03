@@ -19,35 +19,27 @@
 
 using namespace std;
 
-unsigned char *BinaryUtils::hex2bin(const char *hex) {
-  int binLength;
-  unsigned char *bin;
-  unsigned char *c;
-  char *h;
-  int i = 0;
+vector<unsigned char> BinaryUtils::hex2bin(const char *hex) {
+  if (strlen(hex) % 2 == 1)
+      throw runtime_error("Hex is incorrect");
 
-  if (strlen(hex) % 2 == 1) throw runtime_error("Hex is incorrect");
-
-  binLength = strlen(hex) / 2;
-  bin = (unsigned char *) malloc(binLength);
-  c = bin;
-  h = (char *) hex;
+  vector<unsigned char> bin(strlen(hex) / 2, 0);
+  unsigned char *c = &bin[0];
+  const char *h = hex;
   while (*h) {
     int x;
     sscanf(h, "%2X", &x);
     *c = x;
     c++;
     h += 2;
-    i++;
   }
   return bin;
 }
 
-char *BinaryUtils::bin2hex(std::vector<unsigned char> bin) {
-  int j;
-  char *hex = (char *) malloc(bin.size() * 2 + 1);
-  for (j = 0; j < bin.size(); j++) sprintf(hex + (j * 2), "%02X", (unsigned char) bin.at(j));
-  hex[bin.size() * 2] = '\0';
+string BinaryUtils::bin2hex(const vector<unsigned char> &bin) {
+  string hex(bin.size() * 2, 0);
+  for (int j = 0; j < bin.size(); ++j)
+    sprintf(&hex[j * 2], "%02X", (unsigned char) bin.at(j));
   return hex;
 }
 
@@ -67,8 +59,8 @@ void BinaryUtils::cp1250_to_utf8(char *out, char *in) {
   iconv_close(conv);
 }
 
-std::vector<unsigned char> BinaryUtils::md5(std::vector<unsigned char> data) {
-  unsigned char checksum[16];
-  MD5(&data[0], data.size(), checksum);
-  return std::vector<unsigned char>(&checksum[0], checksum + 16);
+vector<unsigned char> BinaryUtils::md5(const vector<unsigned char> &data) {
+  vector<unsigned char> checksum(16, 0);
+  MD5(&data[0], data.size(), &checksum[0]);
+  return checksum;
 }
