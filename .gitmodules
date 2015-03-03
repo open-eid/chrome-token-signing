@@ -1,5 +1,5 @@
 [submodule "json"]
-	path = json
+	path = host-shared/json
 	url = https://github.com/hjiang/jsonxx
 [submodule "googlemock"]
 	path = googlemock
