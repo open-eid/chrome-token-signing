@@ -11,7 +11,7 @@ Note: currently only supports Linux (Debian derivatives).
 
 1. Install dependencies
 
-        sudo apt-get install libgtkmm-3.0-dev libssl-dev
+        sudo apt-get install libgtkmm-3.0-dev libssl-dev Xvfb google-chrome
 
 2. Fetch the source
 
@@ -36,3 +36,4 @@ Note: currently only supports Linux (Debian derivatives).
 Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds.
 
 Source code is provided on "as is" terms with no warranty (see license for more information). Do not file Github issues with generic support requests.
+Contact for assistance by email abi@id.ee or http://www.id.ee
