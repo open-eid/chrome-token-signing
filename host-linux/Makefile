@@ -1,0 +1,32 @@
+EXE = out/chrome-token-signing
+
+COPT = -O2
+CXX = g++
+INCLUDES := -I. -I../host-shared -I../host-shared/json -I../host-shared/pkcs11  `pkg-config --cflags openssl` `pkg-config --cflags gtk+-3.0` `pkg-config --cflags gtkmm-3.0`
+LIBS := -ldl -pthread `pkg-config --libs gtk+-3.0` `pkg-config --libs gtkmm-3.0` `pkg-config --libs openssl`
+CPPFLAGS := $(COPT) -g $(INCLUDES) -pthread -D_GLIBCXX_USE_NANOSLEEP -std=c++11
+LDFLAGS := $(LIBPATH) -g $(LIBS)
+
+
+SOURCES = CertDialog.cpp chrome-host.cpp PinDialog.cpp
+SOURCES += ../host-shared/BinaryUtils.cpp ../host-shared/InputParser.cpp ../host-shared/locked_allocator.cpp ../host-shared/DateUtils.cpp ../host-shared/Labels.cpp ../host-shared/Logger.cpp
+
+
+OBJS = $(patsubst %.cpp,%.o, $(SOURCES)) ../host-shared/json/jsonxx.o
+
+#%.o:%.cpp
+#	@echo Compiling $(basename $<)...
+#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(PP) $< -o $@ 
+
+all: $(JSON_OBJS) $(OBJS)
+	mkdir -p out
+	@echo Linking...
+	$(CXX) $(LDFLAGS) $^ $(LIBS) -o $(EXE)
+	
+clean:
+	rm -rf $(EXE) *.o ../host-shared/*.o
+
+install:
+	cp $(EXE) /usr/bin
+	mkdir -p /etc/opt/chrome/native-messaging-hosts
+	cp ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/
