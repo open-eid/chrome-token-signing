@@ -25,8 +25,8 @@
 class Labels {
  private:
 	int selectedLanguage;
-	std::map<std::string,std::string[3]> labels;
-	std::map<int,std::string[3]> errors;
+	std::map<std::string,std::vector<std::string> > labels;
+	std::map<int,std::vector<std::string> > errors;
 	std::map<std::string, int> languages;
 	void init();
 
