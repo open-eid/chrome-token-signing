@@ -17,5 +17,5 @@
         "persistent": false
     },
     "web_accessible_resources": ["page.js"],
-    "permissions": ["nativeMessaging", ]
+    "permissions": ["nativeMessaging"]
 }
