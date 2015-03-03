@@ -13,7 +13,7 @@
 #include <dlfcn.h>
 #include "Logger.h"
 #include "DateUtils.h"
-#include <asn1.h>
+#include <openssl/asn1.h>
 #include "error.h"
 #include "BinaryUtils.h"
 
