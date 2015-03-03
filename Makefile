@@ -8,3 +8,6 @@ Linux:
 
 Darwin:
 	make -C host-osx
+
+clean:
+	rm *.crx
