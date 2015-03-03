@@ -4,7 +4,7 @@ detect:
 	make $(UNAME)
 
 Linux:
-	/usr/bin/google-chrome --pack-extension=extension --pack-extension-key=development-key.pem
+	xvfb-run /usr/bin/google-chrome --pack-extension=extension --pack-extension-key=development-key.pem
 	make -C host-linux
 
 Darwin:
