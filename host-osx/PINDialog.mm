@@ -31,7 +31,7 @@
 
 + (NSDictionary *)show:(NSDictionary*)params
 {
-    PKCS11CardManager manager;
+    PKCS11CardManager manager(PKCS11_MODULE);
     time_t currentTime = DateUtils::now();
     std::unique_ptr<PKCS11CardManager> selected;
     for (auto &token : manager.getAvailableTokens()) {

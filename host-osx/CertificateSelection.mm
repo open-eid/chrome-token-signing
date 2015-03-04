@@ -30,7 +30,7 @@
     CertificateSelection *dialog = [[CertificateSelection alloc] init];
     dialog->certificates = [[NSMutableArray alloc] init];
 
-    PKCS11CardManager manager;
+    PKCS11CardManager manager(PKCS11_MODULE);
     time_t currentTime = DateUtils::now();
     for (auto &token : manager.getAvailableTokens()) {
         CardManager *local = manager.getManagerForReader(token);

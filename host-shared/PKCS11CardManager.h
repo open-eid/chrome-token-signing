@@ -34,7 +34,7 @@ class PKCS11CardManager : public CardManager {
 	CK_TOKEN_INFO tokenInfo;
 	std::vector<unsigned char> signCert;
 
-	void *loadModule(std::string moduleName) {
+	void *loadModule(const std::string &moduleName) {
 		void *library = dlopen(moduleName.c_str(), RTLD_LOCAL | RTLD_NOW);
 		if (!library) {
 			_log("Failed to load module: ", moduleName.c_str());
@@ -149,8 +149,8 @@ class PKCS11CardManager : public CardManager {
 		session = 0;
 	}
 
-	PKCS11CardManager() {
-		library = loadModule("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
+    PKCS11CardManager(const std::string &module) {
+		library = loadModule(module);
 		fl->C_Initialize(NULL_PTR);
 		initSlotIDs();
 		session = 0;
