@@ -1,6 +1,6 @@
 {
     "name": "Token signing",
-    "version": "0.0.2",
+    "version": "0.0.4",
     "manifest_version": 2,
     "description": "Use your smart card on the web",
     "icons": {
@@ -17,7 +17,7 @@
         "persistent": false
     },
     "web_accessible_resources": ["page.js"],
-    "permissions": ["nativeMessaging"],
-    // development-key.pem
-    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtG/zGKgsKHiYuCdVLpi9401upTKvLgM9AF8dkQTpNtJRVFVchwaw6UaRkG8fmOXPDWei1Bi88QBHZN6dWLre8edLH0soahoYSduKVGToklUNdf4v1qjdTrjDwhtWeI7GFAynywLb6pFD6KKObysZvdxxLsM5xjWM11VFdp+3p2M65mqEWJiii9K/2ZV76R1BBPrbnxAXFTr0gG/9zuN88xUUBlhlxRO6Jv6Kyex/4/+474o56frcziRPVGCKzdiruajHGabyP4vGFNB7dWe0rMysdnvadUoApnEVyC2kY15G5D9ELjQSVMlq9axJnAdfqS5WnLtLvP2UQ4Yu7gIVbwIDAQAB"
+    "permissions": ["nativeMessaging"]
+    // Uncomment when in developer mode and loading unpacked extension
+    // ,"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyt8re1RtbobElTNUxQIO9RnOV2JTtzCSMNSfTPAIOONRcOi9WET9NcwoVtplQYjbFiBXHMtI/A0agm/GHY70o4d8HxCSJOm1zuPc+PQ2hS9oxzuPfAUqXGpZQLdm1Lub7NGlFALyfaUzqg193TojMGF7cBPWoMAj7mnDq5LiHEI3vanAQQ3gG8CHO1oXMlpJCj8CpxLozYOA+iFw+B1qRSiBLGPaPwyF27DGVkgH+Ue30faRgO2EstePFC6crSzGALFRmftNUR1N+6imtMJzx7EbTsMbiqd7hCN+EzRVkvE3hHGaSvcC0tRe3jOgbqQEp4bCpxIHg1QsGmtWDyKWaQIDAQAB"
 }
