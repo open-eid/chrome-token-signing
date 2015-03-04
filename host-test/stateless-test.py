@@ -15,7 +15,10 @@ exe = None
 # https://github.com/open-eid/chrome-token-signing/wiki/NativeMessagingAPI
 
 
-class TestSequenceFunctions(unittest.TestCase):
+def instruct(msg):
+    raw_input('>>>>>> %s\n[press ENTER to continue]' % msg)
+
+class TestStatelessHost(unittest.TestCase):
 
   def tranceive(self, msg):
     # send like described in 
@@ -32,8 +35,9 @@ class TestSequenceFunctions(unittest.TestCase):
 
   def complete_msg(self, msg):
       msg["nonce"] = str(uuid.uuid4())
-      msg["lang"] = "eng"
-      msg["protocol"] = "https:"
+      msg["lang"] = "en"
+      msg["origin"] = "https://example.com/test"
+#     msg["protocol"] = "https:"
       return msg
   
   def setUp(self):
@@ -43,11 +47,12 @@ class TestSequenceFunctions(unittest.TestCase):
   
   def test_random_string(self):
       cmd = "BLAH"
-      self.tranceive(cmd)
+      resp = self.tranceive(cmd)
+      self.assertEquals(resp["result"], "invalid_argument")
   
   def test_utopic_length(self):
       self.p.stdin.write(struct.pack("=I", 0xFFFFFFFE))
-      response_length = struct.unpack("=I", self.p.stdout.read(4))[0]    
+      # response_length = struct.unpack("=I", self.p.stdout.read(4))[0]
   
   def test_nonce_echo(self):
       cmd = self.complete_msg({"type": "VERSION"})
@@ -61,9 +66,37 @@ class TestSequenceFunctions(unittest.TestCase):
       self.assertTrue(resp["version"] == "LOCAL_BUILD" or re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
   
   def test_get_certificate_cancel(self):
-      print "PRESS CANCEL IN THE DIALOG"
+      instruct('Insert card and press CANCEL in dialog')
       cmd = json.dumps(self.complete_msg({"type":"CERT"}))
       resp = self.tranceive(cmd)
+      self.assertEquals(resp["result"], "user_cancel")
+
+  def test_get_certificate_error(self):
+      instruct('Insert card and try to REMOVE it while reading the certificate')
+      cmd = json.dumps(self.complete_msg({"type":"CERT"}))
+      resp = self.tranceive(cmd)
+      self.assertEquals(resp["result"], "technical_error")
+
+  def test_get_certificate_ok(self):
+      instruct('Insert card and select certificate')
+      cmd = json.dumps(self.complete_msg({"type":"CERT"}))
+      resp = self.tranceive(cmd)
+      self.assertEquals(resp["result"], "ok")
+
+  def test_get_certificate_none(self):
+      instruct('Remove card from reader')
+      cmd = json.dumps(self.complete_msg({"type":"CERT"}))
+      resp = self.tranceive(cmd)
+      self.assertEquals(resp["result"], "no_certificates")
+
+
+  def test_get_certificate_none(self):
+      instruct('Remove reader')
+      cmd = json.dumps(self.complete_msg({"type":"CERT"}))
+      resp = self.tranceive(cmd)
+      self.assertEquals(resp["result"], "no_certificates")
+      
+      
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
