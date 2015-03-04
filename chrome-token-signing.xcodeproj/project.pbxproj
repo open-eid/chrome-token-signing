@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		4E2028281AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json in Resources */ = {isa = PBXBuildFile; fileRef = 4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */; };
+		4E20282B1AA74A6A00AB9BDC /* Labels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2028291AA74A6A00AB9BDC /* Labels.cpp */; };
+		4E20282D1AA74E0800AB9BDC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E20282C1AA74E0800AB9BDC /* Cocoa.framework */; };
 		4E46FD221A979DA400D0F3C8 /* PINDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */; };
 		4E46FD241A979DA400D0F3C8 /* PINPadDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */; };
 		4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E46FD251A97A07000D0F3C8 /* PINDialog.mm */; };
 		4E46FD361A9B423800D0F3C8 /* locked_allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */; };
-		4E532D0B1A96393D00D28E40 /* chrome-host.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D091A96393D00D28E40 /* chrome-host.m */; };
+		4E532D0B1A96393D00D28E40 /* chrome-host.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D091A96393D00D28E40 /* chrome-host.mm */; };
 		4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E532D0C1A96399600D28E40 /* CertificateSelection.xib */; };
 		4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */; };
 		4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D1B1A96843700D28E40 /* libcrypto.dylib */; };
@@ -24,6 +26,9 @@
 
 /* Begin PBXFileReference section */
 		4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ckjefchnfjhjfedoccjbhjpbncimppeg.json; sourceTree = SOURCE_ROOT; };
+		4E2028291AA74A6A00AB9BDC /* Labels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Labels.cpp; sourceTree = "<group>"; };
+		4E20282A1AA74A6A00AB9BDC /* Labels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Labels.h; sourceTree = "<group>"; };
+		4E20282C1AA74E0800AB9BDC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINDialog.xib; sourceTree = "<group>"; };
 		4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINPadDialog.xib; sourceTree = "<group>"; };
 		4E46FD251A97A07000D0F3C8 /* PINDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PINDialog.mm; sourceTree = "<group>"; };
@@ -33,7 +38,7 @@
 		4E490EC21A9DF45E00309C5B /* ee.ria.esteid.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ee.ria.esteid.json; sourceTree = "<group>"; };
 		4E532CE01A96379500D28E40 /* chrome-token-signing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "chrome-token-signing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E532D081A96393D00D28E40 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "host-osx/Info.plist"; sourceTree = SOURCE_ROOT; };
-		4E532D091A96393D00D28E40 /* chrome-host.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "chrome-host.m"; sourceTree = "<group>"; };
+		4E532D091A96393D00D28E40 /* chrome-host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "chrome-host.mm"; sourceTree = "<group>"; };
 		4E532D0C1A96399600D28E40 /* CertificateSelection.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CertificateSelection.xib; sourceTree = "<group>"; };
 		4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CertificateSelection.mm; sourceTree = "<group>"; };
 		4E532D101A963AEF00D28E40 /* CertificateSelection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CertificateSelection.h; sourceTree = "<group>"; };
@@ -57,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E20282D1AA74E0800AB9BDC /* Cocoa.framework in Frameworks */,
 				4E532D271A97943400D28E40 /* libiconv.dylib in Frameworks */,
 				4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */,
 			);
@@ -68,11 +74,12 @@
 		4E46FD371A9B546700D0F3C8 /* Host-shared */ = {
 			isa = PBXGroup;
 			children = (
-				4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */,
 				4E532D241A97941800D28E40 /* BinaryUtils.h */,
 				4E532D231A97941800D28E40 /* BinaryUtils.cpp */,
 				4E532D1E1A96846900D28E40 /* DateUtils.h */,
 				4E532D1D1A96846900D28E40 /* DateUtils.cpp */,
+				4E20282A1AA74A6A00AB9BDC /* Labels.h */,
+				4E2028291AA74A6A00AB9BDC /* Labels.cpp */,
 				4E46FD351A9B423800D0F3C8 /* locked_allocator.h */,
 				4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */,
 				4E532D211A96848400D28E40 /* Logger.h */,
@@ -108,7 +115,7 @@
 				4E532D101A963AEF00D28E40 /* CertificateSelection.h */,
 				4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */,
 				4E532D0C1A96399600D28E40 /* CertificateSelection.xib */,
-				4E532D091A96393D00D28E40 /* chrome-host.m */,
+				4E532D091A96393D00D28E40 /* chrome-host.mm */,
 				4E46FD271A97A08600D0F3C8 /* PINDialog.h */,
 				4E46FD251A97A07000D0F3C8 /* PINDialog.mm */,
 				4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */,
@@ -122,6 +129,7 @@
 		4E532CE31A96379500D28E40 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				4E20282C1AA74E0800AB9BDC /* Cocoa.framework */,
 				4E532D261A97943400D28E40 /* libiconv.dylib */,
 				4E532D1B1A96843700D28E40 /* libcrypto.dylib */,
 				4E532D081A96393D00D28E40 /* Info.plist */,
@@ -132,6 +140,7 @@
 		4E532D111A96421900D28E40 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */,
 				4E532D121A96421900D28E40 /* background.js */,
 				4E532D131A96421900D28E40 /* content.js */,
 				4E532D141A96421900D28E40 /* manifest.json */,
@@ -243,7 +252,8 @@
 				4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */,
 				4E532D1F1A96846900D28E40 /* DateUtils.cpp in Sources */,
 				4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */,
-				4E532D0B1A96393D00D28E40 /* chrome-host.m in Sources */,
+				4E532D0B1A96393D00D28E40 /* chrome-host.mm in Sources */,
+				4E20282B1AA74A6A00AB9BDC /* Labels.cpp in Sources */,
 				4E532D221A96848400D28E40 /* Logger.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

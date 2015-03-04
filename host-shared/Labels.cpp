@@ -19,7 +19,7 @@ Labels::Labels() {
     selectedLanguage = languages.at("et");
 }
 
-void Labels::setLanguage(string language) {
+void Labels::setLanguage(const string &language) {
   selectedLanguage = languages.at(language);
 }
 
@@ -54,7 +54,7 @@ void Labels::init() {
   };
 }
 
-string Labels::get(string labelKey) {
+string Labels::get(const string &labelKey) {
   return labels.at(labelKey)[selectedLanguage];
 }
 

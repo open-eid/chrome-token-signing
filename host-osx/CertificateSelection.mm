@@ -53,7 +53,7 @@
     }
 
     if (dialog->certificates.count == 0) {
-        return @{@"returnCode": @CERT_NOT_FOUND, @"message": @"Certificates not found"};
+        return @{@"result": @"no_certificates"};
     }
 
     [NSBundle loadNibNamed:@"CertificateSelection" owner:dialog];
@@ -65,9 +65,9 @@
     [NSApp activateIgnoringOtherApps:YES];
     if ([NSApp runModalForWindow:dialog->certificateSelectionPanel] == NSModalResponseAbort ||
         dialog->certificateSelection.selectedRow == -1) {
-        return @{@"returnCode": @USER_CANCEL, @"message": @"Cancel"};
+        return @{@"result": @"user_cancel"};
     }
-    return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
+    return @{@"result": @"ok", @"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
 }
 
 - (IBAction)okClicked:(id)sender

@@ -8,10 +8,9 @@
  * Version 2.1, February 1999
  */
 
-#import <Cocoa/Cocoa.h>
-
 #import "CertificateSelection.h"
 #import "PINDialog.h"
+#import "Labels.h"
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
@@ -22,9 +21,9 @@ int main(int argc, const char * argv[]) {
         NSFileHandle* input = [NSFileHandle fileHandleWithStandardInput];
         [input waitForDataInBackgroundAndNotify];
         NSNotificationCenter *dc = [NSNotificationCenter defaultCenter];
-        [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification* note) {
+        [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification *note) {
             NSData *data = [input availableData];
-            if ([data length] > 0) {
+            if (data.length > 0) {
                 uint32_t size = 0;
                 [data getBytes:&size length:sizeof(size)];
                 size = CFSwapInt32LittleToHost(size);
@@ -38,16 +37,21 @@ int main(int argc, const char * argv[]) {
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
                 NSString *nonce = dict[@"nonce"];
                 if (error) {
-                    dict = @{@"returnCode": @5, @"message": error.localizedDescription};
+                    dict = @{@"result": @"invalid_argument", @"message": error.localizedDescription};
                 }
-                else if ([@"VERSION" isEqualToString:dict[@"type"]]) {
-                    dict = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};
-                }
-                else if([@"CERT" isEqualToString:dict[@"type"]]) {
-                    dict = [CertificateSelection show];
-                }
-                else if ([@"SIGN" isEqualToString:dict[@"type"]]) {
-                    dict = [PINPanel show:dict];
+                else {
+                    if (dict[@"lang"]) {
+                        l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
+                    }
+                    if ([@"VERSION" isEqualToString:dict[@"type"]]) {
+                        dict = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};
+                    }
+                    else if([@"CERT" isEqualToString:dict[@"type"]]) {
+                        dict = [CertificateSelection show];
+                    }
+                    else if ([@"SIGN" isEqualToString:dict[@"type"]]) {
+                        dict = [PINPanel show:dict];
+                    }
                 }
                 NSMutableDictionary *resp = [NSMutableDictionary dictionaryWithDictionary:dict];
                 if (nonce) {

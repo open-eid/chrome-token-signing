@@ -51,12 +51,12 @@
     }
 
     if (!selected) {
-        return @{@"returnCode": @CERT_NOT_FOUND, @"message": @"Cert not found"};
+        return @{@"result": @"invalid_arguments"};
     }
 
     int retriesLeft = selected->getPIN2RetryCount();
     if (retriesLeft == 0) {
-        return @{@"returnCode": @UNKNOWN_ERROR, @"message": @"PIN blocked"};
+        return @{@"result": @"pin_blocked"};
     }
 
     std::vector<unsigned char> signature;
@@ -104,7 +104,7 @@
     }
 
     if (result == NSModalResponseAbort) {
-        return @{@"returnCode": @USER_CANCEL, @"message": @"Cancel"};
+        return @{@"result": @"user_cancel"};
     }
 
     if (!selected->isPinpad()) {
@@ -113,7 +113,7 @@
             PinString(dialog->pinField.stringValue.UTF8String));
     }
 
-    return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+    return @{@"result": @"ok", @"signature":@(BinaryUtils::bin2hex(signature).c_str())};
 }
 
 - (IBAction)okClicked:(id)sender

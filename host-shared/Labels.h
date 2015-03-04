@@ -32,8 +32,8 @@ class Labels {
 
  public:
   Labels();
-	void setLanguage(std::string language);
-	std::string get(std::string labelKey);
+	void setLanguage(const std::string &language);
+	std::string get(const std::string &labelKey);
 	std::string getError(int errorCode);
 };
 
