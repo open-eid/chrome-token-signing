@@ -1,0 +1,5 @@
+{
+    // See https://developer.chrome.com/extensions/external_extensions
+    "external_crx": "/usr/share/chrome-token-signing/extension.crx",
+    "external_version": "0.0.2"
+}
