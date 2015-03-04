@@ -28,7 +28,7 @@ class CertificateSelection : public ExtensionDialog {
 		cardManager = NULL;
 		dialog = NULL;
 #ifndef _TEST
-		cardManager = new PKCS11CardManager();
+		cardManager = new PKCS11CardManager(PKCS11_MODULE);
 		dialog = new CertDialog();
 #endif
 	}

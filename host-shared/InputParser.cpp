@@ -31,7 +31,7 @@ Object InputParser::readBody() {
 
   string message(messageLength, 0);
   inputStream.read(&message[0], messageLength);
-  _log("read message(%i): %s", messageLength, message);
+  _log("read message(%i): %s", messageLength, message.c_str());
   Object json;
   json.parse(message);
   return json;

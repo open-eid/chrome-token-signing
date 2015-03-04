@@ -76,7 +76,7 @@ class Signer : public ExtensionDialog {
 		cardManager = NULL;
 		pinDialog = NULL;
 #ifndef _TEST
-		cardManager = new PKCS11CardManager();
+		cardManager = new PKCS11CardManager(PKCS11_MODULE);
 #endif
 	}
 
