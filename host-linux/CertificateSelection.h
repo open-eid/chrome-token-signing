@@ -65,21 +65,9 @@ class CertificateSelection : public ExtensionDialog {
 			CleverCardManager *manager = cardManager->getManagerForReader(readerId);
 			std::vector<unsigned char> cert = manager->getSignCert();
 
-			std::string certHex = BinaryUtils::bin2hex(cert);
-			std::string md5hex = BinaryUtils::bin2hex(BinaryUtils::md5(cert));
-			_log("cert binary size = %i md5 = %s", cert.size(), md5hex.c_str());
+			_log("cert binary size = %i", cert.size());
 			jsonxx::Object json;
-			json << "id" << md5hex <<
-					"cert" << certHex <<
-					"validFrom" << DateUtils::timeToString(manager->getValidFrom()) <<
-					"validTo" << DateUtils::timeToString(manager->getValidTo()) <<
-					"CN" << manager->getCN() <<
-					"type" << manager->getType() <<
-					"keyUsage" << manager->getKeyUsage() <<
-					"issuerCN" << manager->getIssuerCN() <<
-					"certSerialNumber" << manager->getCertSerialNumber() <<
-					"certificateAsHex" << certHex;
-
+			json <<	"cert" << BinaryUtils::bin2hex(cert);
 			FREE_MANAGER;
 			return json;
 		} catch (std::runtime_error &e) {

@@ -48,9 +48,9 @@ int main(int argc, char **argv) {
 
     if (type == "SIGN") {
       string hashFromStdIn = json.get<String>("hash");
-      string certId = json.get<String>("id");
-      _log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), certId.c_str());
-      Signer signer(hashFromStdIn, certId);
+      string cert = json.get<String>("cert");
+      _log("signing hash: %s, with cert: %s", hashFromStdIn.c_str(), cert.c_str());
+      Signer signer(hashFromStdIn, cert);
       response = signer.sign().json();
     } else if (type == "CERT") {
       CertificateSelection cert;

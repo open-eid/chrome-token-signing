@@ -38,7 +38,7 @@ typedef PKCS11CardManager CleverCardManager;
 class Signer : public ExtensionDialog {
  private:
 	std::string hash;
-	std::string certId;
+	std::string cert;
 	PinDialog *pinDialog;
 
 	void checkReaders() {
@@ -72,7 +72,7 @@ class Signer : public ExtensionDialog {
 
  public:
 
-	Signer(std::string hash, std::string certId) : hash(hash), certId(certId) {
+	Signer(std::string hash, std::string cert) : hash(hash), cert(cert) {
 		cardManager = NULL;
 		pinDialog = NULL;
 #ifndef _TEST
@@ -81,7 +81,7 @@ class Signer : public ExtensionDialog {
 	}
 
 	//Used for testing
-	Signer(std::string hash, std::string certId, PinDialog *dialog, CleverCardManager *manager) : hash(hash), certId(certId) {
+	Signer(std::string hash, std::string cert, PinDialog *dialog, CleverCardManager *manager) : hash(hash), cert(cert) {
 		cardManager = manager;
 		pinDialog = dialog;
 	}
@@ -186,10 +186,9 @@ class Signer : public ExtensionDialog {
 				FREE_MANAGER;
 				continue;
 			}
-			std::vector<unsigned char> cert = manager->getSignCert();
-			std::string certHash = BinaryUtils::bin2hex(BinaryUtils::md5(cert));
-			if (certHash == certId && currentTime <= manager->getValidTo()) {
-				_log("Got readerId %i from certId ", token, certId.c_str());
+			std::vector<unsigned char> certbin = manager->getSignCert();
+			if (certbin == BinaryUtils::hex2bin(cert.c_str()) && currentTime <= manager->getValidTo()) {
+				_log("Got readerId %i from certId ", token);
 				FREE_MANAGER;
 				return token;
 			}
