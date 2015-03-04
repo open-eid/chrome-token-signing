@@ -10,12 +10,11 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "jsonxx.h"
 
-namespace BinaryUtils {
-    std::vector<unsigned char> hex2bin(const char *hex);
-    std::string bin2hex(const std::vector<unsigned char> &bin);
-    unsigned char *intToBytesLittleEndian(int number);
+class CertificateSelection {
+  public:
+
+	  CertificateSelection() {}
+	  jsonxx::Object getCert(); 
 };
-

@@ -10,12 +10,16 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "jsonxx.h"
 
-namespace BinaryUtils {
-    std::vector<unsigned char> hex2bin(const char *hex);
-    std::string bin2hex(const std::vector<unsigned char> &bin);
-    unsigned char *intToBytesLittleEndian(int number);
+
+class Signer {
+public:
+	Signer(const std::string &_hash, const std::string &_certInHex) : hash(_hash), certInHex(_certInHex) {
+	}
+	jsonxx::Object sign();
+
+private:
+	std::string hash;
+	std::string certInHex;
 };
-

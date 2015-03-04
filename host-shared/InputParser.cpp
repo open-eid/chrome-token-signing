@@ -10,6 +10,7 @@
 
 #include "InputParser.h"
 #include "Logger.h"
+#include <stdexcept>
 
 using namespace std;
 using namespace jsonxx;
@@ -23,9 +24,13 @@ InputParser::~InputParser() {
 Object InputParser::readBody() {
   int messageLength = this->readMessageLengthFromStream();
   
-  char message[messageLength + 1];
-  inputStream.read(message, messageLength);
-  message[messageLength] = '\0';
+  if (messageLength > 1024*8)
+  {
+	  throw std::runtime_error("Invalid message length " + to_string(messageLength));
+  }
+
+  string message(messageLength, 0);
+  inputStream.read(&message[0], messageLength);
   _log("read message(%i): %s", messageLength, message);
   Object json;
   json.parse(message);

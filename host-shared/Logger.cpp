@@ -16,11 +16,11 @@ using namespace std;
 void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, string message, ...) {
   va_list args;
 
-  if (access(getLogFileName().c_str(), W_OK) == -1) {
-    return;
-  }
-
   FILE *log = fopen(getLogFileName().c_str(), "a");
+  if (!log) 
+  {
+	  return;
+  }
 
   string logLinePrefix = logLine(functionName, fileName, lineNumber);
   fprintf(log, "%s ", logLinePrefix.c_str());
@@ -34,7 +34,10 @@ void Logger::writeLog(const char *functionName, const char *fileName, int lineNu
 
 string Logger::logLine(const char *functionName, const char *fileName, int lineNumber) {
   stringstream s;
-  s << "[" << getpid() << "] " << functionName << "() [" << fileName << ":" << lineNumber << "]";
+#ifndef _WIN32
+  s << "[" << getpid() << "] ";
+#endif
+  s << functionName << "() [" << fileName << ":" << lineNumber << "]";
   return s.str();
 }
 

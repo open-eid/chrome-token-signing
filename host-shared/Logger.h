@@ -15,7 +15,9 @@
 #include <stdio.h>
 #include <string>
 #include <cstdarg>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 namespace Logger {
   void writeLog(const char *functionName, const char *fileName, int lineNumber, std::string message, ...);
@@ -29,7 +31,7 @@ namespace Logger {
 #elif (defined(__GNUC__) && __GNUC__ >= 3)
 #define _log(...) Logger::writeLog(__FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
 #else
-#define _log(...) Logger::writeLog(NULL, NULL, -1, ...)
+#define _log(...) Logger::writeLog(__FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
 #endif
 
 #define FLOG _log("");
