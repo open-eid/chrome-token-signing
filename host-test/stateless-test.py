@@ -4,6 +4,7 @@ import struct
 import sys
 import unittest
 import uuid
+import re
 
 exe = None
 
@@ -57,7 +58,7 @@ class TestSequenceFunctions(unittest.TestCase):
   def test_version(self):
       cmd = json.dumps(self.complete_msg({"type":"VERSION"}))
       resp = self.tranceive(cmd)
-      self.assertEqual(resp["version"], "LOCAL_BUILD")
+      self.assertTrue(resp["version"] == "LOCAL_BUILD" or re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
   
   def test_get_certificate_cancel(self):
       print "PRESS CANCEL IN THE DIALOG"
