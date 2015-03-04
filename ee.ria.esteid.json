@@ -4,6 +4,6 @@
     "path": "/usr/bin/chrome-token-signing",
     "type": "stdio",
     "allowed_origins": [
-        "chrome-extension://knbfaekihfoeoceefceadfonbmgpfeok/"
+        "chrome-extension://khfddlogkhfiapdjecpniledepbhppam/" // development-key.pem
     ]
 }

@@ -17,5 +17,7 @@
         "persistent": false
     },
     "web_accessible_resources": ["page.js"],
-    "permissions": ["nativeMessaging"]
+    "permissions": ["nativeMessaging"],
+    // development-key.pem
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtG/zGKgsKHiYuCdVLpi9401upTKvLgM9AF8dkQTpNtJRVFVchwaw6UaRkG8fmOXPDWei1Bi88QBHZN6dWLre8edLH0soahoYSduKVGToklUNdf4v1qjdTrjDwhtWeI7GFAynywLb6pFD6KKObysZvdxxLsM5xjWM11VFdp+3p2M65mqEWJiii9K/2ZV76R1BBPrbnxAXFTr0gG/9zuN88xUUBlhlxRO6Jv6Kyex/4/+474o56frcziRPVGCKzdiruajHGabyP4vGFNB7dWe0rMysdnvadUoApnEVyC2kY15G5D9ELjQSVMlq9axJnAdfqS5WnLtLvP2UQ4Yu7gIVbwIDAQAB"
 }
