@@ -22,8 +22,9 @@ class TestStatelessHost(unittest.TestCase):
 
   def open_conn(self):
       global exe
-      self.p = subprocess.Popen(exe, stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=True, stderr=None)
-      print "Running native component on PID %d" % self.p.pid
+      should_close_fds = sys.platform.startswith('win32') == False;
+      self.p = subprocess.Popen(exe, stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
+      print ("Running native component on PID %d" % self.p.pid)
   
   def close_conn(self):
       self.p.wait()
@@ -34,7 +35,7 @@ class TestStatelessHost(unittest.TestCase):
 
   def transceive(self, msg):
       # send like described in 
-      print "SEND: %s" % msg
+      print ("SEND: %s" % msg)
       self.p.stdin.write(struct.pack("=I", len(msg)))
       self.p.stdin.write(msg)
       # now read the input
@@ -42,7 +43,7 @@ class TestStatelessHost(unittest.TestCase):
       response = str(self.p.stdout.read(response_length))
       # make it into "oneline" json before printing
       response_print = json.dumps(json.loads(response))
-      print "RECV: %s" % response_print
+      print ("RECV: %s" % response_print)
       return json.loads(response)
 
   def complete_msg(self, msg):
@@ -139,12 +140,21 @@ class TestStatelessHost(unittest.TestCase):
       
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-      exe = sys.argv[1]
+    if len(sys.argv) < 2:
+        print ("usage: stateless-test.py <path to executable> <optional: test name>")
+        sys.exit(1)
+    exe = sys.argv[1]
+    if len(sys.argv) == 2:
       # remove argument so that unittest.main() would work as expected
       sys.argv = [sys.argv[0]]
-    else:
-      print "usage: stateless-test.py <path to executable>"
-      sys.exit(1)
-    # run tests
-    unittest.main()
+      # run tests
+      unittest.main();
+    if len(sys.argv) > 2:
+        # Take single test name from arguments
+        singleTestName = sys.argv[2]
+        suite = unittest.TestSuite()
+        suite.addTest(TestStatelessHost(singleTestName))
+        runner = unittest.TextTestRunner()
+        # Run test suite with a single test
+        runner.run(suite)
+    
