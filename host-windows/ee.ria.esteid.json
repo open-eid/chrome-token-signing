@@ -1,0 +1,9 @@
+{
+    "name": "ee.ria.esteid",
+    "description": "Give signatures with your eID on the web",
+    "path": "C:\\Program Files (x86)\\Estonian ID Card\\host-windows.exe",
+    "type": "stdio",
+    "allowed_origins": [
+        "chrome-extension://ckjefchnfjhjfedoccjbhjpbncimppeg/"
+    ]
+}
