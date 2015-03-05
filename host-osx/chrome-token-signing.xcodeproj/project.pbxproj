@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4E2028281AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json in Resources */ = {isa = PBXBuildFile; fileRef = 4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */; };
 		4E20282B1AA74A6A00AB9BDC /* Labels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E2028291AA74A6A00AB9BDC /* Labels.cpp */; };
 		4E20282D1AA74E0800AB9BDC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E20282C1AA74E0800AB9BDC /* Cocoa.framework */; };
 		4E46FD221A979DA400D0F3C8 /* PINDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */; };
@@ -219,7 +218,6 @@
 			files = (
 				4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */,
 				4E46FD241A979DA400D0F3C8 /* PINPadDialog.xib in Resources */,
-				4E2028281AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json in Resources */,
 				4E46FD221A979DA400D0F3C8 /* PINDialog.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
