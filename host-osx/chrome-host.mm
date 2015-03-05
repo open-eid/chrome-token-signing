@@ -43,19 +43,28 @@ int main(int argc, const char * argv[]) {
                     if (dict[@"lang"]) {
                         l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
                     }
-                    if ([@"VERSION" isEqualToString:dict[@"type"]]) {
+                    if ([dict[@"protocol"] isEqualToString:@"https:"]) {
+                        dict = @{@"result": @"not_allowed"};
+                    }
+                    else if ([dict[@"type"] isEqualToString:@"VERSION"]) {
                         dict = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};
                     }
-                    else if([@"CERT" isEqualToString:dict[@"type"]]) {
+                    else if([dict[@"type"] isEqualToString:@"CERT"]) {
                         dict = [CertificateSelection show];
                     }
-                    else if ([@"SIGN" isEqualToString:dict[@"type"]]) {
+                    else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
                         dict = [PINPanel show:dict];
+                    }
+                    else {
+                        dict = @{@"result": @"invalid_argument"};
                     }
                 }
                 NSMutableDictionary *resp = [NSMutableDictionary dictionaryWithDictionary:dict];
                 if (nonce) {
                     resp[@"nonce"] = nonce;
+                }
+                if (!dict[@"result"]) {
+                    resp[@"result"] = @"ok";
                 }
                 data = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
 

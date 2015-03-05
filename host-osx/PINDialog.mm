@@ -113,7 +113,7 @@
             PinString(dialog->pinField.stringValue.UTF8String));
     }
 
-    return @{@"result": @"ok", @"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+    return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
 }
 
 - (IBAction)okClicked:(id)sender

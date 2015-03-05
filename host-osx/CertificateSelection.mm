@@ -30,26 +30,30 @@
     CertificateSelection *dialog = [[CertificateSelection alloc] init];
     dialog->certificates = [[NSMutableArray alloc] init];
 
-    PKCS11CardManager manager(PKCS11_MODULE);
-    time_t currentTime = DateUtils::now();
-    for (auto &token : manager.getAvailableTokens()) {
-        CardManager *local = manager.getManagerForReader(token);
+    try {
+        PKCS11CardManager manager(PKCS11_MODULE);
+        time_t currentTime = DateUtils::now();
+        for (auto &token : manager.getAvailableTokens()) {
+            CardManager *local = manager.getManagerForReader(token);
 
-        if (local->isCardInReader()) {
-            time_t validTo = local->getValidTo();
-            if (currentTime > validTo)
-                continue;
+            if (local->isCardInReader()) {
+                time_t validTo = local->getValidTo();
+                if (currentTime > validTo)
+                    continue;
 
-            std::vector<unsigned char> cert = local->getSignCert();
-            [dialog->certificates addObject: @{
-                @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
-                @"validFrom": @(DateUtils::timeToString(local->getValidFrom()).c_str()),
-                @"validTo": @(DateUtils::timeToString(validTo).c_str()),
-                @"CN": @(local->getCN().c_str()),
-                @"type": @(local->getType().c_str()),
-            }];
+                std::vector<unsigned char> cert = local->getSignCert();
+                [dialog->certificates addObject: @{
+                                                   @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
+                                                   @"validFrom": @(DateUtils::timeToString(local->getValidFrom()).c_str()),
+                                                   @"validTo": @(DateUtils::timeToString(validTo).c_str()),
+                                                   @"CN": @(local->getCN().c_str()),
+                                                   @"type": @(local->getType().c_str()),
+                                                   }];
+            }
+            delete local;
         }
-        delete local;
+    } catch (const std::runtime_error &e) {
+        return @{@"result": @"technical_error", @"message": @(e.what())};
     }
 
     if (dialog->certificates.count == 0) {
@@ -67,7 +71,7 @@
         dialog->certificateSelection.selectedRow == -1) {
         return @{@"result": @"user_cancel"};
     }
-    return @{@"result": @"ok", @"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
+    return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
 }
 
 - (IBAction)okClicked:(id)sender
