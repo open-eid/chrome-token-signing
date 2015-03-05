@@ -8,8 +8,7 @@
 * Version 2.1, February 1999
 */
 
-#ifndef LABELS_H
-#define	LABELS_H
+#pragma once
 
 #define USER_CANCEL 1
 #define READER_NOT_FOUND 5
@@ -25,19 +24,12 @@
 class Labels {
  private:
 	int selectedLanguage;
-	std::map<std::string,std::vector<std::string> > labels;
-	std::map<int,std::vector<std::string> > errors;
-	std::map<std::string, int> languages;
-	void init();
+    std::map<std::string,std::vector<std::string> > labels;
 
  public:
-  Labels();
+    Labels();
 	void setLanguage(const std::string &language);
-	std::string get(const std::string &labelKey);
-	std::string getError(int errorCode);
+    std::string get(const std::string &labelKey) const;
 };
 
 extern Labels l10nLabels;
-
-#endif	/* LABELS_H */
-
