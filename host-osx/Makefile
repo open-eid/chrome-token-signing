@@ -1,18 +1,24 @@
 EXTERNAL_PATH = /Library/Application\ Support/Google/Chrome/External\ Extensions
 NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
+VERSION = 1.0.0
+BUILD_NUMBER = 1
+SIGNCERT = Developer ID Application: Riigi Infosüsteemi Amet
+INSTCERT = Developer ID Installer: Riigi Infosüsteemi Amet
+PROJ = xcodebuild -project chrome-token-signing.xcodeproj VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
 
 all: *.mm
-	xcodebuild -project chrome-token-signing.xcodeproj
-	
+	$(PROJ)
+
 clean:
-	xcodebuild -project chrome-token-signing.xcodeproj clean
+	$(PROJ) clean
 
 install:
-	mkdir -p $(NATIVE_PATH)
-	cp -rv build/Release/chrome-token-signing.app $(NATIVE_PATH)
-	cp -v ee.ria.esteid.json $(NATIVE_PATH)
-	mkdir -p $(EXTERNAL_PATH)
-	cp -v ../ckjefchnfjhjfedoccjbhjpbncimppeg.json $(EXTERNAL_PATH)
+	$(PROJ) DSTROOT=/ install
+
+pkg:
+	$(PROJ) DSTROOT=/tmp/chrome-token-signing.dst install
+	codesign -f -s "$(SIGNCERT)" "/tmp/chrome-token-signing.dst/$(NATIVE_PATH)/chrome-token-signing.app"
+	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing_$(VERSION).$(BUILD_NUMBER).pkg
 
 uninstall:
 	rm -f $(EXTERNAL_PATH)/ckjefchnfjhjfedoccjbhjpbncimppeg.json
