@@ -51,24 +51,8 @@ int main(int argc, char **argv) {
 string handleJsonRequest(Object &json) {
 	jsonxx::Object responseJson;
 	string response;
-	
-	if (json.has<string>("lang")) {
-		//l10nLabels.setLanguage(json.get<string>("lang"));
-	}
 
-
-
-	if (!json.has<string>("protocol")) {
-		responseJson << "returnCode" << 19 << "message" << "HTTPS only allowed";
-		return responseJson.json();
-	}
-	else if (json.get<string>("protocol") != "https:") {
-		//ExtensionDialog dialog;
-		//response = dialog.error(ONLY_HTTPS_ALLOWED).json();
-		responseJson << "returnCode" << 19 << "message" << "HTTPS only allowed";
-		return responseJson.json();
-	}
-	else if (!json.has<string>("type")) {
+	if (!json.has<string>("type")) {
 		responseJson << "returnCode" << 5 << "message" << "TYPE is required";
 		return responseJson.json();
 	}
