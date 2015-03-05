@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <string.h>
-#include <openssl/md5.h>
 
 using namespace std;
 
@@ -37,7 +36,7 @@ vector<unsigned char> BinaryUtils::hex2bin(const char *hex) {
 
 string BinaryUtils::bin2hex(const vector<unsigned char> &bin) {
   string hex(bin.size() * 2, 0);
-  for (int j = 0; j < bin.size(); ++j)
+  for (size_t j = 0; j < bin.size(); ++j)
     sprintf(&hex[j * 2], "%02X", (unsigned char) bin.at(j));
   return hex;
 }
