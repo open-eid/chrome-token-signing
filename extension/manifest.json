@@ -18,6 +18,4 @@
     },
     "web_accessible_resources": ["page.js"],
     "permissions": ["nativeMessaging"]
-    // Uncomment when in developer mode and loading unpacked extension
-    // ,"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyt8re1RtbobElTNUxQIO9RnOV2JTtzCSMNSfTPAIOONRcOi9WET9NcwoVtplQYjbFiBXHMtI/A0agm/GHY70o4d8HxCSJOm1zuPc+PQ2hS9oxzuPfAUqXGpZQLdm1Lub7NGlFALyfaUzqg193TojMGF7cBPWoMAj7mnDq5LiHEI3vanAQQ3gG8CHO1oXMlpJCj8CpxLozYOA+iFw+B1qRSiBLGPaPwyF27DGVkgH+Ue30faRgO2EstePFC6crSzGALFRmftNUR1N+6imtMJzx7EbTsMbiqd7hCN+EzRVkvE3hHGaSvcC0tRe3jOgbqQEp4bCpxIHg1QsGmtWDyKWaQIDAQAB"
 }
