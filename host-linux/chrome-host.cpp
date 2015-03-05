@@ -74,6 +74,9 @@ int main(int argc, char **argv) {
     }
   }
 
+  // check for error
+  if (!resp.has<string>("result"))
+    resp << "result" << "ok";
   // echo nonce
   resp << "nonce" << json.get<string>("nonce");
   string response = resp.json();
