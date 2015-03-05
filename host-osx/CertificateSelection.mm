@@ -61,6 +61,10 @@
     }
 
     [NSBundle loadNibNamed:@"CertificateSelection" owner:dialog];
+    if (!dialog->certificateSelectionPanel) {
+        return @{@"result": @"technical_error"};
+    }
+
     [dialog->certificateSelection setDoubleAction:@selector(okClicked:)];
     if (dialog->certificateSelection.numberOfRows > 0) {
         [dialog->certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];

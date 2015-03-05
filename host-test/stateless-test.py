@@ -117,7 +117,7 @@ class TestStatelessHost(unittest.TestCase):
       # hack for stateless operation
       self.close_conn()
       self.open_conn()
-      cmd2 = json.dumps(self.complete_msg({"type":"SIGN", "hash": "0102030405060708090a0b0c0d0e0f01020304", "cert": resp["cert"]}))
+      cmd2 = json.dumps(self.complete_msg({"type":"SIGN", "hash": "0102030405060708090a0b0c0d0e0f0102030405", "cert": resp["cert"]}))
       resp2 = self.transceive(cmd2)
       self.assertEquals(resp2["result"], "ok")
       self.assertTrue("signature" in resp2)

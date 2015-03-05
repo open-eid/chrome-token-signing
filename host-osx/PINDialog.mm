@@ -31,6 +31,19 @@
 
 + (NSDictionary *)show:(NSDictionary*)params
 {
+    if (!params[@"hash"] || [params[@"hash"] length] % 2 == 1) {
+        return @{@"result": @"invalid_argument"};
+    }
+    std::vector<unsigned char> hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
+    switch (hash.size()) {
+        case 20: // SHA1
+        case 28: // SHA224
+        case 32: // SHA256
+        case 48: // SHA384
+        case 64: break; // SHA512
+        default: return @{@"result": @"invalid_argument"};
+    }
+
     PKCS11CardManager manager(PKCS11_MODULE);
     time_t currentTime = DateUtils::now();
     std::unique_ptr<PKCS11CardManager> selected;
@@ -51,7 +64,7 @@
     }
 
     if (!selected) {
-        return @{@"result": @"invalid_arguments"};
+        return @{@"result": @"invalid_argument"};
     }
 
     int retriesLeft = selected->getPIN2RetryCount();
@@ -71,7 +84,7 @@
         [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
         future = std::async(std::launch::async, [&](){
             try {
-                signature = selected->sign(BinaryUtils::hex2bin([params[@"hash"] UTF8String]), PinString());
+                signature = selected->sign(hash, PinString());
             }
             catch(const AuthenticationErrorAborted &) {
                 [NSApp abortModal];
