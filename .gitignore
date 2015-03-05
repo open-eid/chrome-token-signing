@@ -1,8 +1,10 @@
 ﻿
 /host-windows/Debug
+/host-windows/Release
 /host-windows/ipch
 *.opensdf
 *.sdf
 *.suo
+*.vcxproj.user
 *.o
 *out/
