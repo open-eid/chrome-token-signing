@@ -39,11 +39,14 @@ int main(int argc, const char * argv[]) {
                 if (error) {
                     dict = @{@"result": @"invalid_argument", @"message": error.localizedDescription};
                 }
+                else if(!dict[@"nonce"] || !dict[@"type"] || !dict[@"origin"]) {
+                    dict = @{@"result": @"invalid_argument"};
+                }
                 else {
                     if (dict[@"lang"]) {
                         l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
                     }
-                    if ([dict[@"protocol"] isEqualToString:@"https:"]) {
+                    if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
                         dict = @{@"result": @"not_allowed"};
                     }
                     else if ([dict[@"type"] isEqualToString:@"VERSION"]) {
