@@ -1,9 +1,0 @@
-{
-	  "name": "com.google.chrome.example.echo",
-	  "description": "Chrome Native Messaging API Example Host",
-	  "path": "HOST_PATH",
-	  "type": "stdio",
-	  "allowed_origins": [
-	    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/"
-	  ]
-	}
