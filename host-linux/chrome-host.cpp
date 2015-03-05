@@ -39,34 +39,43 @@ int main(int argc, char **argv) {
   }
 
   Object resp;
-  if (!json.has<string>("protocol") || json.get<string>("protocol") != "https:") {
-    resp << "result" << "not_allowed";
-  } else if(!json.has<string>("type")) {
+
+  if(!json.has<string>("type") || !json.has<string>("nonce") || !json.has<string>("origin")) {
     resp << "result" << "invalid_argument";
   } else {
     string type = json.get<string>("type");
-
-    if (type == "SIGN") {
-      string hashFromStdIn = json.get<String>("hash");
-      string cert = json.get<String>("cert");
-      _log("signing hash: %s, with cert: %s", hashFromStdIn.c_str(), cert.c_str());
-      Signer signer(hashFromStdIn, cert);
-      resp = signer.sign();
-    } else if (type == "CERT") {
-      CertificateSelection cert;
-      resp = cert.getCert();
-    } else if (type == "VERSION") {
+    string origin = json.get<string>("origin");
+    if (type == "VERSION") {
       VersionInfo version;
       resp = version.getVersion();
     } else {
-      resp << "result" << "invalid_argument";
+      std::string https("https:");
+
+      if (!origin.compare(0, https.size(), https)) {
+        if (type == "SIGN") {
+          if (!json.has<string>("cert") || !json.has<string>("hash")) {
+            resp << "result" << "invalid_argument";
+          } else {
+            string hash = json.get<String>("hash");
+            string cert = json.get<String>("cert");
+            _log("signing hash: %s, with cert: %s", hash.c_str(), cert.c_str());
+            Signer signer(hash, cert);
+            resp = signer.sign();
+          }
+        } else if (type == "CERT") {
+          CertificateSelection cert;
+          resp = cert.getCert();
+        } else {
+          resp << "result" << "invalid_argument";
+        }
+      } else {
+        resp << "result" << "not_allowed";
+      }
     }
   }
 
-  if (json.has<string>("nonce")) {
-    resp << "nonce" << json.get<string>("nonce");
-  }
-
+  // echo nonce
+  resp << "nonce" << json.get<string>("nonce");
   string response = resp.json();
   int responseLength = response.size();
   unsigned char *responseLengthAsBytes = intToBytesLittleEndian(responseLength);
