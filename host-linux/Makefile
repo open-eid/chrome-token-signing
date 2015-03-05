@@ -15,10 +15,6 @@ SOURCES += ../host-shared/BinaryUtils.cpp ../host-shared/InputParser.cpp ../host
 
 OBJS = $(patsubst %.cpp,%.o, $(SOURCES)) ../host-shared/json/jsonxx.o
 
-#%.o:%.cpp
-#	@echo Compiling $(basename $<)...
-#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(PP) $< -o $@ 
-
 all: $(JSON_OBJS) $(OBJS)
 	mkdir -p out
 	@echo Linking...
@@ -29,5 +25,12 @@ clean:
 
 install:
 	cp $(EXE) /usr/bin
-	mkdir -p /etc/opt/chrome/native-messaging-hosts
-	cp ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/
+	test -d /opt/google/chrome && mkdir -p /etc/opt/chrome/native-messaging-hosts
+	test -d /opt/google/chrome && cp ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts
+	test -d /opt/google/chrome && mkdir -p /opt/google/chrome/extensions
+	test -d /opt/google/chrome && cp ../ckjefchnfjhjfedoccjbhjpbncimppeg.json /opt/google/chrome/extensions
+
+uninstall:
+	rm -f /opt/google/chrome/extensions/ckjefchnfjhjfedoccjbhjpbncimppeg.json
+	rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
+	rm -f /usr/bin/chrome-token-signing
