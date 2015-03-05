@@ -38,11 +38,11 @@ int main(int argc, char **argv) {
     l10nLabels.setLanguage(json.get<string>("lang"));
   }
 
-  string response;
-
-  if (json.get<string>("protocol") != "https:") {
-    ExtensionDialog dialog;
-    response = dialog.error(ONLY_HTTPS_ALLOWED).json();
+  Object resp;
+  if (!json.has<string>("protocol") || json.get<string>("protocol") != "https:") {
+    resp << "result" << "not_allowed";
+  } else if(!json.has<string>("type")) {
+    resp << "result" << "invalid_argument";
   } else {
     string type = json.get<string>("type");
 
@@ -51,15 +51,23 @@ int main(int argc, char **argv) {
       string cert = json.get<String>("cert");
       _log("signing hash: %s, with cert: %s", hashFromStdIn.c_str(), cert.c_str());
       Signer signer(hashFromStdIn, cert);
-      response = signer.sign().json();
+      resp = signer.sign();
     } else if (type == "CERT") {
       CertificateSelection cert;
-      response = cert.getCert().json();
+      resp = cert.getCert();
     } else if (type == "VERSION") {
       VersionInfo version;
-      response = version.getVersion().json();
+      resp = version.getVersion();
+    } else {
+      resp << "result" << "invalid_argument";
     }
   }
+
+  if (json.has<string>("nonce")) {
+    resp << "nonce" << json.get<string>("nonce");
+  }
+
+  string response = resp.json();
   int responseLength = response.size();
   unsigned char *responseLengthAsBytes = intToBytesLittleEndian(responseLength);
   cout.write((char *) responseLengthAsBytes, 4);

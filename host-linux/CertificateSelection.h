@@ -40,6 +40,7 @@ class CertificateSelection : public ExtensionDialog {
 	}
 
 	jsonxx::Object getCert() {
+                jsonxx::Object json;
 		try {
 			time_t currentTime = now();
 			std::vector<unsigned int> availableTokens = cardManager->getAvailableTokens();
@@ -58,7 +59,7 @@ class CertificateSelection : public ExtensionDialog {
 			int result = dialog->run();
 			dialog->hide();
 			if (result != GTK_RESPONSE_OK) {
-				return error(USER_CANCEL);
+				return jsonxx::Object() << "result" << "user_cancel";
 			}
 
 			int readerId = dialog->getSelectedCertIndex();
@@ -66,14 +67,12 @@ class CertificateSelection : public ExtensionDialog {
 			std::vector<unsigned char> cert = manager->getSignCert();
 
 			_log("cert binary size = %i", cert.size());
-			jsonxx::Object json;
-			json <<	"cert" << BinaryUtils::bin2hex(cert);
 			FREE_MANAGER;
-			return json;
+			return jsonxx::Object() << "cert" << BinaryUtils::bin2hex(cert);;
 		} catch (std::runtime_error &e) {
 			_log(e.what());
-			return error(UNKNOWN_ERROR);
 		}
+		return jsonxx::Object() << "result" << "technical_error";
 	}
 };
 #endif	/* CERTIFICATEREQUEST_H */
