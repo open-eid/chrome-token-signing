@@ -45,7 +45,11 @@ function sendResponse(msg) {
         msg["src"] = "background.js";
         // Look up the nonce and send to the same tab
         var nonce = msg['nonce'];
-        chrome.tabs.sendMessage(sessions[nonce], msg, function(response) {});
+        if (nonce) {
+            chrome.tabs.sendMessage(sessions[nonce], msg, function(response) {});
+        } else {
+            console.log("No nonce in response!");
+        }
     } else {
         console.log("ERROR: " + JSON.stringify(chrome.runtime.lastError));
     }
