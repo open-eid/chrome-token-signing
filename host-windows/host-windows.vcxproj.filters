@@ -57,4 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\host-test\stateless-test.py">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
