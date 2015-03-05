@@ -16,8 +16,7 @@ window.addEventListener("message", function(event) {
 
     // and forward to extension
     if (event.data.src && (event.data.src === "page.js")) {
-        // FIXME: Protocol is fetched in background.
-        event.data["protocol"] = location.protocol;
+        event.data["origin"] = location.origin;
         chrome.runtime.sendMessage(event.data, function(response) {});
     }
 }, false);

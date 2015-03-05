@@ -20,7 +20,7 @@ window.addEventListener("message", function(event) {
         if(event.data.nonce) {
             var p = _eid_promises[event.data.nonce];
             // resolve
-            if(event.data.returnCode === undefined) {
+            if(event.data.result === "ok") {
                 if(event.data.signature !== undefined) {
                     p.resolve(event.data.signature);
                 } else if(event.data.version !== undefined) {
@@ -28,13 +28,13 @@ window.addEventListener("message", function(event) {
                 } else if(event.data.cert !== undefined) {
                     p.resolve(event.data.cert);
                 } else {
-                    consol.log("No idea how to handle message");
+                    console.log("No idea how to handle message");
                     console.log(event.data);
                 }
             } else {
                 console.log("fail");
                 // reject
-                p.reject(event.data.returnCode);
+                p.reject(new Error(event.data.result));
             }
             delete _eid_promises[event.data.nonce];
         } else {

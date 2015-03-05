@@ -56,7 +56,7 @@ function onDisconnected() {
 }
 
 function send(message) {
-    var stateless = false;
+    var stateless = true;
     console.log("SEND: " + JSON.stringify(message));
     console.log("SEND is " + stateless ? "stateless" : "longrunning");
     var hostName = "ee.ria.esteid";
