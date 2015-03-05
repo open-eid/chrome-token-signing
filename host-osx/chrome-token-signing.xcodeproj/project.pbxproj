@@ -25,7 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ckjefchnfjhjfedoccjbhjpbncimppeg.json; sourceTree = SOURCE_ROOT; };
+		4E2028271AA7435600AB9BDC /* ckjefchnfjhjfedoccjbhjpbncimppeg.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = ckjefchnfjhjfedoccjbhjpbncimppeg.json; path = ../ckjefchnfjhjfedoccjbhjpbncimppeg.json; sourceTree = "<group>"; };
 		4E2028291AA74A6A00AB9BDC /* Labels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Labels.cpp; sourceTree = "<group>"; };
 		4E20282A1AA74A6A00AB9BDC /* Labels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Labels.h; sourceTree = "<group>"; };
 		4E20282C1AA74E0800AB9BDC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -37,7 +37,7 @@
 		4E46FD351A9B423800D0F3C8 /* locked_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = locked_allocator.h; sourceTree = "<group>"; };
 		4E490EC21A9DF45E00309C5B /* ee.ria.esteid.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ee.ria.esteid.json; sourceTree = "<group>"; };
 		4E532CE01A96379500D28E40 /* chrome-token-signing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "chrome-token-signing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4E532D081A96393D00D28E40 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "host-osx/Info.plist"; sourceTree = SOURCE_ROOT; };
+		4E532D081A96393D00D28E40 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4E532D091A96393D00D28E40 /* chrome-host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "chrome-host.mm"; sourceTree = "<group>"; };
 		4E532D0C1A96399600D28E40 /* CertificateSelection.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CertificateSelection.xib; sourceTree = "<group>"; };
 		4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CertificateSelection.mm; sourceTree = "<group>"; };
@@ -86,7 +86,7 @@
 				4E532D201A96848400D28E40 /* Logger.cpp */,
 			);
 			name = "Host-shared";
-			path = "host-shared";
+			path = "../host-shared";
 			sourceTree = "<group>";
 		};
 		4E532CD71A96379500D28E40 = {
@@ -123,7 +123,6 @@
 				4E532CE31A96379500D28E40 /* Supporting Files */,
 			);
 			name = "Host-OSX";
-			path = "host-osx";
 			sourceTree = "<group>";
 		};
 		4E532CE31A96379500D28E40 /* Supporting Files */ = {
@@ -147,7 +146,7 @@
 				4E532D151A96421900D28E40 /* page.js */,
 			);
 			name = Extension;
-			path = extension;
+			path = ../extension;
 			sourceTree = "<group>";
 		};
 		4E894C161AA655F70059CB93 /* host-test */ = {
@@ -155,7 +154,8 @@
 			children = (
 				4E894C171AA655F70059CB93 /* stateless-test.py */,
 			);
-			path = "host-test";
+			name = "host-test";
+			path = "../host-test";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -238,7 +238,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/host-osx/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/";
+			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -345,7 +345,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/host-osx/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -355,7 +355,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/host-osx/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
