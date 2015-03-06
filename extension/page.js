@@ -75,12 +75,12 @@ function IdCardPluginHandler(lang) {
             type: 'CERT'
         });
     };
-    this.sign = function(id, hash) {
+    this.sign = function(crt, hash) {
         console.log("sign()");
         return messagePromise({
             type: 'SIGN',
-            hash: hash,
-            id: id
+            cert: cert,
+            hash: hash
         });
     };
     this.getVersion = function() {
