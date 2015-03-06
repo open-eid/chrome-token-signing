@@ -15,8 +15,7 @@
 
 class Signer {
 public:
-	Signer(const std::string &_hash, const std::string &_certInHex) : hash(_hash), certInHex(_certInHex) {
-	}
+	Signer(const std::string &_hash, const std::string &_certInHex) : hash(_hash), certInHex(_certInHex) {}
 	jsonxx::Object sign();
 
 private:

@@ -84,6 +84,7 @@
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
     <ClInclude Include="CertificateSelection.h" />
+    <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Signer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +94,7 @@
     <ClCompile Include="..\host-shared\Logger.cpp" />
     <ClCompile Include="CertificateSelection.cpp" />
     <ClCompile Include="host-windows.cpp" />
+    <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
   </ItemGroup>
   <ItemGroup>

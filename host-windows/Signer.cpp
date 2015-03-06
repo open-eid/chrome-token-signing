@@ -49,7 +49,7 @@ jsonxx::Object Signer::sign() {
 
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
 	if (!store) {
-		return json << "returnCode" << 5 << "message" << "Failed to open Cert Store";
+		return json << "result" << "technical_error" << "message" << "Failed to open Cert Store";
 	}
 	
 	vector<unsigned char> certInBinary = BinaryUtils::hex2bin(certInHex.c_str());
@@ -60,7 +60,7 @@ jsonxx::Object Signer::sign() {
 
 	if (!certInStore)
 	{
-		return json << "returnCode" << 2 << "message" << "Cert not found";
+		return json << "result" << "no_certificates" << "message" << "Cert not found";
 	}
 
 	DWORD flags = CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG;
@@ -79,8 +79,8 @@ jsonxx::Object Signer::sign() {
 	case ERROR_SUCCESS: 
 		return json << "signature" << BinaryUtils::bin2hex(signature);
 	case SCARD_W_CANCELLED_BY_USER:
-		return json << "returnCode" << 1 << "message" << "Signing was cancelled";
+		return json << "result" << "user_cancel" << "message" << "Signing was cancelled";
 	default:
-		return json << "returnCode" << 5 << "message" << "Technical error";
+		return json << "result" << "technical_error" << "message" << "Technical error";
 	}
 }

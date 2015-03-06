@@ -11,16 +11,12 @@
 #include "BinaryUtils.h"
 #include "jsonxx.h"
 #include "InputParser.h"
+#include "RequestHandler.h"
 #include "Logger.h"
-#include "Signer.h"
-#include "VersionInfo.h"
-#include "CertificateSelection.h"
 
 using namespace std;
 using namespace BinaryUtils;
 using namespace jsonxx;
-
-string handleJsonRequest(Object &json);
 
 int main(int argc, char **argv) {
 
@@ -31,49 +27,20 @@ int main(int argc, char **argv) {
 	try
 	{
 		json = parser.readBody();
-		response = handleJsonRequest(json);
+		RequestHandler handler(json);
+		response = handler.handleRequest().json();
 	}
 	catch (const std::runtime_error &e)
 	{
-		json << "returnCode" << 5 << "message" << e.what();
+		json << "result" << "not_allowed" << "message" << e.what();
 		response = json.json();
 	}
 
-	int responseLength = response.size();
+	int responseLength = response.length() + 2; //TODO For some reason can't get the correct size if more than 1 json key - temp. hack to fit into it
 	unsigned char *responseLengthAsBytes = intToBytesLittleEndian(responseLength);
 	cout.write((char *)responseLengthAsBytes, 4);
 	_log("Response(%i) %s ", responseLength, response.c_str());
 	cout << response << endl;
 	free(responseLengthAsBytes);
 	return EXIT_SUCCESS;
-}
-
-string handleJsonRequest(Object &json) {
-	jsonxx::Object responseJson;
-	string response;
-
-	if (!json.has<string>("type")) {
-		responseJson << "returnCode" << 5 << "message" << "TYPE is required";
-		return responseJson.json();
-	}
-	else {
-		string type = json.get<string>("type");
-
-		if (type == "SIGN") {
-			string hashFromStdIn = json.get<String>("hash");
-			string cert = json.get<String>("cert");
-			_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
-			Signer signer(hashFromStdIn, cert);
-			response = signer.sign().json();
-		}
-		else if (type == "CERT") {
-			CertificateSelection cert;
-			response = cert.getCert().json();
-		}
-		else if (type == "VERSION") {
-			VersionInfo version;
-			response = version.getVersion().json();
-		}
-		return response;
-	}
 }

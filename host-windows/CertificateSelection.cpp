@@ -94,7 +94,7 @@ jsonxx::Object CertificateSelection::getCert() {
 	jsonxx::Object json;
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
 	if (!store) {
-		return json << "returnCode" << 5 << "message" << "Failed to open Cert Store";
+		return json << "result" << "" << "technical_error" << "Failed to open Cert Store";
 	}
 
 	
@@ -106,7 +106,7 @@ jsonxx::Object CertificateSelection::getCert() {
 	PCCERT_CONTEXT cert_context = CryptUIDlgSelectCertificate(&pcsc);
 	
 	if (!cert_context)
-		return json << "returnCode" << 1 << "message" << "User cancelled";
+		return json << "result" << "user_cancel" << "message" << "User cancelled";
 
 	vector<unsigned char> data(cert_context->pbCertEncoded, cert_context->pbCertEncoded + cert_context->cbCertEncoded);
 	CertFreeCertificateContext(cert_context);
