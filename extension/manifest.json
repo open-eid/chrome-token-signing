@@ -1,6 +1,6 @@
 {
     "name": "Token signing",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "minimum_chrome_version": "40.0",
     "manifest_version": 2,
     "description": "Use your smart card on the web",
@@ -18,5 +18,6 @@
         "persistent": false
     },
     "web_accessible_resources": ["page.js"],
-    "permissions": ["nativeMessaging"]
+    "permissions": ["nativeMessaging"],
+"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyt8re1RtbobElTNUxQIO9RnOV2JTtzCSMNSfTPAIOONRcOi9WET9NcwoVtplQYjbFiBXHMtI/A0agm/GHY70o4d8HxCSJOm1zuPc+PQ2hS9oxzuPfAUqXGpZQLdm1Lub7NGlFALyfaUzqg193TojMGF7cBPWoMAj7mnDq5LiHEI3vanAQQ3gG8CHO1oXMlpJCj8CpxLozYOA+iFw+B1qRSiBLGPaPwyF27DGVkgH+Ue30faRgO2EstePFC6crSzGALFRmftNUR1N+6imtMJzx7EbTsMbiqd7hCN+EzRVkvE3hHGaSvcC0tRe3jOgbqQEp4bCpxIHg1QsGmtWDyKWaQIDAQAB"
 }
