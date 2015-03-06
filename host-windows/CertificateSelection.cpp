@@ -94,7 +94,7 @@ jsonxx::Object CertificateSelection::getCert() {
 	jsonxx::Object json;
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
 	if (!store) {
-		return json << "result" << "" << "technical_error" << "Failed to open Cert Store";
+		return json << "result" << "technical_error" << "message" << "Failed to open Cert Store";
 	}
 
 	
