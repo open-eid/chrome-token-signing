@@ -75,7 +75,7 @@ function IdCardPluginHandler(lang) {
             type: 'CERT'
         });
     };
-    this.sign = function(crt, hash) {
+    this.sign = function(cert, hash) {
         console.log("sign()");
         return messagePromise({
             type: 'SIGN',
