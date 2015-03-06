@@ -11,6 +11,7 @@ Darwin:
 	make -C host-osx
 
 release:
+	test ! -f extension-$(RELEASE).zip
 	test -z "`git status -s extension`"
 	git clean -dfx extension
-	zip -r extension-$(VERSION).zip extension
+	zip -r extension-$(RELEASE).zip extension
