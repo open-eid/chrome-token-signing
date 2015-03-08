@@ -31,24 +31,20 @@
     dialog->certificates = [[NSMutableArray alloc] init];
 
     try {
-        PKCS11CardManager manager(PKCS11_MODULE);
+        PKCS11CardManager manager;
         time_t currentTime = DateUtils::now();
         for (auto &token : manager.getAvailableTokens()) {
             CardManager *local = manager.getManagerForReader(token);
-
-            if (local->isCardInReader()) {
-                time_t validTo = local->getValidTo();
-                if (currentTime > validTo)
-                    continue;
-
+            time_t validTo = local->getValidTo();
+            if (currentTime <= validTo) {
                 std::vector<unsigned char> cert = local->getSignCert();
                 [dialog->certificates addObject: @{
-                                                   @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
-                                                   @"validFrom": @(DateUtils::timeToString(local->getValidFrom()).c_str()),
-                                                   @"validTo": @(DateUtils::timeToString(validTo).c_str()),
-                                                   @"CN": @(local->getCN().c_str()),
-                                                   @"type": @(local->getType().c_str()),
-                                                   }];
+                    @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
+                    @"validFrom": @(DateUtils::timeToString(local->getValidFrom()).c_str()),
+                    @"validTo": @(DateUtils::timeToString(validTo).c_str()),
+                    @"CN": @(local->getCN().c_str()),
+                    @"type": @(local->getType().c_str()),
+                }];
             }
             delete local;
         }

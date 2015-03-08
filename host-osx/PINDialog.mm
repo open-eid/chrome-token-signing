@@ -31,7 +31,7 @@
 
 + (NSDictionary *)show:(NSDictionary*)params
 {
-    if (!params[@"hash"] || [params[@"hash"] length] % 2 == 1) {
+    if (!params[@"hash"] || !params[@"cert"] || [params[@"hash"] length] % 2 == 1) {
         return @{@"result": @"invalid_argument"};
     }
     std::vector<unsigned char> hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
@@ -78,6 +78,10 @@
     NSTimer *timer;
     if (selected->isPinpad()) {
         [NSBundle loadNibNamed:@"PINPadDialog" owner:dialog];
+        if (!dialog->pinPanel) {
+            return @{@"result": @"technical_error"};
+        }
+
         [dialog->progressBar setDoubleValue:30];
         [dialog->progressBar startAnimation:self];
         timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
@@ -103,6 +107,9 @@
     }
     else {
         [NSBundle loadNibNamed:@"PINDialog" owner:dialog];
+        if (!dialog->pinPanel) {
+            return @{@"result": @"technical_error"};
+        }
     }
     [dialog->nameLabel setTitleWithMnemonic:@((selected->getCardName() + ", " + selected->getPersonalCode()).c_str())];
     if (retriesLeft < 3) {
