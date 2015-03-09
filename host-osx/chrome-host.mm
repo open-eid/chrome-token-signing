@@ -26,7 +26,6 @@ int main(int argc, const char * argv[]) {
             if (data.length > 0) {
                 uint32_t size = 0;
                 [data getBytes:&size length:sizeof(size)];
-                size = CFSwapInt32LittleToHost(size);
                 if (size > 8*1024) {
                     exit(0);
                     return;
@@ -71,7 +70,7 @@ int main(int argc, const char * argv[]) {
                 }
                 data = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
 
-                size = CFSwapInt32HostToLittle((uint32_t)data.length);
+                size = (uint32_t)data.length;
                 NSData *sizeout = [NSData dataWithBytes:&size length:sizeof(size)];
                 [[NSFileHandle fileHandleWithStandardOutput] writeData:sizeout];
                 [[NSFileHandle fileHandleWithStandardOutput] writeData:data];
