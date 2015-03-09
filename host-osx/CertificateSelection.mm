@@ -13,6 +13,8 @@
 #import "../host-shared/PKCS11CardManager.h"
 #import "../host-shared/BinaryUtils.h"
 
+#define _L(KEY) @(l10nLabels.get(KEY).c_str())
+
 @interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate> {
     IBOutlet NSPanel *certificateSelectionPanel;
     IBOutlet NSTableView *certificateSelection;
@@ -26,12 +28,22 @@
 
 @implementation CertificateSelection
 
-+ (NSDictionary *)show
+- (instancetype)init
 {
-    CertificateSelection *dialog = [[CertificateSelection alloc] init];
-    dialog->certificates = [[NSMutableArray alloc] init];
+    if (self = [super init]) {
+        if (![NSBundle loadNibNamed:@"CertificateSelection" owner:self]) {
+            self = nil;
+            return self;
+        }
+        cancelButton.title = _L("cancel");
+        certificateSelectionPanel.title = _L("select certificate");
+        okButton.title = _L("select");
+        [warningLabel setTitleWithMnemonic:_L("cert info")];
+        [[certificateSelection tableColumnWithIdentifier:@"CN"].headerCell setStringValue:_L("certificate")];
+        [[certificateSelection tableColumnWithIdentifier:@"type"].headerCell setStringValue:_L("type")];
+        [[certificateSelection tableColumnWithIdentifier:@"validTo"].headerCell setStringValue:_L("valid to")];
 
-    try {
+        certificates = [[NSMutableArray alloc] init];
         PKCS11CardManager manager;
         time_t currentTime = DateUtils::now();
         for (auto &token : manager.getAvailableTokens()) {
@@ -39,9 +51,8 @@
             time_t validTo = local->getValidTo();
             if (currentTime <= validTo) {
                 std::vector<unsigned char> cert = local->getSignCert();
-                [dialog->certificates addObject: @{
+                [certificates addObject: @{
                     @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
-                    @"validFrom": @(DateUtils::timeToString(local->getValidFrom()).c_str()),
                     @"validTo": @(DateUtils::timeToString(validTo).c_str()),
                     @"CN": @(local->getCN().c_str()),
                     @"type": @(local->getType().c_str()),
@@ -49,30 +60,35 @@
             }
             delete local;
         }
+
+        [certificateSelection setDoubleAction:@selector(okClicked:)];
+        if (certificateSelection.numberOfRows > 0) {
+            [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];
+            okButton.enabled = YES;
+        }
+    }
+    return self;
+}
+
++ (NSDictionary *)show
+{
+    try {
+        CertificateSelection *dialog = [[CertificateSelection alloc] init];
+        if (!dialog) {
+            return @{@"result": @"technical_error"};
+        }
+        if (dialog->certificates.count == 0) {
+            return @{@"result": @"no_certificates"};
+        }
+        [NSApp activateIgnoringOtherApps:YES];
+        if ([NSApp runModalForWindow:dialog->certificateSelectionPanel] == NSModalResponseAbort ||
+            dialog->certificateSelection.selectedRow == -1) {
+            return @{@"result": @"user_cancel"};
+        }
+        return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
     } catch (const std::runtime_error &e) {
         return @{@"result": @"technical_error", @"message": @(e.what())};
     }
-
-    if (dialog->certificates.count == 0) {
-        return @{@"result": @"no_certificates"};
-    }
-
-    [NSBundle loadNibNamed:@"CertificateSelection" owner:dialog];
-    if (!dialog->certificateSelectionPanel) {
-        return @{@"result": @"technical_error"};
-    }
-
-    [dialog->certificateSelection setDoubleAction:@selector(okClicked:)];
-    if (dialog->certificateSelection.numberOfRows > 0) {
-        [dialog->certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];
-        dialog->okButton.enabled = YES;
-    }
-    [NSApp activateIgnoringOtherApps:YES];
-    if ([NSApp runModalForWindow:dialog->certificateSelectionPanel] == NSModalResponseAbort ||
-        dialog->certificateSelection.selectedRow == -1) {
-        return @{@"result": @"user_cancel"};
-    }
-    return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
 }
 
 - (IBAction)okClicked:(id)sender

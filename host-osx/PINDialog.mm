@@ -15,6 +15,8 @@
 
 #include <future>
 
+#define _L(KEY) @(l10nLabels.get(KEY).c_str())
+
 @interface PINPanel () {
     IBOutlet NSPanel *pinPanel;
     IBOutlet NSButton *okButton;
@@ -29,6 +31,27 @@
 @end
 
 @implementation PINPanel
+
+- (instancetype)init:(BOOL)pinpad
+{
+    if (self = [super init]) {
+        if (![NSBundle loadNibNamed:pinpad ? @"PINPadDialog" : @"PINDialog" owner:self]) {
+            self = nil;
+            return self;
+        }
+        if (pinpad) {
+            [progressBar setDoubleValue:30];
+            [progressBar startAnimation:self];
+        }
+        else {
+            okButton.title = _L("sign");
+            cancelButton.title = _L("cancel");
+        }
+        [pinFieldLabel setTitleWithMnemonic:_L(pinpad ? "enter PIN2 pinpad" : "enter PIN2")];
+        pinPanel.title =_L("signing");
+    }
+    return self;
+}
 
 + (NSDictionary *)show:(NSDictionary*)params
 {
@@ -45,7 +68,7 @@
         default: return @{@"result": @"invalid_argument"};
     }
 
-    PKCS11CardManager manager(PKCS11_MODULE);
+    PKCS11CardManager manager;
     time_t currentTime = DateUtils::now();
     std::unique_ptr<PKCS11CardManager> selected;
     for (auto &token : manager.getAvailableTokens()) {
@@ -75,16 +98,13 @@
 
     std::vector<unsigned char> signature;
     std::future<void> future;
-    PINPanel *dialog = [[PINPanel alloc] init];
+    PINPanel *dialog = [[PINPanel alloc] init:selected->isPinpad()];
+    if (!dialog) {
+        return @{@"result": @"technical_error"};
+    }
+
     NSTimer *timer;
     if (selected->isPinpad()) {
-        [NSBundle loadNibNamed:@"PINPadDialog" owner:dialog];
-        if (!dialog->pinPanel) {
-            return @{@"result": @"technical_error"};
-        }
-
-        [dialog->progressBar setDoubleValue:30];
-        [dialog->progressBar startAnimation:self];
         timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
         future = std::async(std::launch::async, [&](){
@@ -106,16 +126,12 @@
             [NSApp stopModal];
         });
     }
-    else {
-        [NSBundle loadNibNamed:@"PINDialog" owner:dialog];
-        if (!dialog->pinPanel) {
-            return @{@"result": @"technical_error"};
-        }
-    }
+
     [dialog->nameLabel setTitleWithMnemonic:@((selected->getCardName() + ", " + selected->getPersonalCode()).c_str())];
     if (retriesLeft < 3) {
-        [dialog->messageField setTitleWithMnemonic:@(("Tries left: " + std::to_string(retriesLeft)).c_str())];
+        [dialog->messageField setTitleWithMnemonic:[NSString stringWithFormat:@"%@ %u", _L("tries left"), retriesLeft]];
     }
+
     [NSApp activateIgnoringOtherApps:YES];
     NSModalResponse result = [NSApp runModalForWindow:dialog->pinPanel];
 
@@ -149,7 +165,7 @@
 
 - (void)controlTextDidChange:(NSNotification*)notification;
 {
-    [okButton setEnabled:(pinField.stringValue.length >= 5)];
+    okButton.enabled = pinField.stringValue.length >= 5;
 }
 
 - (void)handleTimerTick:(NSTimer*)timer
