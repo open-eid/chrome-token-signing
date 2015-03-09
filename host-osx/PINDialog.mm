@@ -73,18 +73,11 @@
     std::unique_ptr<PKCS11CardManager> selected;
     for (auto &token : manager.getAvailableTokens()) {
         selected.reset(manager.getManagerForReader(token));
-        if (!selected->isCardInReader()) {
-            selected.reset();
-            continue;
+        if (BinaryUtils::hex2bin([params[@"cert"] UTF8String]) == selected->getSignCert() &&
+            currentTime <= selected->getValidTo()) {
+            break;
         }
-
-        std::vector<unsigned char> cert = selected->getSignCert();
-        if (BinaryUtils::hex2bin([params[@"cert"] UTF8String]) != cert || currentTime > selected->getValidTo()) {
-            selected.reset();
-            continue;
-        }
-
-        break;
+        selected.reset();
     }
 
     if (!selected) {
@@ -96,13 +89,13 @@
         return @{@"result": @"pin_blocked"};
     }
 
-    std::vector<unsigned char> signature;
-    std::future<void> future;
     PINPanel *dialog = [[PINPanel alloc] init:selected->isPinpad()];
     if (!dialog) {
         return @{@"result": @"technical_error"};
     }
 
+    std::vector<unsigned char> signature;
+    std::future<void> future;
     NSTimer *timer;
     if (selected->isPinpad()) {
         timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];

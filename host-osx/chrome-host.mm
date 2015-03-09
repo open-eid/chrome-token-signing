@@ -68,6 +68,7 @@ int main(int argc, const char * argv[]) {
                 if (!dict[@"result"]) {
                     resp[@"result"] = @"ok";
                 }
+                resp[@"ver"] = @(1);
                 data = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
 
                 size = (uint32_t)data.length;
