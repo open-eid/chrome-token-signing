@@ -11,6 +11,7 @@
 #import "CertificateSelection.h"
 
 #import "../host-shared/PKCS11CardManager.h"
+#import "../host-shared/BinaryUtils.h"
 
 @interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate> {
     IBOutlet NSPanel *certificateSelectionPanel;
