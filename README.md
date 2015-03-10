@@ -1,5 +1,7 @@
 # Chrome Native Client plugin
 
+**Now available from [Chrome Web Store](https://chrome.google.com/webstore/detail/ckjefchnfjhjfedoccjbhjpbncimppeg)**
+
  * License: LGPL 2.1
  * &copy; Estonian Information System Authority
 
@@ -11,26 +13,16 @@ Note: currently only supports Linux (Debian derivatives).
 
 1. Install dependencies
 
-        sudo apt-get install libgtkmm-3.0-dev libssl-dev Xvfb google-chrome
+        sudo apt-get install libgtkmm-3.0-dev libssl-dev
 
 2. Fetch the source
 
         git clone --recursive https://github.com/open-eid/chrome-token-signing
         cd chrome-token-signing
+
 3. Build
 
         make
-
-4. Test
-
-        make test
-
-5. Install
-
-        sudo make install
-
-    * Then go to `chrome://extensions` in and press "Load unpacked extensions..."
-    * Technical testing: https://www.openxades.org/web_sign_demo/sign.html
 
 ## Support
 Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds.
