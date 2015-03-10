@@ -17,7 +17,7 @@
 #include <cstdarg>
 
 namespace Logger {
-  void writeLog(const char *functionName, const char *fileName, int lineNumber, const std::string &message, ...);
+  void writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...);
   std::string logLine(const char *functionName, const char *fileName, int lineNumber);
   std::string getLogFileName();
 }

@@ -16,23 +16,20 @@
 
 using namespace std;
 
-void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const string &message, ...) {
-  va_list args;
-
+void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...) {
   FILE *log = fopen(getLogFileName().c_str(), "a");
-  if (!log) 
-  {
+  if (!log) {
 	  return;
   }
 
   string logLinePrefix = logLine(functionName, fileName, lineNumber);
   fprintf(log, "%s ", logLinePrefix.c_str());
+  va_list args;
   va_start(args, message);
-  vfprintf(log, message.c_str(), args);
+  vfprintf(log, message, args);
   va_end(args);
   fprintf(log, "\n");
   fclose(log);
-
 }
 
 string Logger::logLine(const char *functionName, const char *fileName, int lineNumber) {
