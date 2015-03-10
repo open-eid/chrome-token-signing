@@ -16,7 +16,6 @@
 #include "BinaryUtils.h"
 #include "Labels.h"
 #include "Logger.h"
-#include "ExtensionDialog.h"
 #include "error.h"
 
 #include <string>
@@ -60,12 +59,6 @@ class Signer {
 
 	Signer(std::string hash, std::string cert) : hash(hash), cert(cert) {
         cardManager = new PKCS11CardManager;
-	}
-
-	//Used for testing
-    Signer(std::string hash, std::string cert, PinDialog *dialog, PKCS11CardManager *manager) : hash(hash), cert(cert) {
-		cardManager = manager;
-		pinDialog = dialog;
 	}
 
 	jsonxx::Object sign() {
