@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 		json << "result" << "not_allowed" << "message" << e.what();
 		response = json.json();
 	}
-	uint32_t responseLength = response.size() + 3;
+	uint32_t responseLength = strlen(response.c_str());
 	cout.write((char *)&responseLength, sizeof(responseLength));
 	_log("Response(%i) %s ", responseLength, response.c_str());
 	cout << response << endl;
