@@ -92,7 +92,7 @@ void RequestHandler::handleSignRequest() {
 	else {
 		string hashFromStdIn = jsonRequest.get<string>("hash");
 		string cert = jsonRequest.get<string>("cert");
-		_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
+//		_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
 		Signer signer(hashFromStdIn, cert);
 		jsonResponse = signer.sign();
 	}
