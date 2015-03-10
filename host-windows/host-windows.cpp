@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 		response = json.json();
 	}
 
-	int responseLength = response.length() + 2; //TODO For some reason can't get the correct size if more than 1 json key - temp. hack to fit into it
+	int responseLength = response.length() + 3; //TODO For some reason can't get the correct size if more than 1 json key - temp. hack to fit into it
 	unsigned char *responseLengthAsBytes = intToBytesLittleEndian(responseLength);
 	cout.write((char *)responseLengthAsBytes, 4);
 	_log("Response(%i) %s ", responseLength, response.c_str());

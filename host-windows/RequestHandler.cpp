@@ -66,6 +66,8 @@ void RequestHandler::completeResponse() {
 	if (!jsonResponse.has<string>("result")) {
 		jsonResponse << "result" << "ok";
 	}
+	// add API version
+	jsonResponse << "ver" << "1";
 }
 
 void RequestHandler::handleVersionRequest() {
