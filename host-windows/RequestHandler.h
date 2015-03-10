@@ -19,14 +19,16 @@ public:
 private:
 	const std::string request;
 	jsonxx::Object jsonRequest;
-	jsonxx::Object handleVersionRequest();
-	jsonxx::Object handleCertRequest();
-	jsonxx::Object handleSignRequest();
-	jsonxx::Object RequestHandler::notAllowed();
+	jsonxx::Object jsonResponse;
+
+	void handleVersionRequest();
+	void handleCertRequest();
+	void handleSignRequest();
+	jsonxx::Object notAllowed();
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();
 	bool hasCertRequestArguments();
 	bool isSecureOrigin();
-	void completeResponse(jsonxx::Object &jsonResponse);
+	void completeResponse();
 };
 

@@ -17,23 +17,22 @@
 using namespace std;
 
 jsonxx::Object RequestHandler::handleRequest() {
-	jsonxx::Object jsonResponse;
 	if (jsonRequest.parse(request) && jsonRequest.has<string>("type")) {
 		string type = jsonRequest.get<string>("type");
 		if (type == "VERSION") {
-			jsonResponse = handleVersionRequest();
+			handleVersionRequest();
 		}
 		else if (type == "CERT" && hasCertRequestArguments()) {
-			jsonResponse = handleCertRequest();
+			handleCertRequest();
 		}
 		else if (type == "SIGN" && hasSignRequestArguments()) {
-			jsonResponse = handleSignRequest();
+			handleSignRequest();
 		}
 	}
 	else {
 		jsonResponse << "result" << "invalid_argument";
 	}
-	completeResponse(jsonResponse);
+	completeResponse();
 	return jsonResponse;
 }
 
@@ -58,7 +57,7 @@ bool RequestHandler::isSecureOrigin() {
 	return !origin.compare(0, https.size(), https);
 }
 
-void RequestHandler::completeResponse(jsonxx::Object &jsonResponse) {
+void RequestHandler::completeResponse() {
 	if (jsonRequest.has<string>("nonce")) {
 		//echo nonce
 		jsonResponse << "nonce" << jsonRequest.get<string>("nonce");
@@ -69,28 +68,32 @@ void RequestHandler::completeResponse(jsonxx::Object &jsonResponse) {
 	}
 }
 
-jsonxx::Object RequestHandler::handleVersionRequest() {
+void RequestHandler::handleVersionRequest() {
 	VersionInfo version;
-	return version.getVersion();
+	jsonResponse = version.getVersion();
 }
 
-jsonxx::Object RequestHandler::handleCertRequest() {
+void RequestHandler::handleCertRequest() {
 	if (!isSecureOrigin()) {
-		return notAllowed();
+		jsonResponse = notAllowed();
 	}
-	CertificateSelection cert;
-	return cert.getCert();
+	else {
+		CertificateSelection cert;
+		jsonResponse = cert.getCert();
+	}
 }
 
-jsonxx::Object RequestHandler::handleSignRequest() {
+void RequestHandler::handleSignRequest() {
 	if (!isSecureOrigin()) {
-		return notAllowed();
+		jsonResponse = notAllowed();
 	}
-	string hashFromStdIn = jsonRequest.get<string>("hash");
-	string cert = jsonRequest.get<string>("cert");
-	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
-	Signer signer(hashFromStdIn, cert);
-	return signer.sign();
+	else {
+		string hashFromStdIn = jsonRequest.get<string>("hash");
+		string cert = jsonRequest.get<string>("cert");
+		_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
+		Signer signer(hashFromStdIn, cert);
+		jsonResponse = signer.sign();
+	}
 }
 
 jsonxx::Object RequestHandler::notAllowed() {
