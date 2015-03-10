@@ -8,8 +8,7 @@
 * Version 2.1, February 1999
 */
 
-#ifndef PINENTRYDIALOG_H
-#define	PINENTRYDIALOG_H
+#pragma once
 
 #include "PinDialog.h"
 #include "error.h"
@@ -17,10 +16,8 @@
 class PinEntryDialog : public PinDialog {
  public:
 	PinEntryDialog() {
-#ifndef _TEST
 		formElements->setPIN2Label(l10nLabels.get("enter PIN2"));
 		draw();
-#endif
 	}
 
 	void draw() {
@@ -62,6 +59,3 @@ class PinEntryDialog : public PinDialog {
 		formElements->signButton->set_sensitive(formElements->pin2Entry.get_text_length() >= 5);
 	}
 };
-
-#endif	/* PINENTRYDIALOG_H */
-

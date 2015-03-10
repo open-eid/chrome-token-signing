@@ -18,11 +18,9 @@ using namespace std;
 
 CertDialog::CertDialog()
 {
-#ifndef _TEST
   dialog = new Dialog(l10nLabels.get("select certificate"));
   formElements = new CertFormElementsContainer();
   draw();
-#endif
 }
 
 int CertDialog::run() {

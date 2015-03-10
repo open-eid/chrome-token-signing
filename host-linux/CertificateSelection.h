@@ -26,7 +26,7 @@ public:
             time_t currentTime = DateUtils::now();
             bool found = false;
             for (auto &token : cardManager->getAvailableTokens()) {
-                CleverCardManager *manager = cardManager->getManagerForReader(token);
+                PKCS11CardManager *manager = cardManager->getManagerForReader(token);
                 time_t validTo = manager->getValidTo();
                 if (currentTime <= validTo) {
                     dialog->addRow(token, manager->getCN(), manager->getType(), DateUtils::timeToString(validTo));
@@ -44,7 +44,7 @@ public:
                 return Object() << "result" << "user_cancel";
 
             int readerId = dialog->getSelectedCertIndex();
-            CleverCardManager *manager = cardManager->getManagerForReader(readerId);
+            PKCS11CardManager *manager = cardManager->getManagerForReader(readerId);
             std::vector<unsigned char> cert = manager->getSignCert();
 
             _log("cert binary size = %i", cert.size());

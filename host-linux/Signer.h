@@ -10,16 +10,7 @@
 
 #pragma once
 
-#ifdef _TEST
-#include "../test/MockCardManager.h"
-typedef MockCardManager CleverCardManager;
-#define FREE_MANAGER
-#else
 #include "PKCS11CardManager.h"
-typedef PKCS11CardManager CleverCardManager;
-#endif
-
-#include <string>
 #include "PinEntryDialog.h"
 #include "PinPadDialog.h"
 #include "BinaryUtils.h"
@@ -28,13 +19,15 @@ typedef PKCS11CardManager CleverCardManager;
 #include "ExtensionDialog.h"
 #include "error.h"
 
-class Signer : public ExtensionDialog {
- private:
+#include <string>
+
+class Signer {
 	std::string hash;
 	std::string cert;
     PinDialog *pinDialog = nullptr;
+    PKCS11CardManager *cardManager = nullptr;
 
-	PinDialog *createPinDialog(CleverCardManager *manager) {
+    PinDialog *createPinDialog(PKCS11CardManager *manager) {
 		if (pinDialog != NULL) {
 			return pinDialog;
 		}
@@ -49,22 +42,34 @@ class Signer : public ExtensionDialog {
 		}
 	}
 
+    jsonxx::Object error(int errorCode) {
+        jsonxx::Object json;
+        switch(errorCode)
+        {
+        case USER_CANCEL: json << "result" << "user_cancel"; break;
+        case READER_NOT_FOUND: json << "result" << "no_certificates"; break;
+        case CERT_NOT_FOUND: json << "result" << "no_certificates"; break;
+        case INVALID_HASH: json << "result" << "invalid_argument"; break;
+        case ONLY_HTTPS_ALLOWED: json << "result" << "not_allowed"; break;
+        default: json << "result" << "technical_error";
+        }
+        return json;
+    }
+
  public:
 
 	Signer(std::string hash, std::string cert) : hash(hash), cert(cert) {
-#ifndef _TEST
         cardManager = new PKCS11CardManager;
-#endif
 	}
 
 	//Used for testing
-	Signer(std::string hash, std::string cert, PinDialog *dialog, CleverCardManager *manager) : hash(hash), cert(cert) {
+    Signer(std::string hash, std::string cert, PinDialog *dialog, PKCS11CardManager *manager) : hash(hash), cert(cert) {
 		cardManager = manager;
 		pinDialog = dialog;
 	}
 
 	jsonxx::Object sign() {
-        std::unique_ptr<CleverCardManager> manager;
+        std::unique_ptr<PKCS11CardManager> manager;
 		int retriesLeft = 0;
 
 		try {

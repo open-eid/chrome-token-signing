@@ -17,10 +17,8 @@ using namespace std;
 using namespace Gtk;
 
 PinDialog::PinDialog() {
-#ifndef _TEST
   dialog = new Dialog(l10nLabels.get("signing"));
   formElements = new FormElementsContainer();
-#endif
 }
 
 void PinDialog::draw() {

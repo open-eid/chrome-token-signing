@@ -10,14 +10,20 @@
 
 #pragma once
 
-#include "CardManager.h"
 #include "pkcs11.h"
 #include "Logger.h"
 #include "DateUtils.h"
 #include "error.h"
+#include "PinString.h"
 
 #include <openssl/x509.h>
 #include <dlfcn.h>
+
+#define BINARY_SHA1_LENGTH 20
+#define BINARY_SHA224_LENGTH 28
+#define BINARY_SHA256_LENGTH 32
+#define BINARY_SHA384_LENGTH 48
+#define BINARY_SHA512_LENGTH 64
 
 #ifndef PKCS11_MODULE
 #ifdef _WIN32
@@ -29,7 +35,7 @@
 #endif
 #endif
 
-class PKCS11CardManager : public CardManager {
+class PKCS11CardManager {
 private:
     void *library = nullptr;
     CK_FUNCTION_LIST_PTR fl = nullptr;
