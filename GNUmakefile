@@ -18,4 +18,3 @@ release:
 
 test: detect
 	python host-test/pipe-test.py -v
-	python host-test/longrunning-test.py -v
