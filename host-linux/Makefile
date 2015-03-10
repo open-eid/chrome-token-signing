@@ -3,8 +3,8 @@ EXE = out/chrome-token-signing
 PKCS11_MODULE := opensc-pkcs11.so
 COPT = -O2
 CXX = g++
-INCLUDES := -I. -I../host-shared -I../host-shared/json -I../host-shared/pkcs11  `pkg-config --cflags openssl` `pkg-config --cflags gtk+-3.0` `pkg-config --cflags gtkmm-3.0`
-LIBS := -ldl -pthread `pkg-config --libs gtk+-3.0` `pkg-config --libs gtkmm-3.0` `pkg-config --libs openssl`
+INCLUDES := -I. -I../host-shared -I../host-shared/json  `pkg-config --cflags openssl` `pkg-config --cflags gtkmm-3.0`
+LIBS := -ldl -pthread `pkg-config --libs gtkmm-3.0` `pkg-config --libs openssl`
 CPPFLAGS := $(COPT) -g $(INCLUDES) -pthread -D_GLIBCXX_USE_NANOSLEEP -std=c++11 -DPKCS11_MODULE=\"$(PKCS11_MODULE)\"
 LDFLAGS := $(LIBPATH) -g $(LIBS)
 
