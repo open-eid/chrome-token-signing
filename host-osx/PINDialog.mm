@@ -68,16 +68,21 @@
         default: return @{@"result": @"invalid_argument"};
     }
 
-    PKCS11CardManager manager;
+    std::unique_ptr<PKCS11CardManager> manager, selected;
     time_t currentTime = DateUtils::now();
-    std::unique_ptr<PKCS11CardManager> selected;
-    for (auto &token : manager.getAvailableTokens()) {
-        selected.reset(manager.getManagerForReader(token));
-        if (BinaryUtils::hex2bin([params[@"cert"] UTF8String]) == selected->getSignCert() &&
-            currentTime <= selected->getValidTo()) {
-            break;
+    try {
+        manager.reset(new PKCS11CardManager);
+        for (auto &token : manager->getAvailableTokens()) {
+            selected.reset(manager->getManagerForReader(token));
+            if (BinaryUtils::hex2bin([params[@"cert"] UTF8String]) == selected->getSignCert() &&
+                currentTime <= selected->getValidTo()) {
+                break;
+            }
+            selected.reset();
         }
-        selected.reset();
+    }
+    catch(const std::runtime_error &) {
+        return @{@"result": @"technical_error"};
     }
 
     if (!selected) {
@@ -94,29 +99,30 @@
         return @{@"result": @"technical_error"};
     }
 
-    std::vector<unsigned char> signature;
+    NSDictionary *pinpadresult;
     std::future<void> future;
     NSTimer *timer;
     if (selected->isPinpad()) {
         timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
-        future = std::async(std::launch::async, [&](){
+        future = std::async(std::launch::async, [&]() {
             try {
-                signature = selected->sign(hash, PinString());
+                std::vector<unsigned char> signature = selected->sign(hash, PinString());
+                [NSApp stopModal];
+                pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
             }
             catch(const AuthenticationErrorAborted &) {
                 [NSApp abortModal];
-                return;
+                pinpadresult = @{@"result": @"user_cancel"};
             }
             catch(const AuthenticationError &) {
                 [NSApp abortModal];
-                return;
+                pinpadresult = @{@"result": @"user_cancel"};
             }
             catch(const std::runtime_error &) {
                 [NSApp abortModal];
-                return;
+                pinpadresult = @{@"result": @"technical_error"};
             }
-            [NSApp stopModal];
         });
     }
 
@@ -138,12 +144,24 @@
     }
 
     if (!selected->isPinpad()) {
-        signature = selected->sign(
-            BinaryUtils::hex2bin([params[@"hash"] UTF8String]),
-            PinString(dialog->pinField.stringValue.UTF8String));
+        try {
+            std::vector<unsigned char> signature = selected->sign(hash, PinString(dialog->pinField.stringValue.UTF8String));
+            return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+        }
+        catch(const AuthenticationErrorAborted &) {
+            return @{@"result": @"user_cancel"};
+        }
+        catch(const AuthenticationError &) {
+            return @{@"result": @"user_cancel"};
+        }
+        catch(const std::runtime_error &) {
+            return @{@"result": @"technical_error"};
+        }
     }
-
-    return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+    else {
+        future.wait();
+        return pinpadresult;
+    }
 }
 
 - (IBAction)okClicked:(id)sender

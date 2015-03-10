@@ -47,7 +47,7 @@
         PKCS11CardManager manager;
         time_t currentTime = DateUtils::now();
         for (auto &token : manager.getAvailableTokens()) {
-            CardManager *local = manager.getManagerForReader(token);
+            PKCS11CardManager *local = manager.getManagerForReader(token);
             time_t validTo = local->getValidTo();
             if (currentTime <= validTo) {
                 std::vector<unsigned char> cert = local->getSignCert();
