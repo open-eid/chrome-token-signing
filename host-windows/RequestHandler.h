@@ -14,10 +14,11 @@
 
 class RequestHandler {
 public:
-	RequestHandler(const jsonxx::Object &_jsonRequest) : jsonRequest(_jsonRequest){}
+	RequestHandler(const std::string &_request) : request(_request){}
 	jsonxx::Object handleRequest();
 private:
-	const jsonxx::Object jsonRequest;
+	const std::string request;
+	jsonxx::Object jsonRequest;
 	jsonxx::Object handleVersionRequest();
 	jsonxx::Object handleCertRequest();
 	jsonxx::Object handleSignRequest();

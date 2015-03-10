@@ -22,12 +22,13 @@ int main(int argc, char **argv) {
 
 	InputParser parser(cin);
 	_log("Parsing input...");
+	string request;
 	string response;
 	Object json;
 	try
 	{
-		json = parser.readBody();
-		RequestHandler handler(json);
+		request = parser.readBody();
+		RequestHandler handler(request);
 		response = handler.handleRequest().json();
 	}
 	catch (const std::runtime_error &e)

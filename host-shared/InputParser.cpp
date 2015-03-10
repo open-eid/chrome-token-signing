@@ -13,7 +13,6 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace jsonxx;
 
 InputParser::InputParser(std::istream& inputStream):inputStream(inputStream) {
 }
@@ -21,7 +20,7 @@ InputParser::InputParser(std::istream& inputStream):inputStream(inputStream) {
 InputParser::~InputParser() {
 }
 
-Object InputParser::readBody() {
+string InputParser::readBody() {
   int messageLength = this->readMessageLengthFromStream();
   
   if (messageLength > 1024*8)
@@ -32,12 +31,11 @@ Object InputParser::readBody() {
   string message(messageLength, 0);
   inputStream.read(&message[0], messageLength);
   _log("read message(%i): %s", messageLength, message.c_str());
-  Object json;
-  json.parse(message);
-  return json;
+  return message;
 }
 
 int InputParser::readMessageLengthFromStream() {
+	return 4;
   int result = 0;
   char size[sizeof (int)];
   inputStream.read(size, sizeof (int));

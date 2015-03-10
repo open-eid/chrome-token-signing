@@ -13,13 +13,12 @@
 
 #include <istream>
 #include <string>
-#include "jsonxx.h"
 
 class InputParser {
 public:
     InputParser(std::istream& inputStream);
     virtual ~InputParser();
-    jsonxx::Object readBody();
+    std::string readBody();
 private:
     std::istream &inputStream;
     int readMessageLengthFromStream();

@@ -18,7 +18,7 @@ using namespace std;
 
 jsonxx::Object RequestHandler::handleRequest() {
 	jsonxx::Object jsonResponse;
-	if (jsonRequest.has<string>("type")) {
+	if (jsonRequest.parse(request) && jsonRequest.has<string>("type")) {
 		string type = jsonRequest.get<string>("type");
 		if (type == "VERSION") {
 			jsonResponse = handleVersionRequest();
@@ -29,11 +29,11 @@ jsonxx::Object RequestHandler::handleRequest() {
 		else if (type == "SIGN" && hasSignRequestArguments()) {
 			jsonResponse = handleSignRequest();
 		}
-		completeResponse(jsonResponse);
 	}
 	else {
 		jsonResponse << "result" << "invalid_argument";
 	}
+	completeResponse(jsonResponse);
 	return jsonResponse;
 }
 
