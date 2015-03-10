@@ -11,80 +11,81 @@
 #include <iostream>
 #include <iomanip>
 #include <gtkmm.h>
-#include "BinaryUtils.h"
 #include "jsonxx.h"
-#include "InputParser.h"
 #include "Logger.h"
 #include "Signer.h"
 #include "CertificateSelection.h"
-#include "VersionInfo.h"
 #include "Labels.h"
 
 using namespace std;
 using namespace BinaryUtils;
 using namespace jsonxx;
 
-int readMessageLengthFromCin();
+#ifndef VERSION
+#define VERSION "LOCAL_BUILD"
+#endif
 
 int main(int argc, char **argv) {
 
-  Gtk::Main kit(argc, argv);
+    Gtk::Main kit(argc, argv);
 
-  InputParser parser(cin);
-  _log("Parsing input...");
-  Object json = parser.readBody();
-
-  if (json.has<string>("lang")) {
-    l10nLabels.setLanguage(json.get<string>("lang"));
-  }
-
-  Object resp;
-
-  if(!json.has<string>("type") || !json.has<string>("nonce") || !json.has<string>("origin")) {
-    resp << "result" << "invalid_argument";
-  } else {
-    string type = json.get<string>("type");
-    string origin = json.get<string>("origin");
-    if (type == "VERSION") {
-      VersionInfo version;
-      resp = version.getVersion();
-    } else {
-      std::string https("https:");
-
-      if (!origin.compare(0, https.size(), https)) {
-        if (type == "SIGN") {
-          if (!json.has<string>("cert") || !json.has<string>("hash")) {
-            resp << "result" << "invalid_argument";
-          } else {
-            string hash = json.get<String>("hash");
-            string cert = json.get<String>("cert");
-            _log("signing hash: %s, with cert: %s", hash.c_str(), cert.c_str());
-            Signer signer(hash, cert);
-            resp = signer.sign();
-          }
-        } else if (type == "CERT") {
-          CertificateSelection cert;
-          resp = cert.getCert();
-        } else {
-          resp << "result" << "invalid_argument";
-        }
-      } else {
-        resp << "result" << "not_allowed";
-      }
+    _log("Parsing input...");
+    uint32_t messageLength = 0;
+    cin.read((char*)&messageLength, sizeof(messageLength));
+    if (messageLength > 1024*8)
+    {
+        _log("Invalid message length " + to_string(messageLength));
+        return 0;
     }
-  }
 
-  // check for error
-  if (!resp.has<string>("result"))
-    resp << "result" << "ok";
-  // echo nonce
-  resp << "nonce" << json.get<string>("nonce");
-  string response = resp.json();
-  int responseLength = response.size();
-  unsigned char *responseLengthAsBytes = intToBytesLittleEndian(responseLength);
-  cout.write((char *) responseLengthAsBytes, 4);
-  _log("Response(%i) %s ", responseLength, response.c_str());
-  cout << response << endl;
-  free(responseLengthAsBytes);
-  return EXIT_SUCCESS;
+    string message(messageLength, 0);
+    cin.read(&message[0], messageLength);
+    _log("read message(%i): %s", messageLength, message.c_str());
+
+    Object json;
+    Object resp;
+    if(!json.parse(message))
+        resp << "result" << "invalid_argument";
+    else if(!json.has<string>("type") || !json.has<string>("nonce") || !json.has<string>("origin")) {
+        resp << "result" << "invalid_argument";
+    } else {
+        if (json.has<string>("lang")) {
+            l10nLabels.setLanguage(json.get<string>("lang"));
+        }
+
+        string origin = json.get<string>("origin");
+        string type = json.get<string>("type");
+        if (type == "VERSION") {
+            resp << "version" << VERSION;
+        } else if (origin.compare(0, 6, "https:")) {
+            resp << "result" << "not_allowed";
+        }
+        else if (type == "SIGN") {
+            if (!json.has<string>("cert") || !json.has<string>("hash")) {
+                resp << "result" << "invalid_argument";
+            } else {
+                string hash = json.get<String>("hash");
+                string cert = json.get<String>("cert");
+                _log("signing hash: %s, with cert: %s", hash.c_str(), cert.c_str());
+                resp = Signer(hash, cert).sign();
+            }
+        } else if (type == "CERT") {
+            resp = CertificateSelection().getCert();
+        } else {
+            resp << "result" << "invalid_argument";
+        }
+    }
+
+    // check for error
+    if (!resp.has<string>("result"))
+        resp << "result" << "ok";
+    // echo nonce
+    if (json.has<string>("nonce"))
+        resp << "nonce" << json.get<string>("nonce");
+    string response = resp.json();
+    uint32_t responseLength = response.size();
+    cout.write((char *) &responseLength, sizeof(responseLength));
+    _log("Response(%i) %s ", responseLength, response.c_str());
+    cout << response << endl;
+    return EXIT_SUCCESS;
 }
