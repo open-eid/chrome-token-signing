@@ -10,10 +10,13 @@
 
 #include "Logger.h"
 #include <sstream>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 using namespace std;
 
-void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, string message, ...) {
+void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const string &message, ...) {
   va_list args;
 
   FILE *log = fopen(getLogFileName().c_str(), "a");
