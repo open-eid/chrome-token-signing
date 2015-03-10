@@ -8,14 +8,14 @@
 * Version 2.1, February 1999
 */
 
-#include "BinaryUtils.h"
+#include <stdint.h>
+
 #include "jsonxx.h"
 #include "InputParser.h"
 #include "RequestHandler.h"
 #include "Logger.h"
 
 using namespace std;
-using namespace BinaryUtils;
 using namespace jsonxx;
 
 int main(int argc, char **argv) {
@@ -36,12 +36,9 @@ int main(int argc, char **argv) {
 		json << "result" << "not_allowed" << "message" << e.what();
 		response = json.json();
 	}
-
-	int responseLength = response.length() + 3; //TODO For some reason can't get the correct size if more than 1 json key - temp. hack to fit into it
-	unsigned char *responseLengthAsBytes = intToBytesLittleEndian(responseLength);
-	cout.write((char *)responseLengthAsBytes, 4);
+	uint32_t responseLength = response.size() + 3;
+	cout.write((char *)&responseLength, sizeof(responseLength));
 	_log("Response(%i) %s ", responseLength, response.c_str());
 	cout << response << endl;
-	free(responseLengthAsBytes);
 	return EXIT_SUCCESS;
 }

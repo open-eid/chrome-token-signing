@@ -21,7 +21,6 @@ public:
     std::string readBody();
 private:
     std::istream &inputStream;
-    int readMessageLengthFromStream();
 };
 
 #endif	/* INPUTPARSER_H */

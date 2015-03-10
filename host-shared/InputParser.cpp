@@ -11,6 +11,7 @@
 #include "InputParser.h"
 #include "Logger.h"
 #include <stdexcept>
+#include <stdint.h>
 
 using namespace std;
 
@@ -21,28 +22,14 @@ InputParser::~InputParser() {
 }
 
 string InputParser::readBody() {
-  int messageLength = this->readMessageLengthFromStream();
-  
-  if (messageLength > 1024*8)
-  {
-	  throw std::runtime_error("Invalid message length " + to_string(messageLength));
-  }
-
-  string message(messageLength, 0);
-  inputStream.read(&message[0], messageLength);
-  _log("read message(%i): %s", messageLength, message.c_str());
-  return message;
+	
+	uint32_t messageLength = 0;
+	inputStream.read((char*)&messageLength, sizeof(messageLength));
+	if (messageLength > 1024 * 8)
+	{
+		throw std::runtime_error("Invalid message length " + to_string(messageLength));
+	}
+	string message(messageLength, 0);
+	inputStream.read(&message[0], messageLength);
+	return message;
 }
-
-int InputParser::readMessageLengthFromStream() {
-  int result = 0;
-  char size[sizeof (int)];
-  inputStream.read(size, sizeof (int));
-  
-  for (int n = sizeof (int) - 1; n >= 0; n--) {
-    result = (result << 8) + (unsigned char)size[n];
-  }
-
-  return result;
-}
-
