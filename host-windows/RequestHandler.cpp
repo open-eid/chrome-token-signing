@@ -29,16 +29,16 @@ jsonxx::Object RequestHandler::handleRequest() {
 		else if (type == "SIGN" && hasSignRequestArguments()) {
 			jsonResponse = handleSignRequest();
 		}
-	} 
+		completeResponse(jsonResponse);
+	}
 	else {
 		jsonResponse << "result" << "invalid_argument";
 	}
-	completeResponse(jsonResponse);
 	return jsonResponse;
 }
 
 bool RequestHandler::hasGloballyRequiredArguments() {
-	return jsonRequest.has<string>("nonce") && jsonRequest.has<string>("origin");
+	return jsonRequest.has<string>("nonce");
 }
 
 bool RequestHandler::hasSignRequestArguments() {
@@ -75,14 +75,26 @@ jsonxx::Object RequestHandler::handleVersionRequest() {
 }
 
 jsonxx::Object RequestHandler::handleCertRequest() {
+	if (!isSecureOrigin()) {
+		return notAllowed();
+	}
 	CertificateSelection cert;
 	return cert.getCert();
 }
 
 jsonxx::Object RequestHandler::handleSignRequest() {
+	if (!isSecureOrigin()) {
+		return notAllowed();
+	}
 	string hashFromStdIn = jsonRequest.get<string>("hash");
 	string cert = jsonRequest.get<string>("cert");
 	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
 	Signer signer(hashFromStdIn, cert);
 	return signer.sign();
+}
+
+jsonxx::Object RequestHandler::notAllowed() {
+	jsonxx::Object json;
+	json << "result" << "not_allowed";
+	return json;
 }

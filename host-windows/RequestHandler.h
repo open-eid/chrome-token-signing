@@ -21,6 +21,7 @@ private:
 	jsonxx::Object handleVersionRequest();
 	jsonxx::Object handleCertRequest();
 	jsonxx::Object handleSignRequest();
+	jsonxx::Object RequestHandler::notAllowed();
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();
 	bool hasCertRequestArguments();
