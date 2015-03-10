@@ -12,13 +12,17 @@ all: *.mm
 clean:
 	$(PROJ) clean
 
-install:
-	$(PROJ) DSTROOT=/ install
-
 pkg:
 	$(PROJ) DSTROOT=/tmp/chrome-token-signing.dst install
 	codesign -f -s "$(SIGNCERT)" "/tmp/chrome-token-signing.dst/$(NATIVE_PATH)/chrome-token-signing.app"
 	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing_$(VERSION).$(BUILD_NUMBER).pkg
+
+install:
+	mkdir -p $(NATIVE_PATH)
+	cp -rv build/Release/chrome-token-signing.app $(NATIVE_PATH)
+	cp -v ee.ria.esteid.json $(NATIVE_PATH)
+	mkdir -p $(EXTERNAL_PATH)
+	cp -v ../ckjefchnfjhjfedoccjbhjpbncimppeg.json $(EXTERNAL_PATH)
 
 uninstall:
 	rm -f $(EXTERNAL_PATH)/ckjefchnfjhjfedoccjbhjpbncimppeg.json
