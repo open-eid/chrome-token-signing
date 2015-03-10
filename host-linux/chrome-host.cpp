@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     cin.read((char*)&messageLength, sizeof(messageLength));
     if (messageLength > 1024*8)
     {
-        _log("Invalid message length " + to_string(messageLength));
+        _log("Invalid message length %s", to_string(messageLength).c_str());
         return 0;
     }
 
