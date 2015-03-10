@@ -35,7 +35,6 @@ string InputParser::readBody() {
 }
 
 int InputParser::readMessageLengthFromStream() {
-	return 4;
   int result = 0;
   char size[sizeof (int)];
   inputStream.read(size, sizeof (int));
