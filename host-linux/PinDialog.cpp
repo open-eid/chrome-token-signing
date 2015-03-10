@@ -17,9 +17,6 @@ using namespace std;
 using namespace Gtk;
 
 PinDialog::PinDialog() {
-  dialog = NULL;
-  formElements = NULL;
-
 #ifndef _TEST
   dialog = new Dialog(l10nLabels.get("signing"));
   formElements = new FormElementsContainer();
@@ -52,23 +49,15 @@ string PinDialog::getPin() {
   return formElements->pin2Entry.get_text();
 }
 
-void PinDialog::setErrorMessage(string errorMessage) {
+void PinDialog::setErrorMessage(const string &errorMessage) {
   formElements->setError(errorMessage);
 }
 
-void PinDialog::setCardInfo(string cardInfo) {
+void PinDialog::setCardInfo(const string &cardInfo) {
   formElements->setName(cardInfo);
 }
 
 PinDialog::~PinDialog() {
-#ifndef _TEST
-  if (dialog != NULL) {
     delete dialog;
-    dialog = NULL;
-  }
-  if (formElements != NULL) {
     delete formElements;
-    formElements = NULL;
-  }
-#endif
 }

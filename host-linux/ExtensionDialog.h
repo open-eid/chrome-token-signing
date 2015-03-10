@@ -8,8 +8,7 @@
 * Version 2.1, February 1999
 */
 
-#ifndef EXTENSIONDIALOG_H
-#define	EXTENSIONDIALOG_H
+#pragma once
 
 #ifdef _TEST
 #include "../test/MockCardManager.h"
@@ -18,7 +17,6 @@ typedef MockCardManager CleverCardManager;
 #else
 #include "PKCS11CardManager.h"
 typedef PKCS11CardManager CleverCardManager;
-#define FREE_MANAGER if(manager != NULL) {delete manager; manager = NULL;}
 #endif
 
 #include "jsonxx.h"
@@ -26,7 +24,7 @@ typedef PKCS11CardManager CleverCardManager;
 
 class ExtensionDialog {
  protected:
-	CleverCardManager *cardManager;
+    CleverCardManager *cardManager = nullptr;
 
  public:
     jsonxx::Object error(int errorCode) {
@@ -42,11 +40,5 @@ class ExtensionDialog {
         }
         return json;
     }
-	
-	virtual time_t now() {
-		return DateUtils::now();
-	}
+
 };
-
-#endif	/* EXTENSIONDIALOG_H */
-

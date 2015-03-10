@@ -69,7 +69,7 @@ class PinPadDialog : public PinDialog {
 		PinDialog::hide();
 	}
 
-	std::string getPin() {
+    std::string getPin() {
 		std::thread pinpadDialogThread(&PinPadDialog::run, this);
 		pinpadDialogThread.detach();
 		startCountdown();

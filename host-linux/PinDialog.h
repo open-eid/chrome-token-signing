@@ -22,12 +22,12 @@ class PinDialog {
 	PinDialog();
 	virtual ~PinDialog();
 	virtual void hide();
-	virtual std::string getPin();
-	virtual void setErrorMessage(std::string errorMessage);
-	virtual void setCardInfo(std::string errorMessage);
+    virtual std::string getPin();
+    virtual void setErrorMessage(const std::string &errorMessage);
+    virtual void setCardInfo(const std::string &errorMessage);
  protected:
-	Gtk::Dialog *dialog;
-	FormElementsContainer *formElements;
+    Gtk::Dialog *dialog = nullptr;
+    FormElementsContainer *formElements = nullptr;
 };
 
 #endif //PINDIALOG_H

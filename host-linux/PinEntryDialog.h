@@ -41,7 +41,7 @@ class PinEntryDialog : public PinDialog {
 		dialog->show_all_children();
 	}
 
-	std::string getPin() {
+    std::string getPin() {
 		int result = run();
 		if (result != GTK_RESPONSE_SIGN) {
 			throw UserCanceledError();
@@ -53,7 +53,7 @@ class PinEntryDialog : public PinDialog {
 		return dialog->run();
 	}
 	
-	virtual std::string readPin() {
+    virtual std::string readPin() {
 		return PinDialog::getPin();
 	}
 	
