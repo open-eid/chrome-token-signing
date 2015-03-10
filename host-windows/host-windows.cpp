@@ -9,6 +9,8 @@
 */
 
 #include <stdint.h>
+#include <fcntl.h>
+#include <io.h>
 
 #include "jsonxx.h"
 #include "InputParser.h"
@@ -19,6 +21,9 @@ using namespace std;
 using namespace jsonxx;
 
 int main(int argc, char **argv) {
+	//Necessary for sending correct message length to stout (in Windows)
+	_setmode(_fileno(stdin), O_BINARY);
+	_setmode(_fileno(stdout), O_BINARY);
 
 	InputParser parser(cin);
 	_log("Parsing input...");
