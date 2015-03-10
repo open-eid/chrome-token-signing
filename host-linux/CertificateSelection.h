@@ -8,72 +8,50 @@
 * Version 2.1, February 1999
 */
 
-#ifndef CERTIFICATEREQUEST_H
-#define	CERTIFICATEREQUEST_H
+#pragma once
 
-#include "CardManager.h"
+#include "PKCS11CardManager.h"
 #include "Logger.h"
 #include "CertDialog.h"
-#include "Labels.h"
-#include "ExtensionDialog.h"
 #include "BinaryUtils.h"
 
-class CertificateSelection : public ExtensionDialog {
- private:
-	CertDialog *dialog;
+using namespace jsonxx;
 
- public:
+class CertificateSelection {
+public:
+    Object getCert() {
+        try {
+            std::unique_ptr<PKCS11CardManager> cardManager(new PKCS11CardManager);
+            std::unique_ptr<CertDialog> dialog(new CertDialog());
+            time_t currentTime = DateUtils::now();
+            bool found = false;
+            for (auto &token : cardManager->getAvailableTokens()) {
+                CleverCardManager *manager = cardManager->getManagerForReader(token);
+                time_t validTo = manager->getValidTo();
+                if (currentTime <= validTo) {
+                    dialog->addRow(token, manager->getCN(), manager->getType(), DateUtils::timeToString(validTo));
+                    found = true;
+                }
+                delete manager;
+            }
 
-	CertificateSelection() {
-		cardManager = NULL;
-		dialog = NULL;
-#ifndef _TEST
-		cardManager = new PKCS11CardManager(PKCS11_MODULE);
-		dialog = new CertDialog();
-#endif
-	}
+            if (!found)
+                return Object() << "result" << "no_certificates";
 
-	//unit tests
-	CertificateSelection(CertDialog *certDialog, CleverCardManager *manager) {
-		dialog = certDialog;
-		cardManager = manager;
-	}
+            int result = dialog->run();
+            dialog->hide();
+            if (result != GTK_RESPONSE_OK)
+                return Object() << "result" << "user_cancel";
 
-	jsonxx::Object getCert() {
-                jsonxx::Object json;
-		try {
-			time_t currentTime = now();
-			std::vector<unsigned int> availableTokens = cardManager->getAvailableTokens();
-			for (auto &token : availableTokens) {
-				CleverCardManager *manager = cardManager->getManagerForReader(token);
+            int readerId = dialog->getSelectedCertIndex();
+            CleverCardManager *manager = cardManager->getManagerForReader(readerId);
+            std::vector<unsigned char> cert = manager->getSignCert();
 
-				if (manager->isCardInReader()) {
-					time_t validTo = manager->getValidTo();
-
-					if (currentTime <= validTo)
-						dialog->addRow(token, manager->getCN(), manager->getType(), DateUtils::timeToString(validTo));
-				}
-				FREE_MANAGER;
-			}
-
-			int result = dialog->run();
-			dialog->hide();
-			if (result != GTK_RESPONSE_OK) {
-				return jsonxx::Object() << "result" << "user_cancel";
-			}
-
-			int readerId = dialog->getSelectedCertIndex();
-			CleverCardManager *manager = cardManager->getManagerForReader(readerId);
-			std::vector<unsigned char> cert = manager->getSignCert();
-
-			_log("cert binary size = %i", cert.size());
-			FREE_MANAGER;
-			return jsonxx::Object() << "cert" << BinaryUtils::bin2hex(cert);;
-		} catch (std::runtime_error &e) {
-			_log(e.what());
-		}
-		return jsonxx::Object() << "result" << "technical_error";
-	}
+            _log("cert binary size = %i", cert.size());
+            return Object() << "cert" << BinaryUtils::bin2hex(cert);
+        } catch (const std::runtime_error &e) {
+            _log(e.what());
+        }
+        return Object() << "result" << "technical_error";
+    }
 };
-#endif	/* CERTIFICATEREQUEST_H */
-

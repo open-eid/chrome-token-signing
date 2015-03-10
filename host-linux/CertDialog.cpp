@@ -16,10 +16,8 @@
 using namespace Gtk;
 using namespace std;
 
-CertDialog::CertDialog() {
-  dialog = NULL;
-  formElements = NULL;
-
+CertDialog::CertDialog()
+{
 #ifndef _TEST
   dialog = new Dialog(l10nLabels.get("select certificate"));
   formElements = new CertFormElementsContainer();
@@ -68,7 +66,7 @@ void CertDialog::draw() {
   dialog->show_all_children();
 }
 
-void CertDialog::addRow(int certId, string CN, string type, string validTo) {
+void CertDialog::addRow(int certId, const string &CN, const string &type, const string &validTo) {
   Gtk::TreeModel::Row row = *(refTreeModel->append());
   row[modelColumns.id] = certId;
   row[modelColumns.name] = CN;
@@ -84,16 +82,8 @@ int CertDialog::getSelectedCertIndex() {
 }
 
 CertDialog::~CertDialog() {
-#ifndef _TEST
-  if (dialog != NULL) {
     delete dialog;
-    dialog = NULL;
-  }
-  if (formElements != NULL) {
     delete formElements;
-    formElements = NULL;
-  }
-#endif
 }
 
 

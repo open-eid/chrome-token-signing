@@ -21,11 +21,11 @@ class CertDialog {
 	virtual void draw();
 	virtual int run();
 	virtual void hide();
-	virtual void addRow(int certId, std::string CN, std::string type, std::string validTo);
+    virtual void addRow(int certId, const std::string &CN, const std::string &type, const std::string &validTo);
 	virtual int getSelectedCertIndex();
  protected:
-	Gtk::Dialog *dialog;
-	CertFormElementsContainer *formElements;
+    Gtk::Dialog *dialog = nullptr;
+    CertFormElementsContainer *formElements = nullptr;
 
 	class ModelColumns : public Gtk::TreeModel::ColumnRecord {
 	 public:
