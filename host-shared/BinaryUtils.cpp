@@ -17,13 +17,13 @@
 
 using namespace std;
 
-vector<unsigned char> BinaryUtils::hex2bin(const char *hex) {
-  if (strlen(hex) % 2 == 1)
+vector<unsigned char> BinaryUtils::hex2bin(const string &hex) {
+  if (hex.size() % 2 == 1)
       throw runtime_error("Hex is incorrect");
 
-  vector<unsigned char> bin(strlen(hex) / 2, 0);
+  vector<unsigned char> bin(hex.size() / 2, 0);
   unsigned char *c = &bin[0];
-  const char *h = hex;
+  const char *h = hex.c_str();
   while (*h) {
     int x;
     sscanf(h, "%2X", &x);
