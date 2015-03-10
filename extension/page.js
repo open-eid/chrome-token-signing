@@ -43,7 +43,7 @@ window.addEventListener("message", function(event) {
     }
 }, false);
 
-function IdCardPluginHandler(lang) {
+function TokenSigning(lang) {
     function nonce() {
         var val = "";
         var hex = "abcdefghijklmnopqrstuvwxyz0123456789";
