@@ -15,3 +15,8 @@ release:
 	test -z "`git status -s extension`"
 	git clean -dfx extension
 	zip -r extension-$(RELEASE).zip extension
+
+test: detect
+	python host-test/pipe-test.py
+	python host-test/longrunning-test.py
+	
