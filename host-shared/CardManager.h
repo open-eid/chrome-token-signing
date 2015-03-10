@@ -8,8 +8,7 @@
 * Version 2.1, February 1999
 */
 
-#ifndef CARDMANAGER_H
-#define	CARDMANAGER_H
+#pragma once
 
 #define BINARY_SHA1_LENGTH 20
 #define BINARY_SHA224_LENGTH 28
@@ -24,13 +23,11 @@
 class CardManager {
  public:
     virtual ~CardManager() {}
-	virtual std::vector<unsigned int> getAvailableTokens() {return std::vector<unsigned int>();}
-	virtual bool isReaderPresent() {
-		return getAvailableTokens().size() > 0;
-	}
+    virtual std::vector<unsigned int> getAvailableTokens() {return std::vector<unsigned int>();}
+    virtual bool isReaderPresent() {return getAvailableTokens().size() > 0;}
     virtual bool isCardInReader() const {return false;}
-    CardManager *getManagerForReader(int readerId) {return new CardManager();}
-    virtual std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin){return std::vector<unsigned char>();}
+    CardManager *getManagerForReader(int /*readerId*/) {return new CardManager();}
+    virtual std::vector<unsigned char> sign(const std::vector<unsigned char> &/*hash*/, const PinString &/*pin*/){return std::vector<unsigned char>();}
     virtual std::string getCardName(){return "Mari-Liis Mannik";}
     virtual std::string getPersonalCode(){return "47101010033";}
     virtual int getPIN2RetryCount() const {return 3;}
@@ -44,6 +41,4 @@ class CardManager {
     virtual std::string getCertSerialNumber() const {return "";}
     virtual bool isPinpad() const {return false;}
 };
-
-#endif	/* CARDMANAGER_H */
 
