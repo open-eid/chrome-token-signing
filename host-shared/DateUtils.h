@@ -15,8 +15,8 @@
 #include <string>
 
 namespace  DateUtils {
-	time_t timeFromStringWithFormat(std::string date, std::string format);
-	time_t timeFromString(std::string date);
+    time_t timeFromStringWithFormat(const std::string &date, const std::string &format);
+    time_t timeFromString(const std::string &date);
 	std::string timeToString(time_t time);
 	time_t now();
 };

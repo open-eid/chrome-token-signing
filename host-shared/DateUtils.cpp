@@ -13,8 +13,8 @@
 
 using namespace std;
 
-time_t DateUtils::timeFromStringWithFormat(string date, string format) {
-  struct tm tm_struct = {0};
+time_t DateUtils::timeFromStringWithFormat(const string &date, const string &format) {
+  struct tm tm_struct = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   time_t _time = time(0);
 
   tm_struct.tm_hour = 23;
@@ -31,20 +31,17 @@ time_t DateUtils::timeFromStringWithFormat(string date, string format) {
   return _time;
 }
 
-time_t DateUtils::timeFromString(string date) {
+time_t DateUtils::timeFromString(const string &date) {
   return DateUtils::timeFromStringWithFormat(date, "%d.%m.%Y");
 }
 
 string DateUtils::timeToString(time_t time) {
   tm *localTime = localtime(&time);
-  int bufferSize = 11;
-  char buffer[bufferSize];
-  strftime(buffer, bufferSize, "%d.%m.%Y", localTime);
-  return string(buffer);
+  string buffer(11, 0);
+  strftime(&buffer[0], buffer.size(), "%d.%m.%Y", localTime);
+  return buffer;
 }
 
 time_t DateUtils::now() {
   return time(NULL);
 }
-
-
