@@ -8,6 +8,7 @@ import sys
 import unittest
 import uuid
 import re
+import testconf
 
 # The protocol datagram is described here:
 # https://developer.chrome.com/extensions/nativeMessaging#native-messaging-host-protocol
@@ -19,21 +20,12 @@ import re
 def instruct(msg):
     raw_input('>>>>>> %s\n[press ENTER to continue]' % msg)
 
-def get_exe():
-    if sys.platform == 'darwin':
-        return "host-osx/build/Release/chrome-token-signing.app/Contents/MacOS/chrome-token-signing"
-    elif sys.platform == "linux2":
-        return "host-linux/out/chrome-token-signing"
-    else:
-        print("Unsupported platform: %s" % sys.platform)
-        sys.exit(1)
-
 class TestLongrunningHost(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         should_close_fds = sys.platform.startswith('win32') == False
-        cls.p = subprocess.Popen(get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
+        cls.p = subprocess.Popen(testconf.get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
         print('Running native component on PID %d' % cls.p.pid)
 
     @classmethod

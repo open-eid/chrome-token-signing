@@ -5,8 +5,7 @@ import sys
 import unittest
 import uuid
 import re
-
-exe = None
+import testconf
 
 # The protocol datagram is described here:
 # https://developer.chrome.com/extensions/nativeMessaging#native-messaging-host-protocol
@@ -21,9 +20,8 @@ def instruct(msg):
 class TestStatelessHost(unittest.TestCase):
 
   def open_conn(self):
-      global exe
       should_close_fds = sys.platform.startswith('win32') == False;
-      self.p = subprocess.Popen(exe, stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
+      self.p = subprocess.Popen(testconf.get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
       print ("Running native component on PID %d" % self.p.pid)
   
   def close_conn(self):
@@ -140,21 +138,6 @@ class TestStatelessHost(unittest.TestCase):
       
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print ("usage: stateless-test.py <path to executable> <optional: test name>")
-        sys.exit(1)
-    exe = sys.argv[1]
-    if len(sys.argv) == 2:
-      # remove argument so that unittest.main() would work as expected
-      sys.argv = [sys.argv[0]]
-      # run tests
-      unittest.main();
-    if len(sys.argv) > 2:
-        # Take single test name from arguments
-        singleTestName = sys.argv[2]
-        suite = unittest.TestSuite()
-        suite.addTest(TestStatelessHost(singleTestName))
-        runner = unittest.TextTestRunner()
-        # Run test suite with a single test
-        runner.run(suite)
+    # run tests
+    unittest.main();
     

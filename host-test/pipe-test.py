@@ -3,20 +3,10 @@ import subprocess
 import struct
 import sys
 import unittest
+import testconf
 
 # The protocol datagram is described here:
 # https://developer.chrome.com/extensions/nativeMessaging#native-messaging-host-protocol
-
-def get_exe():
-    if sys.platform == 'darwin':
-        return "host-osx/build/Release/chrome-token-signing.app/Contents/MacOS/chrome-token-signing"
-    elif sys.platform == "linux2":
-        return "host-linux/out/chrome-token-signing"
-    elif sys.platform == 'win32':
-        return "host-windows\\Debug\\host-windows.exe"
-    else:
-        print("Unsupported platform: %s" % sys.platform)
-        sys.exit(1)
 
 class TestHostPipe(unittest.TestCase):
 
@@ -38,7 +28,7 @@ class TestHostPipe(unittest.TestCase):
 
   def setUp(self):
       should_close_fds = sys.platform.startswith('win32') == False;
-      self.p = subprocess.Popen(get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
+      self.p = subprocess.Popen(testconf.get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
       print ("Running native component on PID %d" % self.p.pid)
 
   def tearDown(self):
