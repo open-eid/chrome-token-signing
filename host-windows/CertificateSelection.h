@@ -10,11 +10,12 @@
 
 #pragma once
 
-#include "jsonxx.h"
+#include "HostExceptions.h"
+#include <string>
 
 class CertificateSelection {
   public:
 
 	  CertificateSelection() {}
-	  jsonxx::Object getCert(); 
+	  std::string getCert() throw(UserCancelledException, TechnicalException);
 };

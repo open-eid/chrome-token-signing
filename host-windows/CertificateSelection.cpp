@@ -10,6 +10,7 @@
 
 #include "CertificateSelection.h"
 #include "BinaryUtils.h"
+#include "HostExceptions.h"
 #include <Windows.h>
 #include <ncrypt.h>
 #include <WinCrypt.h>
@@ -90,11 +91,11 @@ BOOL WINAPI filter_proc(PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert,
 	return isValidForSigning(certContext);
 }
 
-jsonxx::Object CertificateSelection::getCert() {
-	jsonxx::Object json;
+std::string CertificateSelection::getCert() {
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
-	if (!store) {
-		return json << "result" << "technical_error" << "message" << "Failed to open Cert Store";
+	if (!store) 
+	{
+		throw TechnicalException("Failed to open Cert Store");
 	}
 
 	
@@ -106,10 +107,13 @@ jsonxx::Object CertificateSelection::getCert() {
 	PCCERT_CONTEXT cert_context = CryptUIDlgSelectCertificate(&pcsc);
 	
 	if (!cert_context)
-		return json << "result" << "user_cancel" << "message" << "User cancelled";
+	{
+		//TODO throw other exceptions from cert_context
+		throw UserCancelledException();
+	}
 
 	vector<unsigned char> data(cert_context->pbCertEncoded, cert_context->pbCertEncoded + cert_context->cbCertEncoded);
 	CertFreeCertificateContext(cert_context);
 	CertCloseStore(store, 0);
-	return json << "cert" << BinaryUtils::bin2hex(data);
+	return BinaryUtils::bin2hex(data);
 }

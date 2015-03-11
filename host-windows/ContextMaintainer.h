@@ -11,5 +11,6 @@
 #pragma once
 
 class ContextMaintainer {
+private:
 
 };

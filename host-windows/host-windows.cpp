@@ -13,6 +13,7 @@
 #include "jsonxx.h"
 #include "RequestHandler.h"
 #include "Logger.h"
+#include "HostExceptions.h"
 
 using namespace std;
 using namespace jsonxx;
@@ -30,6 +31,14 @@ int main(int argc, char **argv) {
 			string request = ioCommunicator.readMessage();
 			RequestHandler handler(request);
 			response = handler.handleRequest().json();
+		}
+		catch (BaseException &e)
+		{
+			string msg = "Handling exception: " + e.getErrorCode();
+			_log(msg.c_str());
+			Object json;
+			json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
+			response = json.json();
 		}
 		catch (const std::runtime_error &e)
 		{

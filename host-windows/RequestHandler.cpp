@@ -30,7 +30,7 @@ jsonxx::Object RequestHandler::handleRequest() {
 		}
 	}
 	else {
-		jsonResponse << "result" << "invalid_argument";
+		throw InvalidArgumentException("Invalid argument");
 	}
 	completeResponse();
 	return jsonResponse;
@@ -44,13 +44,15 @@ bool RequestHandler::hasSignRequestArguments() {
 	return jsonRequest.has<string>("cert") && jsonRequest.has<string>("hash");
 }
 
-bool RequestHandler::isSecureOrigin() {
+void RequestHandler::validateSecureOrigin() {
 	if (!jsonRequest.has<string>("origin")) {
-		return false;
+		throw NotAllowedException("Origin is not given");
 	}
 	string https("https:");
 	string origin = jsonRequest.get<string>("origin");
-	return !origin.compare(0, https.size(), https);
+	if (origin.compare(0, https.size(), https)) {
+		throw NotAllowedException("Origin doesn't contain https");
+	}
 }
 
 void RequestHandler::completeResponse() {
@@ -71,30 +73,17 @@ void RequestHandler::handleVersionRequest() {
 }
 
 void RequestHandler::handleCertRequest() {
-	if (!isSecureOrigin()) {
-		jsonResponse = notAllowed();
-	}
-	else {
-		CertificateSelection cert;
-		jsonResponse = cert.getCert();
-	}
+	validateSecureOrigin();
+	CertificateSelection cert;
+	string sertString = cert.getCert();
+	jsonResponse << "cert" << cert.getCert();
 }
 
 void RequestHandler::handleSignRequest() {
-	if (!isSecureOrigin()) {
-		jsonResponse = notAllowed();
-	}
-	else {
-		string hashFromStdIn = jsonRequest.get<string>("hash");
-		string cert = jsonRequest.get<string>("cert");
-		_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
-		Signer signer(hashFromStdIn, cert);
-		jsonResponse = signer.sign();
-	}
-}
-
-jsonxx::Object RequestHandler::notAllowed() {
-	jsonxx::Object json;
-	json << "result" << "not_allowed";
-	return json;
+	validateSecureOrigin();
+	string hashFromStdIn = jsonRequest.get<string>("hash");
+	string cert = jsonRequest.get<string>("cert");
+	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
+	Signer signer(hashFromStdIn, cert);
+	jsonResponse << "signature" << signer.sign();
 }

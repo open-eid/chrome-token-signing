@@ -10,6 +10,7 @@
 
 #include "Signer.h"
 #include "BinaryUtils.h"
+#include "HostExceptions.h"
 #include <Windows.h>
 #include <ncrypt.h>
 #include <WinCrypt.h>
@@ -17,7 +18,7 @@
 
 using namespace std;
 
-jsonxx::Object Signer::sign() {
+string Signer::sign() {
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	vector<unsigned char> digest = BinaryUtils::hex2bin(hash.c_str());
 	
@@ -45,11 +46,10 @@ jsonxx::Object Signer::sign() {
 	SECURITY_STATUS err = 0;
 	DWORD size = 256;
 	vector<unsigned char> signature(size, 0);
-	jsonxx::Object json;
 
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
 	if (!store) {
-		return json << "result" << "technical_error" << "message" << "Failed to open Cert Store";
+		throw TechnicalException("Failed to open Cert Store");
 	}
 	
 	vector<unsigned char> certInBinary = BinaryUtils::hex2bin(certInHex.c_str());
@@ -60,7 +60,7 @@ jsonxx::Object Signer::sign() {
 
 	if (!certInStore)
 	{
-		return json << "result" << "no_certificates" << "message" << "Cert not found";
+		throw NoCertificatesException();
 	}
 
 	DWORD flags = CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG;
@@ -76,11 +76,12 @@ jsonxx::Object Signer::sign() {
 
 	switch (err)
 	{
+		//TODO handle other smart card errors
 	case ERROR_SUCCESS: 
-		return json << "signature" << BinaryUtils::bin2hex(signature);
+		return BinaryUtils::bin2hex(signature);
 	case SCARD_W_CANCELLED_BY_USER:
-		return json << "result" << "user_cancel" << "message" << "Signing was cancelled";
+		throw UserCancelledException("Signing was cancelled");
 	default:
-		return json << "result" << "technical_error" << "message" << "Technical error";
+		throw TechnicalException("Signing failed");
 	}
 }

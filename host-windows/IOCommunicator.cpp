@@ -10,6 +10,7 @@
 
 #include "IOCommunicator.h"
 #include "Logger.h"
+#include "HostExceptions.h"
 #include <stdint.h>
 #include <fcntl.h>
 #include <io.h>
@@ -25,7 +26,7 @@ string IOCommunicator::readMessage() {
 	cin.read((char*)&messageLength, sizeof(messageLength));
 	if (messageLength > 1024 * 8)
 	{
-		throw std::runtime_error("Invalid message length " + to_string(messageLength));
+		throw InvalidArgumentException("Invalid message length " + to_string(messageLength));
 	}
 	string message(messageLength, 0);
 	cin.read(&message[0], messageLength);
