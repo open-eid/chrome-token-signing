@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 		}
 		catch (const std::runtime_error &e)
 		{
-			json << "result" << "not_allowed" << "message" << e.what();
+			json << "result" << "invalid_argument" << "message" << e.what();
 			response = json.json();
 		}
 		uint32_t responseLength = strlen(response.c_str());

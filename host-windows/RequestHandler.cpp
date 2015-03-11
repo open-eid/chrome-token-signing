@@ -17,12 +17,12 @@
 using namespace std;
 
 jsonxx::Object RequestHandler::handleRequest() {
-	if (jsonRequest.parse(request) && jsonRequest.has<string>("type")) {
+	if (jsonRequest.parse(request) && hasGloballyRequiredArguments()) {
 		string type = jsonRequest.get<string>("type");
 		if (type == "VERSION") {
 			handleVersionRequest();
 		}
-		else if (type == "CERT" && hasCertRequestArguments()) {
+		else if (type == "CERT") {
 			handleCertRequest();
 		}
 		else if (type == "SIGN" && hasSignRequestArguments()) {
@@ -37,15 +37,11 @@ jsonxx::Object RequestHandler::handleRequest() {
 }
 
 bool RequestHandler::hasGloballyRequiredArguments() {
-	return jsonRequest.has<string>("nonce");
+	return jsonRequest.has<string>("type") && jsonRequest.has<string>("nonce") && jsonRequest.has<string>("origin");
 }
 
 bool RequestHandler::hasSignRequestArguments() {
-	return hasGloballyRequiredArguments() && jsonRequest.has<string>("cert") && jsonRequest.has<string>("hash");
-}
-
-bool RequestHandler::hasCertRequestArguments() {
-	return hasGloballyRequiredArguments();
+	return jsonRequest.has<string>("cert") && jsonRequest.has<string>("hash");
 }
 
 bool RequestHandler::isSecureOrigin() {

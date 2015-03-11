@@ -27,7 +27,6 @@ private:
 	jsonxx::Object notAllowed();
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();
-	bool hasCertRequestArguments();
 	bool isSecureOrigin();
 	void completeResponse();
 };
