@@ -63,12 +63,11 @@ void RequestHandler::completeResponse() {
 		jsonResponse << "result" << "ok";
 	}
 	// add API version
-	jsonResponse << "ver" << "1";
+	jsonResponse << "api" << API;
 }
 
 void RequestHandler::handleVersionRequest() {
-	VersionInfo version;
-	jsonResponse = version.getVersion();
+	jsonResponse << "version" << VERSION;
 }
 
 void RequestHandler::handleCertRequest() {

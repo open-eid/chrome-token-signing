@@ -97,9 +97,6 @@
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\host-test\stateless-test.py" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
