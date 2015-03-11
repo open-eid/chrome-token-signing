@@ -16,6 +16,5 @@
 namespace BinaryUtils {
     std::vector<unsigned char> hex2bin(const std::string &hex);
     std::string bin2hex(const std::vector<unsigned char> &bin);
-    unsigned char *intToBytesLittleEndian(int number);
 };
 

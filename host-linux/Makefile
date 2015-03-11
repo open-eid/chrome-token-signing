@@ -10,7 +10,7 @@ LDFLAGS := $(LIBPATH) -g $(LIBS)
 
 
 SOURCES = CertDialog.cpp chrome-host.cpp PinDialog.cpp
-SOURCES += ../host-shared/BinaryUtils.cpp ../host-shared/InputParser.cpp ../host-shared/locked_allocator.cpp ../host-shared/DateUtils.cpp ../host-shared/Labels.cpp ../host-shared/Logger.cpp
+SOURCES += ../host-shared/BinaryUtils.cpp ../host-shared/locked_allocator.cpp ../host-shared/DateUtils.cpp ../host-shared/Labels.cpp ../host-shared/Logger.cpp
 
 
 OBJS = $(patsubst %.cpp,%.o, $(SOURCES)) ../host-shared/json/jsonxx.o

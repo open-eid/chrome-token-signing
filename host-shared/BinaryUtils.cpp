@@ -40,11 +40,3 @@ string BinaryUtils::bin2hex(const vector<unsigned char> &bin) {
     sprintf(&hex[j * 2], "%02X", (unsigned char) bin.at(j));
   return hex;
 }
-
-unsigned char *BinaryUtils::intToBytesLittleEndian(int number) {
-  unsigned char *arrayOfByte = (unsigned char *) malloc(sizeof (int));
-  for (int i = 0; i < 4; i++) {
-    arrayOfByte[i] = (number >> (i * 8));
-  }
-  return arrayOfByte;
-}
