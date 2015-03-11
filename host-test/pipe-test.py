@@ -3,8 +3,9 @@ import subprocess
 import struct
 import sys
 import unittest
-import testconf
 import uuid
+import re
+import testconf
 
 # The protocol datagram is described here:
 # https://developer.chrome.com/extensions/nativeMessaging#native-messaging-host-protocol
