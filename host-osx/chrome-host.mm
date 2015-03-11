@@ -23,10 +23,11 @@ int main(int argc, const char * argv[]) {
         NSNotificationCenter *dc = [NSNotificationCenter defaultCenter];
         [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification *note) {
             NSData *data = [input availableData];
-            [input waitForDataInBackgroundAndNotify];
             if (data.length == 0) {
+                exit(0);
                 return;
             }
+            [input waitForDataInBackgroundAndNotify];
 
             uint32_t size = 0;
             [data getBytes:&size length:sizeof(size)];
