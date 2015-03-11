@@ -34,26 +34,26 @@ class TestHostPipe(unittest.TestCase):
       print("\nRunning native component on PID %d" % self.p.pid)
 
   def tearDown(self):
-      self.p.terminate()
-      self.p.wait()
+      if self.p.poll() == None:
+          self.p.terminate()
 
   def test_random_string(self):
       cmd = "BLAH"
       resp = self.transceive(cmd)
       self.assertEquals(resp["result"], "invalid_argument")
-      self.assertIsNotNone(self.p.poll())
+      self.assertEqual(self.p.wait(), 1)
 
   def test_plain_string(self):
       self.p.stdin.write("Hello World!")
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
-      self.assertIsNotNone(self.p.poll())
+      self.assertEqual(self.p.wait(), 1)
 
   def test_empty_json(self):
       cmd = {}
       resp = self.transceive(json.dumps(cmd))
       self.assertEqual(resp["result"], "invalid_argument")
-      self.assertIsNotNone(self.p.poll())
+      self.assertEqual(self.p.wait(), 1)
 
   def test_utopic_length(self):
       # write big bumber and little data
@@ -61,7 +61,7 @@ class TestHostPipe(unittest.TestCase):
       self.p.stdin.write("Hello World!")
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
-      self.assertIsNotNone(self.p.poll())
+      self.assertEqual(self.p.wait(), 1)
 
   # other headless tests
   def test_version_no_nonce(self):
