@@ -73,7 +73,8 @@ class TestHostPipe(unittest.TestCase):
   def test_version_invalid_origin(self):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "foobar in da house"}
       resp = self.transceive(json.dumps(cmd))
-      self.assertEqual(resp["result"], "not_allowed")
+      self.assertEqual(resp["result"], "ok")
+      self.assertTrue(re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
 
   def test_version_file_origin(self):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "file:///tmp/index.html"}
