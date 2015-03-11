@@ -9,7 +9,10 @@
  */
 var NO_NATIVE_URL = "https://pubkey.ee/sign/no_native_installed.html";
 var HELLO_URL = "https://pubkey.ee/sign/hello.html";
+var DEVELOPER_URL = "https://github.com/open-eid/chrome-token-signing/wiki/DeveloperTips";
+
 var NATIVE_HOST = "ee.ria.esteid";
+
 var K_SRC = "src";
 var K_ORIGIN = "origin";
 var K_NONCE = "nonce";
@@ -55,7 +58,12 @@ chrome.runtime.onInstalled.addListener(function(details) {
 			console.log("Query for native component");
 			if (!response) {
 				console.log("ERROR: " + JSON.stringify(chrome.runtime.lastError));
-				chrome.tabs.create({'url': NO_NATIVE_URL + "?" + details.reason});
+				var permissions = "Access to the specified native messaging host is forbidden.";
+				if (chrome.runtime.lastError.message === permissions) {
+					chrome.tabs.create({'url': DEVELOPER_URL + "?" + details.reason});
+				} else {
+					chrome.tabs.create({'url': NO_NATIVE_URL + "?" + details.reason});
+				}
 			} else {
 				console.log("RECV: " + JSON.stringify(response));
 				// TODO: Check for native component version and require upgrade if too old
