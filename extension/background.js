@@ -35,7 +35,21 @@ chrome.runtime.onConnect.addListener(function(port) {
 // When extension is installed
 chrome.runtime.onInstalled.addListener(function(details) {
 	// Check if native is available or direct to help page.
-	chrome.tabs.create({'url': HELLO_URL + "?" + details.reason});
+	if (details.reason === "install" || details.reason === "update") {
+		// Check during every install or upgrade if we have the native components at hand.
+		// Probe with empty message and expect a "result: invalid_argument" response
+		chrome.runtime.sendNativeMessage(NATIVE_HOST, {}, function(response) {
+			if (!response) {
+				console.log("ERROR: " + JSON.stringify(chrome.runtime.lastError));
+				chrome.tabs.create({'url': NO_NATIVE_URL + "?" + details.reason});
+			} else {
+				// TODO: Check for native component version and require upgrade if too old
+				if (details.reason == "install" && response.result == "invalid_argument") {
+					chrome.tabs.create({'url': HELLO_URL + "?" + details.reason});
+				}
+			}
+		});
+	}
 });
 // When message is received from page
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
