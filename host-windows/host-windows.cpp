@@ -8,12 +8,9 @@
 * Version 2.1, February 1999
 */
 
-#include <stdint.h>
-#include <fcntl.h>
-#include <io.h>
 
+#include "IOCommunicator.h"
 #include "jsonxx.h"
-#include "InputParser.h"
 #include "RequestHandler.h"
 #include "Logger.h"
 
@@ -21,20 +18,18 @@ using namespace std;
 using namespace jsonxx;
 
 int main(int argc, char **argv) {
-	//Necessary for sending correct message length to stout (in Windows)
-	_setmode(_fileno(stdin), O_BINARY);
-	_setmode(_fileno(stdout), O_BINARY);
+
+	IOCommunicator ioCommunicator;
 
 	while (true)
 	{
-		InputParser parser(cin);
 		_log("Parsing input...");
 		string request;
 		string response;
 		Object json;
 		try
 		{
-			request = parser.readBody();
+			request = ioCommunicator.readMessage();
 			RequestHandler handler(request);
 			response = handler.handleRequest().json();
 		}
@@ -43,10 +38,7 @@ int main(int argc, char **argv) {
 			json << "result" << "invalid_argument" << "message" << e.what();
 			response = json.json();
 		}
-		uint32_t responseLength = strlen(response.c_str());
-		cout.write((char *)&responseLength, sizeof(responseLength));
-		_log("Response(%i) %s ", responseLength, response.c_str());
-		cout << response;
+		ioCommunicator.sendMessage(response);
 	}
 	return EXIT_SUCCESS;
 }

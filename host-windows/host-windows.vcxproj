@@ -80,20 +80,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\host-shared\BinaryUtils.h" />
-    <ClInclude Include="..\host-shared\InputParser.h" />
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
     <ClInclude Include="CertificateSelection.h" />
+    <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Signer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp" />
-    <ClCompile Include="..\host-shared\InputParser.cpp" />
     <ClCompile Include="..\host-shared\json\jsonxx.cc" />
     <ClCompile Include="..\host-shared\Logger.cpp" />
     <ClCompile Include="CertificateSelection.cpp" />
     <ClCompile Include="host-windows.cpp" />
+    <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
   </ItemGroup>

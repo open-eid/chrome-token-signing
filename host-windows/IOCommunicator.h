@@ -8,20 +8,15 @@
 * Version 2.1, February 1999
 */
 
-#ifndef INPUTPARSER_H
-#define	INPUTPARSER_H
+#pragma once
 
-#include <istream>
 #include <string>
 
-class InputParser {
+using namespace std;
+
+class IOCommunicator {
 public:
-    InputParser(std::istream& inputStream);
-    virtual ~InputParser();
-    std::string readBody();
-private:
-    std::istream &inputStream;
+	IOCommunicator();
+	string readMessage();
+	void sendMessage(string msg);
 };
-
-#endif	/* INPUTPARSER_H */
-
