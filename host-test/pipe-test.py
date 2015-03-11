@@ -41,16 +41,19 @@ class TestHostPipe(unittest.TestCase):
       cmd = "BLAH"
       resp = self.transceive(cmd)
       self.assertEquals(resp["result"], "invalid_argument")
+      self.assertIsNotNone(self.p.poll())
 
   def test_plain_string(self):
       self.p.stdin.write("Hello World!")
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
+      self.assertIsNotNone(self.p.poll())
 
   def test_empty_json(self):
       cmd = {}
       resp = self.transceive(json.dumps(cmd))
       self.assertEqual(resp["result"], "invalid_argument")
+      self.assertIsNotNone(self.p.poll())
 
   def test_utopic_length(self):
       # write big bumber and little data
@@ -58,6 +61,7 @@ class TestHostPipe(unittest.TestCase):
       self.p.stdin.write("Hello World!")
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
+      self.assertIsNotNone(self.p.poll())
 
   # other headless tests
   def test_version_no_nonce(self):
