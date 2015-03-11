@@ -29,58 +29,67 @@ int main(int argc, const char * argv[]) {
             }
             [input waitForDataInBackgroundAndNotify];
 
-            uint32_t size = 0;
-            [data getBytes:&size length:sizeof(size)];
-            if (size > 8*1024) {
-                exit(0);
-                return;
-            }
+            for (NSUInteger pos = 0; pos < data.length;) {
+                uint32_t size = 0;
+                [data getBytes:&size range:NSMakeRange(pos, sizeof(size))];
+                if (size > 8*1024) {
+                    exit(0);
+                    return;
+                }
 
-            data = [data subdataWithRange:NSMakeRange(4, data.length - 4)];
-            NSError *error;
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-            NSString *nonce = dict[@"nonce"];
-            if (error) {
-                dict = @{@"result": @"invalid_argument", @"message": error.localizedDescription};
-            }
-            else if(!dict[@"nonce"] || !dict[@"type"] || !dict[@"origin"]) {
-                dict = @{@"result": @"invalid_argument"};
-            }
-            else {
-                if (dict[@"lang"]) {
-                    l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
+                NSData *json = [data subdataWithRange:NSMakeRange(pos + 4, size)];
+                pos += 4 + size;
+
+                NSError *error;
+                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
+                NSString *nonce = dict[@"nonce"];
+                if (error) {
+                    NSLog(@"Message (%u): %@", size, [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding]);
+                    dict = @{@"result": @"invalid_argument", @"message": error.localizedDescription};
                 }
-                if ([dict[@"type"] isEqualToString:@"VERSION"]) {
-                    dict = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};
-                }
-                else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
-                    dict = @{@"result": @"not_allowed"};
-                }
-                else if([dict[@"type"] isEqualToString:@"CERT"]) {
-                    dict = [CertificateSelection show];
-                }
-                else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
-                    dict = [PINPanel show:dict];
-                }
-                else {
+                else if(!dict[@"nonce"] || !dict[@"type"] || !dict[@"origin"]) {
                     dict = @{@"result": @"invalid_argument"};
                 }
-            }
+                else {
+                    if (dict[@"lang"]) {
+                        l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
+                    }
+                    if ([dict[@"type"] isEqualToString:@"VERSION"]) {
+                        dict = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};
+                    }
+                    else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
+                        dict = @{@"result": @"not_allowed"};
+                    }
+                    else if([dict[@"type"] isEqualToString:@"CERT"]) {
+                        dict = [CertificateSelection show];
+                    }
+                    else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
+                        dict = [PINPanel show:dict];
+                    }
+                    else {
+                        dict = @{@"result": @"invalid_argument"};
+                    }
+                }
 
-            NSMutableDictionary *resp = [NSMutableDictionary dictionaryWithDictionary:dict];
-            if (nonce) {
-                resp[@"nonce"] = nonce;
-            }
-            if (!dict[@"result"]) {
-                resp[@"result"] = @"ok";
-            }
-            resp[@"ver"] = @(1);
-            data = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
+                NSMutableDictionary *resp = [NSMutableDictionary dictionaryWithDictionary:dict];
+                if (nonce) {
+                    resp[@"nonce"] = nonce;
+                }
+                if (!dict[@"result"]) {
+                    resp[@"result"] = @"ok";
+                }
+                resp[@"ver"] = @(1);
+                json = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
 
-            size = (uint32_t)data.length;
-            NSData *sizeout = [NSData dataWithBytes:&size length:sizeof(size)];
-            [[NSFileHandle fileHandleWithStandardOutput] writeData:sizeout];
-            [[NSFileHandle fileHandleWithStandardOutput] writeData:data];
+                size = (uint32_t)json.length;
+                NSData *sizeout = [NSData dataWithBytes:&size length:sizeof(size)];
+                [[NSFileHandle fileHandleWithStandardOutput] writeData:sizeout];
+                [[NSFileHandle fileHandleWithStandardOutput] writeData:json];
+                
+                if ([resp[@"result"] isEqualTo:@"invalid_argument"]) {
+                    exit(0);
+                }
+            }
         }];
         [[NSRunLoop mainRunLoop] run];
     }
