@@ -37,7 +37,9 @@ class TestLongrunningHost(unittest.TestCase):
         print('SEND: %s' % msg)
         self.p.stdin.write(struct.pack('=I', len(msg)))
         self.p.stdin.write(msg)
+        print("Waiting for response...")
         response_length = struct.unpack('=I', self.p.stdout.read(4))[0]
+        print("Response length: %i" % response_length)
         response = str(self.p.stdout.read(response_length))
         response_print = json.dumps(json.loads(response))
         print('RECV: %s' % response_print)
@@ -121,4 +123,14 @@ class TestLongrunningHost(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    if len(sys.argv) == 2:
+        # Run a single test given in the argument
+        singleTestName = sys.argv[1]
+        suite = unittest.TestSuite()
+        suite.addTest(TestLongrunningHost(singleTestName))
+        runner = unittest.TextTestRunner()
+        # Run test suite with a single test
+        runner.run(suite)
+    else:
+        # Run all the tests
+        unittest.main()

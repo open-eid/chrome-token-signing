@@ -25,25 +25,28 @@ int main(int argc, char **argv) {
 	_setmode(_fileno(stdin), O_BINARY);
 	_setmode(_fileno(stdout), O_BINARY);
 
-	InputParser parser(cin);
-	_log("Parsing input...");
-	string request;
-	string response;
-	Object json;
-	try
+	while (true)
 	{
-		request = parser.readBody();
-		RequestHandler handler(request);
-		response = handler.handleRequest().json();
+		InputParser parser(cin);
+		_log("Parsing input...");
+		string request;
+		string response;
+		Object json;
+		try
+		{
+			request = parser.readBody();
+			RequestHandler handler(request);
+			response = handler.handleRequest().json();
+		}
+		catch (const std::runtime_error &e)
+		{
+			json << "result" << "not_allowed" << "message" << e.what();
+			response = json.json();
+		}
+		uint32_t responseLength = strlen(response.c_str());
+		cout.write((char *)&responseLength, sizeof(responseLength));
+		_log("Response(%i) %s ", responseLength, response.c_str());
+		cout << response;
 	}
-	catch (const std::runtime_error &e)
-	{
-		json << "result" << "not_allowed" << "message" << e.what();
-		response = json.json();
-	}
-	uint32_t responseLength = strlen(response.c_str());
-	cout.write((char *)&responseLength, sizeof(responseLength));
-	_log("Response(%i) %s ", responseLength, response.c_str());
-	cout << response << endl;
 	return EXIT_SUCCESS;
 }
