@@ -36,6 +36,9 @@
     <ClInclude Include="IOCommunicator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ContextMaintainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="host-windows.cpp">

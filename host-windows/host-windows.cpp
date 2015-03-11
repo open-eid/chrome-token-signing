@@ -24,17 +24,16 @@ int main(int argc, char **argv) {
 	while (true)
 	{
 		_log("Parsing input...");
-		string request;
 		string response;
-		Object json;
 		try
 		{
-			request = ioCommunicator.readMessage();
+			string request = ioCommunicator.readMessage();
 			RequestHandler handler(request);
 			response = handler.handleRequest().json();
 		}
 		catch (const std::runtime_error &e)
 		{
+			Object json;
 			json << "result" << "invalid_argument" << "message" << e.what();
 			response = json.json();
 		}

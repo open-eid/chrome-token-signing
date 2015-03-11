@@ -83,6 +83,7 @@
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
     <ClInclude Include="CertificateSelection.h" />
+    <ClInclude Include="ContextMaintainer.h" />
     <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Signer.h" />
