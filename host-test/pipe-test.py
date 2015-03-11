@@ -47,13 +47,18 @@ class TestHostPipe(unittest.TestCase):
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
 
+  def test_empty_json(self):
+      cmd = {}
+      resp = self.transceive(json.dumps(cmd))
+      self.assertEqual(resp["result"], "invalid_argument")
+
   def test_utopic_length(self):
       # write big bumber and little data
       self.p.stdin.write(struct.pack("=I", 0xFFFFFFFF))
       self.p.stdin.write("Hello World!")
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
-  
+
   # other headless tests
   def test_version_no_nonce(self):
       cmd = {"type": "VERSION", "origin": "https://example.com/"}
