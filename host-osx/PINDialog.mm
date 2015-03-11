@@ -18,7 +18,7 @@
 #define _L(KEY) @(l10nLabels.get(KEY).c_str())
 
 @interface PINPanel () {
-    IBOutlet NSPanel *pinPanel;
+    IBOutlet NSPanel *window;
     IBOutlet NSButton *okButton;
     IBOutlet NSButton *cancelButton;
     IBOutlet NSTextField *nameLabel;
@@ -48,7 +48,7 @@
             cancelButton.title = _L("cancel");
         }
         [pinFieldLabel setTitleWithMnemonic:_L(pinpad ? "enter PIN2 pinpad" : "enter PIN2")];
-        pinPanel.title =_L("signing");
+        window.title =_L("signing");
     }
     return self;
 }
@@ -132,7 +132,8 @@
     }
 
     [NSApp activateIgnoringOtherApps:YES];
-    NSModalResponse result = [NSApp runModalForWindow:dialog->pinPanel];
+    NSModalResponse result = [NSApp runModalForWindow:dialog->window];
+    [dialog->window close];
 
     if (timer) {
         [timer invalidate];

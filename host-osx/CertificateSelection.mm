@@ -16,7 +16,7 @@
 #define _L(KEY) @(l10nLabels.get(KEY).c_str())
 
 @interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate> {
-    IBOutlet NSPanel *certificateSelectionPanel;
+    IBOutlet NSPanel *window;
     IBOutlet NSTableView *certificateSelection;
     IBOutlet NSButton *okButton;
     IBOutlet NSButton *cancelButton;
@@ -31,36 +31,41 @@
 - (instancetype)init
 {
     if (self = [super init]) {
+        certificates = [[NSMutableArray alloc] init];
+        try {
+            PKCS11CardManager manager;
+            time_t currentTime = DateUtils::now();
+            for (auto &token : manager.getAvailableTokens()) {
+                PKCS11CardManager *local = manager.getManagerForReader(token);
+                time_t validTo = local->getValidTo();
+                if (currentTime <= validTo) {
+                    std::vector<unsigned char> cert = local->getSignCert();
+                    [certificates addObject: @{
+                                               @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
+                                               @"validTo": @(DateUtils::timeToString(validTo).c_str()),
+                                               @"CN": @(local->getCN().c_str()),
+                                               @"type": @(local->getType().c_str()),
+                                               }];
+                }
+                delete local;
+            }
+        } catch (const std::runtime_error &e) {
+            self = nil;
+            return self;
+        }
+
         if (![NSBundle loadNibNamed:@"CertificateSelection" owner:self]) {
             self = nil;
             return self;
         }
+
+        window.title = _L("select certificate");
         cancelButton.title = _L("cancel");
-        certificateSelectionPanel.title = _L("select certificate");
         okButton.title = _L("select");
         [warningLabel setTitleWithMnemonic:_L("cert info")];
         [[certificateSelection tableColumnWithIdentifier:@"CN"].headerCell setStringValue:_L("certificate")];
         [[certificateSelection tableColumnWithIdentifier:@"type"].headerCell setStringValue:_L("type")];
         [[certificateSelection tableColumnWithIdentifier:@"validTo"].headerCell setStringValue:_L("valid to")];
-
-        certificates = [[NSMutableArray alloc] init];
-        PKCS11CardManager manager;
-        time_t currentTime = DateUtils::now();
-        for (auto &token : manager.getAvailableTokens()) {
-            PKCS11CardManager *local = manager.getManagerForReader(token);
-            time_t validTo = local->getValidTo();
-            if (currentTime <= validTo) {
-                std::vector<unsigned char> cert = local->getSignCert();
-                [certificates addObject: @{
-                    @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
-                    @"validTo": @(DateUtils::timeToString(validTo).c_str()),
-                    @"CN": @(local->getCN().c_str()),
-                    @"type": @(local->getType().c_str()),
-                }];
-            }
-            delete local;
-        }
-
         [certificateSelection setDoubleAction:@selector(okClicked:)];
         if (certificateSelection.numberOfRows > 0) {
             [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];
@@ -72,23 +77,20 @@
 
 + (NSDictionary *)show
 {
-    try {
-        CertificateSelection *dialog = [[CertificateSelection alloc] init];
-        if (!dialog) {
-            return @{@"result": @"technical_error"};
-        }
-        if (dialog->certificates.count == 0) {
-            return @{@"result": @"no_certificates"};
-        }
-        [NSApp activateIgnoringOtherApps:YES];
-        if ([NSApp runModalForWindow:dialog->certificateSelectionPanel] == NSModalResponseAbort ||
-            dialog->certificateSelection.selectedRow == -1) {
-            return @{@"result": @"user_cancel"};
-        }
-        return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
-    } catch (const std::runtime_error &e) {
-        return @{@"result": @"technical_error", @"message": @(e.what())};
+    CertificateSelection *dialog = [[CertificateSelection alloc] init];
+    if (!dialog) {
+        return @{@"result": @"technical_error"};
     }
+    if (dialog->certificates.count == 0) {
+        return @{@"result": @"no_certificates"};
+    }
+    [NSApp activateIgnoringOtherApps:YES];
+    NSModalResponse result = [NSApp runModalForWindow:dialog->window];
+    [dialog->window close];
+    if (result == NSModalResponseAbort || dialog->certificateSelection.selectedRow == -1) {
+        return @{@"result": @"user_cancel"};
+    }
+    return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
 }
 
 - (IBAction)okClicked:(id)sender

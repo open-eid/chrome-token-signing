@@ -9,7 +9,7 @@
             <connections>
                 <outlet property="cancelButton" destination="73" id="110"/>
                 <outlet property="certificateSelection" destination="60" id="86"/>
-                <outlet property="certificateSelectionPanel" destination="1" id="85"/>
+                <outlet property="window" destination="1" id="85"/>
                 <outlet property="okButton" destination="71" id="108"/>
                 <outlet property="warningLabel" destination="111" id="113"/>
             </connections>

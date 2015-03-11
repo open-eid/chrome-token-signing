@@ -13,7 +13,7 @@
                 <outlet property="okButton" destination="3" id="41"/>
                 <outlet property="pinField" destination="7" id="44"/>
                 <outlet property="pinFieldLabel" destination="9" id="36"/>
-                <outlet property="pinPanel" destination="1" id="30"/>
+                <outlet property="window" destination="1" id="30"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>

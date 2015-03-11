@@ -10,7 +10,7 @@
                 <outlet property="messageField" destination="33" id="35"/>
                 <outlet property="nameLabel" destination="37" id="39"/>
                 <outlet property="pinFieldLabel" destination="9" id="36"/>
-                <outlet property="pinPanel" destination="1" id="30"/>
+                <outlet property="window" destination="1" id="30"/>
                 <outlet property="progressBar" destination="47" id="48"/>
             </connections>
         </customObject>
