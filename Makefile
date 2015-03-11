@@ -1,3 +1,4 @@
+# This is the Makefile for Windows NMake. See GNUmakefile for OSX/Linux.
 VERSION=1.0.0
 
 build:

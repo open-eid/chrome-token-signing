@@ -1,3 +1,4 @@
+# This is the Makefile for OSX/Linux. See Makefile for Windows NMake.
 UNAME = `uname`
 RELEASE = `grep '"version"' extension/manifest.json  | cut -d'"' -f 4`
 
