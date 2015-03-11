@@ -25,12 +25,12 @@ int main(int argc, char **argv) {
 	while (true)
 	{
 		_log("Parsing input...");
-		string response;
 		try
 		{
 			string request = ioCommunicator.readMessage();
 			RequestHandler handler(request);
-			response = handler.handleRequest().json();
+			string response = handler.handleRequest().json();
+			ioCommunicator.sendMessage(response);
 		}
 		catch (BaseException &e)
 		{
@@ -38,15 +38,18 @@ int main(int argc, char **argv) {
 			_log(msg.c_str());
 			Object json;
 			json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
-			response = json.json();
+			string response = json.json();
+			ioCommunicator.sendMessage(response);
+			break;
 		}
 		catch (const std::runtime_error &e)
 		{
 			Object json;
 			json << "result" << "invalid_argument" << "message" << e.what();
-			response = json.json();
+			string response = json.json();
+			ioCommunicator.sendMessage(response);
+			break;
 		}
-		ioCommunicator.sendMessage(response);
 	}
 	return EXIT_SUCCESS;
 }
