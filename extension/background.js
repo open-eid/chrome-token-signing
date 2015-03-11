@@ -84,6 +84,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		return;
 	}
 	if (sender.tab) {
+		console.log("Sending tab: " + sender.tab.id);
+		// Check if page is DONE
+		if (request["type"] === "DONE") {
+			console.log("Tab is done: " + sender.tab.id);
+			ports[sender.tab.id].disconnect();
+			delete ports[sender.tab.id];
+			return;
+		}
 		// TODO: Check if the URL is in allowed list or not
 		// Either way forward to native currently
 		sessions[request[K_NONCE]] = sender.tab.id;
