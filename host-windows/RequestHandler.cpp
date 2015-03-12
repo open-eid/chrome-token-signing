@@ -20,6 +20,7 @@ using namespace std;
 jsonxx::Object RequestHandler::handleRequest() {
 	try {
 		if (jsonRequest.parse(request) && hasGloballyRequiredArguments()) {
+			validateOrigin(jsonRequest.get<string>("origin"));
 			string type = jsonRequest.get<string>("type");
 			if (type == "VERSION") {
 				handleVersionRequest();
@@ -67,6 +68,12 @@ void RequestHandler::validateSecureOrigin() {
 void RequestHandler::validateContext(string signingCertificate) {
 	if (!ContextMaintainer::isSelectedCertificate(signingCertificate)) {
 		throw NotSelectedCertificateException();
+	}
+}
+
+void RequestHandler::validateOrigin(string origin) {
+	if (!ContextMaintainer::isSameOrigin(origin)) {
+		throw InconsistentOriginException();
 	}
 }
 

@@ -62,6 +62,14 @@ class TestHostPipe(unittest.TestCase):
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
       self.assertEqual(self.p.wait(), 1)
+	  
+  def test_inconsistent_origin(self):
+      cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "http://example.com/"}
+      cmd2 = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "http://badexample.com/"}
+      resp1 = self.transceive(json.dumps(cmd))
+      self.assertEqual(resp1["result"], "ok")
+      resp2 = self.transceive(json.dumps(cmd2))
+      self.assertEqual(resp2["result"], "invalid_argument")
 
   # other headless tests
   def test_version_no_nonce(self):

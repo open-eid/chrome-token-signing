@@ -16,6 +16,7 @@ class ContextMaintainer {
 private:
 	static std::string selectedCertificate;
 	static std::string savedOrigin;
+	static void saveOrigin(std::string origin);
 public:
 	static void saveCertificate(std::string certificate);
 	static bool isSelectedCertificate(std::string &certificate);

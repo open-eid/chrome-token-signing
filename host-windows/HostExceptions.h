@@ -71,3 +71,9 @@ class NotSelectedCertificateException : public BaseException {
 public:
 	NotSelectedCertificateException() :BaseException("invalid_argument", "Unable to sign with certificate that has not been selected by the user") {}
 };
+
+class InconsistentOriginException : public BaseException {
+public:
+	InconsistentOriginException() :BaseException("invalid_argument", "Request origin can't change between requests") {}
+};
+

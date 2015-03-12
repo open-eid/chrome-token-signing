@@ -32,6 +32,7 @@ private:
 	bool hasSignRequestArguments();
 	void validateSecureOrigin();
 	void validateContext(std::string signingCertificate);
+	void validateOrigin(std::string signingCertificate);
 	void completeResponse();
 };
 

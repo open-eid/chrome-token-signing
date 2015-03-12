@@ -26,7 +26,17 @@ bool ContextMaintainer::isSelectedCertificate(std::string &certificate) {
 	return ContextMaintainer::selectedCertificate == certificate;
 }
 
+void ContextMaintainer::saveOrigin(std::string origin) {
+	ContextMaintainer::savedOrigin = origin;
+}
+
 bool ContextMaintainer::isSameOrigin(std::string &origin) {
-	return ContextMaintainer::savedOrigin == origin;
+	if (ContextMaintainer::savedOrigin.empty()) {
+		saveOrigin(origin);
+		return true;
+	}
+	else {
+		return ContextMaintainer::savedOrigin == origin;
+	}
 }
 
