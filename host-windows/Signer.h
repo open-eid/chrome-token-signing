@@ -12,6 +12,11 @@
 
 #include <string>
 
+#define BINARY_SHA1_LENGTH 20
+#define BINARY_SHA224_LENGTH 28
+#define BINARY_SHA256_LENGTH 32
+#define BINARY_SHA384_LENGTH 48
+#define BINARY_SHA512_LENGTH 64
 
 class Signer {
 public:
@@ -21,4 +26,5 @@ public:
 private:
 	std::string hash;
 	std::string certInHex;
+	void checkHash();
 };

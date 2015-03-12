@@ -19,6 +19,7 @@
 using namespace std;
 
 string Signer::sign() {
+	checkHash();
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	vector<unsigned char> digest = BinaryUtils::hex2bin(hash.c_str());
 	
@@ -83,5 +84,18 @@ string Signer::sign() {
 		throw UserCancelledException("Signing was cancelled");
 	default:
 		throw TechnicalException("Signing failed");
+	}
+}
+
+void Signer::checkHash() {
+	switch (hash.length())
+	{
+	case BINARY_SHA1_LENGTH * 2:
+	case BINARY_SHA224_LENGTH * 2:
+	case BINARY_SHA256_LENGTH * 2:
+	case BINARY_SHA384_LENGTH * 2:
+	case BINARY_SHA512_LENGTH * 2: break;
+	default:
+		throw InvalidHashException("Invalid Hash");
 	}
 }

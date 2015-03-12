@@ -46,6 +46,11 @@ public:
 	InvalidArgumentException(string message) :BaseException("invalid_argument", message) {}
 };
 
+class InvalidHashException : public BaseException {
+public:
+	InvalidHashException(string message) :BaseException("invalid_argument", message) {}
+};
+
 class NotAllowedException : public BaseException {
 public:
 	NotAllowedException(string message) :BaseException("not_allowed", message) {}

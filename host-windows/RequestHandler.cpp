@@ -75,7 +75,6 @@ void RequestHandler::handleVersionRequest() {
 void RequestHandler::handleCertRequest() {
 	validateSecureOrigin();
 	CertificateSelection cert;
-	string sertString = cert.getCert();
 	jsonResponse << "cert" << cert.getCert();
 }
 

@@ -18,6 +18,8 @@
 using namespace std;
 using namespace jsonxx;
 
+void handleException(BaseException &e, IOCommunicator &ioCommunicator);
+
 int main(int argc, char **argv) {
 
 	IOCommunicator ioCommunicator;
@@ -32,24 +34,33 @@ int main(int argc, char **argv) {
 			string response = handler.handleRequest().json();
 			ioCommunicator.sendMessage(response);
 		}
+		// Only fail on invalid argument
+		catch (InvalidArgumentException &e)
+		{
+			handleException(e, ioCommunicator);
+			return EXIT_FAILURE;
+		}
 		catch (BaseException &e)
 		{
-			string msg = "Handling exception: " + e.getErrorCode();
-			_log(msg.c_str());
-			Object json;
-			json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
-			string response = json.json();
-			ioCommunicator.sendMessage(response);
-			break;
+			handleException(e, ioCommunicator);
+			continue;
 		}
 		catch (const std::runtime_error &e)
 		{
 			Object json;
-			json << "result" << "invalid_argument" << "message" << e.what();
+			json << "result" << "technical_error" << "message" << string(e.what());
 			string response = json.json();
 			ioCommunicator.sendMessage(response);
-			break;
+			return EXIT_FAILURE;
 		}
 	}
 	return EXIT_SUCCESS;
+}
+
+void handleException(BaseException &e, IOCommunicator &ioCommunicator) {
+	_log(("Handling exception: " + e.getErrorCode()).c_str());
+	Object json;
+	json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
+	string response = json.json();
+	ioCommunicator.sendMessage(response);
 }

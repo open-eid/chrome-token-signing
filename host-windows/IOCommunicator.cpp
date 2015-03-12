@@ -30,6 +30,7 @@ string IOCommunicator::readMessage() {
 	}
 	string message(messageLength, 0);
 	cin.read(&message[0], messageLength);
+	_log("Request(%i): %s ", messageLength, message.c_str());
 	return message;
 }
 
