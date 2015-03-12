@@ -45,12 +45,6 @@ window.addEventListener("message", function(event) {
 
 
 function TokenSigning(lang) {
-    // Send a helping message to close the native component
-    window.addEventListener("beforeunload", function(event) {
-        console.log("window is unloaded");
-        window.postMessage({src: 'page.js', type: 'DONE'}, "*");
-    }, false);
-
     function nonce() {
         var val = "";
         var hex = "abcdefghijklmnopqrstuvwxyz0123456789";

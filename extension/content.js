@@ -21,6 +21,12 @@ window.addEventListener("message", function(event) {
     }
 }, false);
 
+// close the native component if page unloads
+window.addEventListener("beforeunload", function(event) {
+    console.log("window is unloaded");
+    chrome.runtime.sendMessage({src: 'page.js', type: 'DONE'});
+}, false);
+
 // post messages from extension to page
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     window.postMessage(request, '*');
