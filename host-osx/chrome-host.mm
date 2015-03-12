@@ -37,7 +37,7 @@ int main(int argc, const char * argv[]) {
          an "active run loop".  I don't know what they mean by "active". */
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
-        __block NSString *cert;
+        __block NSString *cert, *origin;
         NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
         [input waitForDataInBackgroundAndNotify];
         NSNotificationCenter *dc = NSNotificationCenter.defaultCenter;
@@ -76,6 +76,13 @@ int main(int argc, const char * argv[]) {
                     return;
                 }
                 else {
+                    if (!origin) {
+                        origin = dict[@"origin"];
+                    } else if (![origin isEqualToString:dict[@"origin"]]) {
+                        write(@{@"result": @"invalid_argument"}, nil);
+                        exit(1);
+                        return;
+                    }
                     if (dict[@"lang"]) {
                         l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
                     }
