@@ -53,7 +53,7 @@
     return self;
 }
 
-+ (NSDictionary *)show:(NSDictionary*)params
++ (NSDictionary *)show:(NSDictionary*)params cert:(NSString *)cert
 {
     if (!params[@"hash"] || !params[@"cert"] || [params[@"hash"] length] % 2 == 1) {
         return @{@"result": @"invalid_argument"};
@@ -73,7 +73,7 @@
     try {
         for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
             selected.reset(PKCS11CardManager::instance()->getManagerForReader(token));
-            if (BinaryUtils::hex2bin([params[@"cert"] UTF8String]) == selected->getSignCert() &&
+            if (BinaryUtils::hex2bin(cert.UTF8String) == selected->getSignCert() &&
                 currentTime <= selected->getValidTo()) {
                 break;
             }

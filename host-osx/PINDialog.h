@@ -12,6 +12,6 @@
 
 @interface PINPanel : NSObject
 
-+ (NSDictionary *)show:(NSDictionary*)params;
++ (NSDictionary *)show:(NSDictionary*)params cert:(NSString*)cert;
 
 @end

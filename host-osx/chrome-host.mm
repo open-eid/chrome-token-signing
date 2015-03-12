@@ -35,11 +35,12 @@ int main(int argc, const char * argv[]) {
     @autoreleasepool {
         /* -[NSFileManager waitForDataInBackgroundAndNotify] doc say I need
          an "active run loop".  I don't know what they mean by "active". */
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
-        NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
+        __block NSString *cert;
+        NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
         [input waitForDataInBackgroundAndNotify];
-        NSNotificationCenter *dc = [NSNotificationCenter defaultCenter];
+        NSNotificationCenter *dc = NSNotificationCenter.defaultCenter;
         [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification *note) {
             NSData *data = [input availableData];
             if (data.length == 0) {
@@ -86,9 +87,10 @@ int main(int argc, const char * argv[]) {
                     }
                     else if([dict[@"type"] isEqualToString:@"CERT"]) {
                         result = [CertificateSelection show];
+                        cert = (NSString*)result[@"cert"];
                     }
                     else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
-                        result = [PINPanel show:dict];
+                        result = [PINPanel show:dict cert:cert];
                     }
                     else {
                         result = @{@"result": @"invalid_argument"};
@@ -97,7 +99,7 @@ int main(int argc, const char * argv[]) {
                 write(result, dict[@"nonce"]);
             }
         }];
-        [[NSRunLoop mainRunLoop] run];
+        [NSRunLoop.mainRunLoop run];
     }
     return EXIT_SUCCESS;
 }
