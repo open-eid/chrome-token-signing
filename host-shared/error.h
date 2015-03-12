@@ -13,6 +13,13 @@
 
 #include "Labels.h"
 
+#define USER_CANCEL 1
+#define READER_NOT_FOUND 5
+#define UNKNOWN_ERROR 5
+#define CERT_NOT_FOUND 2
+#define INVALID_HASH 17
+#define ONLY_HTTPS_ALLOWED 19
+
 class CommonError : public std::runtime_error {
 	 public:
 		int code;
@@ -62,4 +69,3 @@ class AuthenticationErrorBadInput : public AuthenticationError {
 };
 
 #endif	/* ERROR_H */
-

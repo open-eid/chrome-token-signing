@@ -37,7 +37,7 @@ Labels::Labels() {
 }
 
 void Labels::setLanguage(const string &language) {
-    std::map<std::string, int> languages = {{"et",0}, {"en",1}, {"ru",2}, {"est",0}, {"eng",1}, {"rus",2}};
+    static std::map<std::string, int> languages = {{"et",0}, {"en",1}, {"ru",2}, {"est",0}, {"eng",1}, {"rus",2}};
     selectedLanguage = languages.at(language);
 }
 
