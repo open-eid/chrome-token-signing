@@ -65,13 +65,13 @@ void RequestHandler::validateSecureOrigin() {
 	}
 }
 
-void RequestHandler::validateContext(string signingCertificate) {
+void RequestHandler::validateContext(string &signingCertificate) {
 	if (!ContextMaintainer::isSelectedCertificate(signingCertificate)) {
 		throw NotSelectedCertificateException();
 	}
 }
 
-void RequestHandler::validateOrigin(string origin) {
+void RequestHandler::validateOrigin(string &origin) {
 	if (!ContextMaintainer::isSameOrigin(origin)) {
 		throw InconsistentOriginException();
 	}

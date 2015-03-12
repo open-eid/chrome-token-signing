@@ -31,8 +31,8 @@ private:
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();
 	void validateSecureOrigin();
-	void validateContext(std::string signingCertificate);
-	void validateOrigin(std::string signingCertificate);
+	void validateContext(std::string &signingCertificate);
+	void validateOrigin(std::string &origin);
 	void completeResponse();
 };
 
