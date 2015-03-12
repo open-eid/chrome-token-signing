@@ -87,7 +87,7 @@ int main(int argc, const char * argv[]) {
                 [[NSFileHandle fileHandleWithStandardOutput] writeData:json];
                 
                 if ([resp[@"result"] isEqualTo:@"invalid_argument"]) {
-                    exit(0);
+                    exit(1);
                 }
             }
         }];
