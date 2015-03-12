@@ -13,6 +13,7 @@
 #include "Signer.h"
 #include "VersionInfo.h"
 #include "CertificateSelection.h"
+#include "ContextMaintainer.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ jsonxx::Object RequestHandler::handleRequest() {
 		}
 	}
 	catch (InvalidArgumentException &e) {
-		throw;
+		throw e;
 	}
 	catch (BaseException &e) {
 		handleException(e);
@@ -63,6 +64,12 @@ void RequestHandler::validateSecureOrigin() {
 	}
 }
 
+void RequestHandler::validateContext(string signingCertificate) {
+	if (!ContextMaintainer::isSelectedCertificate(signingCertificate)) {
+		throw NotSelectedCertificateException();
+	}
+}
+
 void RequestHandler::completeResponse() {
 	if (jsonRequest.has<string>("nonce")) {
 		//echo nonce
@@ -83,13 +90,16 @@ void RequestHandler::handleVersionRequest() {
 void RequestHandler::handleCertRequest() {
 	validateSecureOrigin();
 	CertificateSelection cert;
-	jsonResponse << "cert" << cert.getCert();
+	string selectedCert = cert.getCert();
+	ContextMaintainer::saveCertificate(selectedCert);
+	jsonResponse << "cert" << selectedCert;
 }
 
 void RequestHandler::handleSignRequest() {
 	validateSecureOrigin();
 	string hashFromStdIn = jsonRequest.get<string>("hash");
 	string cert = jsonRequest.get<string>("cert");
+	validateContext(cert);
 	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
 	Signer signer(hashFromStdIn, cert);
 	jsonResponse << "signature" << signer.sign();

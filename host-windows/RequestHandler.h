@@ -12,6 +12,7 @@
 
 #include "jsonxx.h"
 #include "HostExceptions.h"
+#include "ContextMaintainer.h"
 
 class RequestHandler {
 public:
@@ -30,6 +31,7 @@ private:
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();
 	void validateSecureOrigin();
+	void validateContext(std::string signingCertificate);
 	void completeResponse();
 };
 

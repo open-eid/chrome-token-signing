@@ -66,3 +66,8 @@ class NoCertificatesException : public BaseException {
 public:
 	NoCertificatesException() :BaseException("no_certificates", "Cert not found") {}
 };
+
+class NotSelectedCertificateException : public BaseException {
+public:
+	NotSelectedCertificateException() :BaseException("invalid_argument", "Unable to sign with certificate that has not been selected by the user") {}
+};

@@ -94,6 +94,7 @@
     <ClCompile Include="..\host-shared\json\jsonxx.cc" />
     <ClCompile Include="..\host-shared\Logger.cpp" />
     <ClCompile Include="CertificateSelection.cpp" />
+    <ClCompile Include="ContextMaintainer.cpp" />
     <ClCompile Include="host-windows.cpp" />
     <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="RequestHandler.cpp" />

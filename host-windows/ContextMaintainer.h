@@ -10,7 +10,12 @@
 
 #pragma once
 
+#include <string>
+
 class ContextMaintainer {
 private:
-
+	static std::string selectedCertificate;
+public:
+	static void saveCertificate(std::string &certificate);
+	static bool isSelectedCertificate(std::string &certificate);
 };
