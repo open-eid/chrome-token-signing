@@ -21,10 +21,7 @@
 #include <string>
 
 class Signer {
-	std::string hash;
-	std::string cert;
     PinDialog *pinDialog = nullptr;
-    PKCS11CardManager *cardManager = nullptr;
 
     PinDialog *createPinDialog(PKCS11CardManager *manager) {
 		if (pinDialog != NULL) {
@@ -57,20 +54,25 @@ class Signer {
 
  public:
 
-	Signer(std::string hash, std::string cert) : hash(hash), cert(cert) {
-        cardManager = new PKCS11CardManager;
-	}
-
-	jsonxx::Object sign() {
+    jsonxx::Object sign(const std::string &hash, const std::string &cert) {
         std::unique_ptr<PKCS11CardManager> manager;
 		int retriesLeft = 0;
 
 		try {
-			checkHash();
+            switch(hash.length())
+            {
+            case BINARY_SHA1_LENGTH * 2:
+            case BINARY_SHA224_LENGTH * 2:
+            case BINARY_SHA256_LENGTH * 2:
+            case BINARY_SHA384_LENGTH * 2:
+            case BINARY_SHA512_LENGTH * 2: break;
+            default:
+                throw InvalidHashError();
+            }
 
             time_t currentTime = DateUtils::now();
-            for (auto &token : cardManager->getAvailableTokens()) {
-                manager.reset(cardManager->getManagerForReader(token));
+            for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
+                manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
                 if (manager->getSignCert() == BinaryUtils::hex2bin(cert) &&
                     currentTime <= manager->getValidTo()) {
                     _log("Got readerId %i from certId ", token);
@@ -98,10 +100,10 @@ class Signer {
         }
 
 		do {
-			try {
-				PinString pin(pinDialog->getPin().c_str());
-                std::vector<unsigned char> hash = BinaryUtils::hex2bin(this->hash);
-				std::vector<unsigned char> signature = manager->sign(hash, pin);
+            try {
+                std::vector<unsigned char> signature = manager->sign(
+                            BinaryUtils::hex2bin(hash),
+                            PinString(pinDialog->getPin().c_str()));
 				pinDialog->hide();
                 return jsonxx::Object() << "signature" << BinaryUtils::bin2hex(signature);
             } catch (const AuthenticationError &ae) {
@@ -144,21 +146,8 @@ class Signer {
 		}
 	}
 
-	virtual void checkHash() {
-        switch(hash.length())
-        {
-        case BINARY_SHA1_LENGTH * 2:
-        case BINARY_SHA224_LENGTH * 2:
-        case BINARY_SHA256_LENGTH * 2:
-        case BINARY_SHA384_LENGTH * 2:
-        case BINARY_SHA512_LENGTH * 2: break;
-        default:
-			throw InvalidHashError();
-		}
-	}
 
 	virtual ~Signer() {
         delete pinDialog;
-        delete cardManager;
 	}
 };

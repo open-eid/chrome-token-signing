@@ -49,8 +49,8 @@ private:
         X509_NAME *name = X509_get_subject_name(cert);
         std::string X509Value(1024, 0);
         int length = X509_NAME_get_text_by_NID(name, OBJ_txt2nid(subjectField.c_str()), &X509Value[0], int(X509Value.size()));
-        _log("%s length is %i (%i), %p", subjectField.c_str(), length, strlen(X509Value.c_str()), X509Value.c_str());
         X509Value.resize(std::max(0, length));
+        _log("%s length is %i, %p", subjectField.c_str(), length, X509Value.c_str());
         return X509Value;
     }
 
@@ -149,15 +149,6 @@ public:
         return signingSlotIDs;
     }
 
-    bool isCardInReader() {
-        CK_RV result = fl->C_GetTokenInfo(slotID, &tokenInfo);
-        if (result == CKR_DEVICE_REMOVED) {
-            return false;
-        }
-        checkError("C_GetTokenInfo", result);
-        return true;
-    }
-
     PKCS11CardManager *getManagerForReader(int slotId) {
         return new PKCS11CardManager(slotId, fl);
     }
@@ -188,8 +179,8 @@ public:
     }
 
     std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin) const {
-        CK_OBJECT_HANDLE privateKeyHandle;
-        CK_ULONG objectCount;
+        CK_OBJECT_HANDLE privateKeyHandle = 0;
+        CK_ULONG objectCount = 0;
         CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
         CK_OBJECT_CLASS objectClass = CKO_PRIVATE_KEY;
         CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
@@ -216,7 +207,7 @@ public:
         }
 
         checkError("C_SignInit", fl->C_SignInit(session, &mechanism, privateKeyHandle));
-        CK_ULONG signatureLength;
+        CK_ULONG signatureLength = 0;
 
         std::vector<unsigned char> hashWithPadding = getHashWithPadding(hash);
         checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), NULL, &signatureLength));

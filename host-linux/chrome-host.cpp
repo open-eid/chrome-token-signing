@@ -48,11 +48,13 @@ int main(int argc, char **argv)
     struct Data {
         Glib::RefPtr<Glib::MainLoop> main = Glib::MainLoop::create();
         string origin;
+        string cert;
         int result = EXIT_SUCCESS;
     } data;
 
     GIOChannel *in = g_io_channel_unix_new(STDIN_FILENO);
-    guint io_watch_id = g_io_add_watch(in, G_IO_IN, [](GIOChannel *source, GIOCondition condition, gpointer data) -> gboolean {
+    /*guint io_watch_id = */
+    g_io_add_watch(in, G_IO_IN, [](GIOChannel *source, GIOCondition/* condition*/, gpointer data) -> gboolean {
         Data *d = (Data*)data;
 
         _log("Parsing input...");
@@ -112,12 +114,12 @@ int main(int argc, char **argv)
                     resp << "result" << "invalid_argument";
                 } else {
                     string hash = json.get<String>("hash");
-                    string cert = json.get<String>("cert");
-                    _log("signing hash: %s, with cert: %s", hash.c_str(), cert.c_str());
-                    resp = Signer(hash, cert).sign();
+                    _log("signing hash: %s", hash.c_str());
+                    resp = Signer().sign(hash, d->cert);
                 }
             } else if (type == "CERT") {
                 resp = CertificateSelection().getCert();
+                d->cert = resp.get<string>("cert");
             } else {
                 resp << "result" << "invalid_argument";
             }

@@ -20,18 +20,7 @@ CertDialog::CertDialog()
 {
   dialog = new Dialog(l10nLabels.get("select certificate"));
   formElements = new CertFormElementsContainer();
-  draw();
-}
 
-int CertDialog::run() {
-  return dialog->run();
-}
-
-void CertDialog::hide() {
-  dialog->hide();
-}
-
-void CertDialog::draw() {
   dialog->set_position(Gtk::WIN_POS_CENTER);
   dialog->set_border_width(10);
   dialog->set_resizable(false);
@@ -62,6 +51,12 @@ void CertDialog::draw() {
   formElements->container.pack_start(formElements->certificates, true, true, 0);
 
   dialog->show_all_children();
+}
+
+int CertDialog::run() {
+  int result = dialog->run();
+  dialog->hide();
+  return result;
 }
 
 void CertDialog::addRow(int certId, const string &CN, const string &type, const string &validTo) {

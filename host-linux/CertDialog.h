@@ -8,26 +8,29 @@
 * Version 2.1, February 1999
 */
 
-#ifndef CERTDIALOG_H
-#define	CERTDIALOG_H
+#pragma once
 
 #include <gtkmm.h>
-#include <CertFormElementsContainer.h>
 
 class CertDialog {
- public:
+public:
 	CertDialog();
-	virtual ~CertDialog();
-	virtual void draw();
-	virtual int run();
-	virtual void hide();
-    virtual void addRow(int certId, const std::string &CN, const std::string &type, const std::string &validTo);
-	virtual int getSelectedCertIndex();
- protected:
-    Gtk::Dialog *dialog = nullptr;
-    CertFormElementsContainer *formElements = nullptr;
+    ~CertDialog();
+    int run();
+    void addRow(int certId, const std::string &CN, const std::string &type, const std::string &validTo);
+    int getSelectedCertIndex();
+private:
+    class CertFormElementsContainer {
+     public:
+        Gtk::Button *cancelButton;
+        Gtk::Button *selectButton;
+        Gtk::TreeView certificates;
+        Gtk::VBox container;
+        Gtk::Label infoLabel;
 
-	class ModelColumns : public Gtk::TreeModel::ColumnRecord {
+    };
+
+    class ModelColumns : public Gtk::TreeModel::ColumnRecord {
 	 public:
 
 		ModelColumns() {
@@ -43,10 +46,8 @@ class CertDialog {
 		Gtk::TreeModelColumn<Glib::ustring> validTo;
 	};
 
-	ModelColumns modelColumns;
+    Gtk::Dialog *dialog = nullptr;
+    CertFormElementsContainer *formElements = nullptr;
+    ModelColumns modelColumns;
 	Glib::RefPtr<Gtk::ListStore> refTreeModel;
-
 };
-
-#endif	/* CERTDIALOG_H */
-

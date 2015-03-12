@@ -21,12 +21,11 @@ class CertificateSelection {
 public:
     Object getCert() {
         try {
-            std::unique_ptr<PKCS11CardManager> cardManager(new PKCS11CardManager);
             std::unique_ptr<CertDialog> dialog(new CertDialog());
             time_t currentTime = DateUtils::now();
             bool found = false;
-            for (auto &token : cardManager->getAvailableTokens()) {
-                PKCS11CardManager *manager = cardManager->getManagerForReader(token);
+            for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
+                PKCS11CardManager *manager = PKCS11CardManager::instance()->getManagerForReader(token);
                 time_t validTo = manager->getValidTo();
                 if (currentTime <= validTo) {
                     dialog->addRow(token, manager->getCN(), manager->getType(), DateUtils::timeToString(validTo));
@@ -38,13 +37,11 @@ public:
             if (!found)
                 return Object() << "result" << "no_certificates";
 
-            int result = dialog->run();
-            dialog->hide();
-            if (result != GTK_RESPONSE_OK)
+            if (dialog->run() != GTK_RESPONSE_OK)
                 return Object() << "result" << "user_cancel";
 
             int readerId = dialog->getSelectedCertIndex();
-            PKCS11CardManager *manager = cardManager->getManagerForReader(readerId);
+            std::unique_ptr<PKCS11CardManager> manager(PKCS11CardManager::instance()->getManagerForReader(readerId));
             std::vector<unsigned char> cert = manager->getSignCert();
 
             _log("cert binary size = %i", cert.size());
