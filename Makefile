@@ -1,5 +1,7 @@
 # This is the Makefile for Windows NMake. See GNUmakefile for OSX/Linux.
-BUILD_NUMBER=1
+!IF !DEFINED(BUILD_NUMBER)
+BUILD_NUMBER=0
+!ENDIF
 VERSION=1.0.0.$(BUILD_NUMBER)
 
 build:

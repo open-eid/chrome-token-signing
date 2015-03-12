@@ -1,7 +1,9 @@
 EXTERNAL_PATH = /Library/Application\ Support/Google/Chrome/External\ Extensions
 NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
 VERSION = 1.0.0
-BUILD_NUMBER = 1
+ifeq ($(BUILD_NUMBER),)
+BUILD_NUMBER = 0
+endif
 SIGNCERT = Developer ID Application: Riigi Infosüsteemi Amet
 INSTCERT = Developer ID Installer: Riigi Infosüsteemi Amet
 PROJ = xcodebuild -project chrome-token-signing.xcodeproj VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
