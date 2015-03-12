@@ -96,6 +96,11 @@ private:
 
 public:
 
+    static PKCS11CardManager* instance() {
+        static PKCS11CardManager instance;
+        return &instance;
+    }
+
     PKCS11CardManager(const std::string &module = PKCS11_MODULE) {
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (!library) {

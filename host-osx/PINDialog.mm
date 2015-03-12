@@ -10,8 +10,8 @@
 
 #import "PINDialog.h"
 
-#import "../host-shared/PKCS11CardManager.h"
-#import "../host-shared/BinaryUtils.h"
+#import "BinaryUtils.h"
+#import "PKCS11CardManager.h"
 
 #include <future>
 
@@ -68,12 +68,11 @@
         default: return @{@"result": @"invalid_argument"};
     }
 
-    std::unique_ptr<PKCS11CardManager> manager, selected;
+    std::unique_ptr<PKCS11CardManager> selected;
     time_t currentTime = DateUtils::now();
     try {
-        manager.reset(new PKCS11CardManager);
-        for (auto &token : manager->getAvailableTokens()) {
-            selected.reset(manager->getManagerForReader(token));
+        for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
+            selected.reset(PKCS11CardManager::instance()->getManagerForReader(token));
             if (BinaryUtils::hex2bin([params[@"cert"] UTF8String]) == selected->getSignCert() &&
                 currentTime <= selected->getValidTo()) {
                 break;

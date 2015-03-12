@@ -10,8 +10,8 @@
 
 #import "CertificateSelection.h"
 
-#import "../host-shared/PKCS11CardManager.h"
-#import "../host-shared/BinaryUtils.h"
+#import "BinaryUtils.h"
+#import "PKCS11CardManager.h"
 
 #define _L(KEY) @(l10nLabels.get(KEY).c_str())
 
@@ -33,10 +33,9 @@
     if (self = [super init]) {
         certificates = [[NSMutableArray alloc] init];
         try {
-            PKCS11CardManager manager;
             time_t currentTime = DateUtils::now();
-            for (auto &token : manager.getAvailableTokens()) {
-                PKCS11CardManager *local = manager.getManagerForReader(token);
+            for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
+                PKCS11CardManager *local = PKCS11CardManager::instance()->getManagerForReader(token);
                 time_t validTo = local->getValidTo();
                 if (currentTime <= validTo) {
                     std::vector<unsigned char> cert = local->getSignCert();
