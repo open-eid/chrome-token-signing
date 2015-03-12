@@ -79,7 +79,8 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason === "install" || details.reason === "update") {
 		_testNativeComponent().then(function(result) {
 				var url = null;
-				if (result === "ok" && details.reason === "install") {
+				// TODO: add back install check before final release
+				if (result === "ok" /*&& details.reason === "install"*/) {
 					url = HELLO_URL;
 				} else if (result === "forbidden") {
 					url = DEVELOPER_URL;
