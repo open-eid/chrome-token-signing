@@ -34,16 +34,11 @@ int main(int argc, char **argv) {
 			string response = handler.handleRequest().json();
 			ioCommunicator.sendMessage(response);
 		}
-		// Only fail on invalid argument
+		// Only catch terminating exceptions here
 		catch (InvalidArgumentException &e)
 		{
 			handleException(e, ioCommunicator);
 			return EXIT_FAILURE;
-		}
-		catch (BaseException &e)
-		{
-			handleException(e, ioCommunicator);
-			continue;
 		}
 		catch (const std::runtime_error &e)
 		{

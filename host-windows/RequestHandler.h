@@ -11,6 +11,7 @@
 #pragma once
 
 #include "jsonxx.h"
+#include "HostExceptions.h"
 
 class RequestHandler {
 public:
@@ -24,6 +25,7 @@ private:
 	void handleVersionRequest();
 	void handleCertRequest();
 	void handleSignRequest();
+	void handleException(BaseException &e);
 	jsonxx::Object notAllowed();
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();

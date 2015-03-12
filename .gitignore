@@ -6,6 +6,9 @@
 *.suo
 *.vcxproj.user
 *.o
+*.msi
+*.wixobj
+*.wixpdb
 *out/
 *~
 /host-test/*.pyc

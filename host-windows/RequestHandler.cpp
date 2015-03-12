@@ -17,20 +17,28 @@
 using namespace std;
 
 jsonxx::Object RequestHandler::handleRequest() {
-	if (jsonRequest.parse(request) && hasGloballyRequiredArguments()) {
-		string type = jsonRequest.get<string>("type");
-		if (type == "VERSION") {
-			handleVersionRequest();
+	try {
+		if (jsonRequest.parse(request) && hasGloballyRequiredArguments()) {
+			string type = jsonRequest.get<string>("type");
+			if (type == "VERSION") {
+				handleVersionRequest();
+			}
+			else if (type == "CERT") {
+				handleCertRequest();
+			}
+			else if (type == "SIGN" && hasSignRequestArguments()) {
+				handleSignRequest();
+			}
 		}
-		else if (type == "CERT") {
-			handleCertRequest();
-		}
-		else if (type == "SIGN" && hasSignRequestArguments()) {
-			handleSignRequest();
+		else {
+			throw InvalidArgumentException("Invalid argument");
 		}
 	}
-	else {
-		throw InvalidArgumentException("Invalid argument");
+	catch (InvalidArgumentException &e) {
+		throw;
+	}
+	catch (BaseException &e) {
+		handleException(e);
 	}
 	completeResponse();
 	return jsonResponse;
@@ -85,4 +93,10 @@ void RequestHandler::handleSignRequest() {
 	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
 	Signer signer(hashFromStdIn, cert);
 	jsonResponse << "signature" << signer.sign();
+}
+
+void RequestHandler::handleException(BaseException &e) {
+	jsonxx::Object exceptionalJson;
+	exceptionalJson << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
+	jsonResponse = exceptionalJson;
 }
