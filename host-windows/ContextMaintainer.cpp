@@ -16,11 +16,17 @@
 using namespace std;
 
 std::string ContextMaintainer::selectedCertificate;
+std::string ContextMaintainer::savedOrigin;
 
-void ContextMaintainer::saveCertificate(string &certificate) {
+void ContextMaintainer::saveCertificate(string certificate) {
 	ContextMaintainer::selectedCertificate = certificate;
 }
 
 bool ContextMaintainer::isSelectedCertificate(std::string &certificate) {
 	return ContextMaintainer::selectedCertificate == certificate;
 }
+
+bool ContextMaintainer::isSameOrigin(std::string &origin) {
+	return ContextMaintainer::savedOrigin == origin;
+}
+
