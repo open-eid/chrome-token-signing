@@ -1,4 +1,5 @@
-/usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json /etc/chromium/native-messaging-hosts/ee.ria.esteid.json
-/usr/share/chrome-token-signing/policies/managed/esteid_policy.json /etc/chromium/policies/managed/esteid_policy.json
-/usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json /etc/chromium-browser/native-messaging-hosts/ee.ria.esteid.json
-/usr/share/chrome-token-signing/policies/managed/esteid_policy.json /etc/chromium-browser/policies/managed/esteid_policy.json
+/usr/share/chrome-token-signing/ee.ria.esteid.json /etc/chromium/native-messaging-hosts/ee.ria.esteid.json
+/usr/share/chrome-token-signing/ee.ria.esteid.json /etc/chromium-browser/native-messaging-hosts/ee.ria.esteid.json
+/usr/share/chrome-token-signing/ckjefchnfjhjfedoccjbhjpbncimppeg.json /usr/share/chromium/extensions/ckjefchnfjhjfedoccjbhjpbncimppeg.json
+/usr/share/chrome-token-signing/ckjefchnfjhjfedoccjbhjpbncimppeg.json /usr/share/chromium-browser/extensions/ckjefchnfjhjfedoccjbhjpbncimppeg.json
+/usr/share/chrome-token-signing/ckjefchnfjhjfedoccjbhjpbncimppeg.json /usr/share/google-chrome/extensions/ckjefchnfjhjfedoccjbhjpbncimppeg.json

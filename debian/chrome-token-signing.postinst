@@ -1,17 +1,11 @@
 #!/bin/bash
+set -e
 
 sudo mkdir -p /etc/opt/chrome/native-messaging-hosts
-sudo mkdir -p /etc/opt/chrome/policies/managed
 
 if [ -L /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json ]
 then
     sudo rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
 fi
 
-if [ -L /etc/opt/chrome/policies/managed/esteid_policy.json ]
-then
-    sudo rm -f /etc/opt/chrome/policies/managed/esteid_policy.json
-fi
-
-sudo ln -s /usr/share/chrome-token-signing/native-messaging-hosts/ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
-sudo ln -s /usr/share/chrome-token-signing/policies/managed/esteid_policy.json /etc/opt/chrome/policies/managed/esteid_policy.json
+sudo ln -s /usr/share/chrome-token-signing/ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json

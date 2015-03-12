@@ -1,11 +1,7 @@
 #!/bin/bash
+set -e
 
 if [ -L /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json ]
 then
     sudo rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
-fi
-
-if [ -L /etc/opt/chrome/policies/managed/esteid_policy.json ]
-then
-    sudo rm -f /etc/opt/chrome/policies/managed/esteid_policy.json
 fi
