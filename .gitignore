@@ -13,3 +13,4 @@
 *~
 /host-test/*.pyc
 /extension-*.zip
+/*.tar.gz
