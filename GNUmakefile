@@ -11,6 +11,7 @@ Linux:
 Darwin:
 	make -C host-osx
 
+# Make the zip to be uploaded to chrome web store
 release:
 	test ! -f extension-$(RELEASE).zip
 	test -z "`git status -s extension`"
@@ -19,3 +20,8 @@ release:
 
 test: detect
 	python host-test/pipe-test.py -v
+
+# Make the targzip for the native components
+# FIXME: git describe vs $(RELEASE) ?
+dist:
+	git-archive-all chrome-token-signing-`git describe --tags --always`.tar.gz
