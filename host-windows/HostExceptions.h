@@ -77,3 +77,8 @@ public:
 	InconsistentOriginException() :BaseException("invalid_argument", "Request origin can't change between requests") {}
 };
 
+class PinBlockedException : public BaseException {
+public:
+	PinBlockedException() :BaseException("pin_blocked", "Maximum number of PIN entry attempts has been reached") {}
+};
+

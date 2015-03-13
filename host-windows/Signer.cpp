@@ -82,6 +82,8 @@ string Signer::sign() {
 		return BinaryUtils::bin2hex(signature);
 	case SCARD_W_CANCELLED_BY_USER:
 		throw UserCancelledException("Signing was cancelled");
+	case SCARD_W_CHV_BLOCKED:
+		throw PinBlockedException();
 	default:
 		throw TechnicalException("Signing failed");
 	}
