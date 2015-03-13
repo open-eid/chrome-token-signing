@@ -11,65 +11,89 @@
 #pragma once
 
 #include "PKCS11CardManager.h"
-#include "PinEntryDialog.h"
-#include "PinPadDialog.h"
 #include "BinaryUtils.h"
 #include "Labels.h"
 #include "Logger.h"
 #include "error.h"
 
+#include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QRegExpValidator>
+#include <QTimeLine>
+#include <QVBoxLayout>
+
+#include <future>
 #include <string>
 
-class Signer {
-    PinDialog *pinDialog = nullptr;
+class Signer: public QDialog {
+public:
+    Signer(bool isPinpad)
+        : nameLabel(new QLabel(this))
+        , pinLabel(new QLabel(this))
+        , errorLabel(new QLabel(this))
+        , buttons(new QDialogButtonBox(this))
+    {
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(errorLabel);
+        layout->addWidget(nameLabel);
+        layout->addWidget(pinLabel);
 
-    PinDialog *createPinDialog(PKCS11CardManager *manager) {
-		if (pinDialog != NULL) {
-			return pinDialog;
-		}
+        setWindowFlags(Qt::WindowStaysOnTopHint);
+        setWindowTitle(l10nLabels.get("signing").c_str());
+        pinLabel->setText(l10nLabels.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
 
-		if (manager->isPinpad()) {
-			_log("PINPAD: YES");
-			return new PinPadDialog();
-		}
-		else {
-			_log("PINPAD: NO");
-			return new PinEntryDialog();
-		}
-	}
+        cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
+        connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    jsonxx::Object error(int errorCode) {
-        jsonxx::Object json;
-        switch(errorCode)
-        {
-        case USER_CANCEL: json << "result" << "user_cancel"; break;
-        case READER_NOT_FOUND: json << "result" << "no_certificates"; break;
-        case CERT_NOT_FOUND: json << "result" << "no_certificates"; break;
-        case INVALID_HASH: json << "result" << "invalid_argument"; break;
-        case ONLY_HTTPS_ALLOWED: json << "result" << "not_allowed"; break;
-        default: json << "result" << "technical_error";
+        if(isPinpad) {
+            progress = new QProgressBar(this);
+            progress->setRange(0, 30);
+            progress->setValue(progress->maximum());
+            progress->setTextVisible(false);
+            statusTimer = new QTimeLine(progress->maximum() * 1000, this);
+            statusTimer->setCurveShape(QTimeLine::LinearCurve);
+            statusTimer->setFrameRange(progress->maximum(), progress->minimum());
+            connect(statusTimer, &QTimeLine::frameChanged, progress, &QProgressBar::setValue);
+            statusTimer->start();
+            layout->addWidget(progress);
+        } else {
+            ok = buttons->addButton(l10nLabels.get("sign").c_str(), QDialogButtonBox::AcceptRole);
+            ok->setEnabled(false);
+            pin = new QLineEdit(this);
+            pin->setEchoMode(QLineEdit::Password);
+            pin->setFocus();
+            pin->setValidator(new QRegExpValidator(QRegExp("\\d{5,12}"), pin));
+            pin->setMaxLength(12);
+            connect(pin, &QLineEdit::textEdited, [&](const QString &text){
+                ok->setEnabled(text.size() >= 5);
+            });
+            layout->addWidget(pin);
         }
-        return json;
+
+        layout->addWidget(buttons);
+        show();
     }
 
- public:
+    static jsonxx::Object sign(const std::string &hash, const std::string &cert) {
+        switch(hash.length())
+        {
+        case BINARY_SHA1_LENGTH * 2:
+        case BINARY_SHA224_LENGTH * 2:
+        case BINARY_SHA256_LENGTH * 2:
+        case BINARY_SHA384_LENGTH * 2:
+        case BINARY_SHA512_LENGTH * 2: break;
+        default:
+            return jsonxx::Object() << "result" << "invalid_argument";
+        }
 
-    jsonxx::Object sign(const std::string &hash, const std::string &cert) {
         std::unique_ptr<PKCS11CardManager> manager;
-		int retriesLeft = 0;
-
-		try {
-            switch(hash.length())
-            {
-            case BINARY_SHA1_LENGTH * 2:
-            case BINARY_SHA224_LENGTH * 2:
-            case BINARY_SHA256_LENGTH * 2:
-            case BINARY_SHA384_LENGTH * 2:
-            case BINARY_SHA512_LENGTH * 2: break;
-            default:
-                throw InvalidHashError();
-            }
-
+        try {
             time_t currentTime = DateUtils::now();
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
@@ -83,71 +107,86 @@ class Signer {
 
             if(!manager)
                 return jsonxx::Object() << "result" << "invalid_argument";
-
-            retriesLeft = manager->getPIN2RetryCount();
-            if (retriesLeft == 0)
-                return jsonxx::Object() << "result" << "pin_blocked";
-
-            pinDialog = createPinDialog(manager.get());
-            retriesLeftMessage(retriesLeft, true);
-			pinDialog->setCardInfo(manager->getCardName() + ", " + manager->getPersonalCode());
-        } catch (const CommonError &e) {
-			_log("%s", e.what());
-			return error(e.code);
-        } catch (const std::runtime_error &e) {
-			_log("%s", e.what());
+        } catch (const std::runtime_error &a) {
             return jsonxx::Object() << "result" << "technical_error";
         }
 
-		do {
+        for (int retriesLeft = manager->getPIN2RetryCount(); retriesLeft > 0; ) {
+            Signer dialog(manager->isPinpad());
+            dialog.retriesLeftMessage(retriesLeft, true);
+            dialog.nameLabel->setText((manager->getCardName() + ", " + manager->getPersonalCode()).c_str());
+            std::future< std::vector<unsigned char> > signature;
+
+            if (manager->isPinpad()) {
+                signature = std::async(std::launch::async, [&](){
+                    std::vector<unsigned char> result;
+                    try {
+                        result = manager->sign(BinaryUtils::hex2bin(hash), PinString());
+                        dialog.accept();
+                    } catch (const AuthenticationError &) {
+                        --retriesLeft;
+                        dialog.done(-2);
+                    } catch (const AuthenticationBadInput &) {
+                        dialog.done(-2);
+                    } catch (const UserCanceledError &) {
+                        dialog.reject();
+                    } catch (const std::runtime_error &) {
+                        dialog.done(-1);
+                    }
+                    return result;
+                });
+            }
+
+            switch (dialog.exec())
+            {
+            case 0:
+                return jsonxx::Object() << "result" << "user_cancel";
+            case -2:
+                continue;
+            case -1:
+                return jsonxx::Object() << "result" << "technical_error";
+            default:
+                if (manager->isPinpad()) {
+                    return jsonxx::Object() << "signature" << BinaryUtils::bin2hex(signature.get());
+                }
+            }
+
             try {
-                std::vector<unsigned char> signature = manager->sign(
-                            BinaryUtils::hex2bin(hash),
-                            PinString(pinDialog->getPin().c_str()));
-				pinDialog->hide();
-                return jsonxx::Object() << "signature" << BinaryUtils::bin2hex(signature);
-            } catch (const AuthenticationError &ae) {
-				if (ae.aborted) {
-					pinDialog->hide();
-                    return error(USER_CANCEL);
-				}
-				if (!ae.badInput) {
-					retriesLeft--;
-				}
-				retriesLeftMessage(retriesLeft);
-				if (retriesLeft == 0) {
-					pinDialog->hide();
-				}
-            } catch (const UserCanceledError &e) {
-				pinDialog->hide();
-                return error(USER_CANCEL);
-            } catch (const CommonError &e) {
-				_log("%s", e.what());
-				pinDialog->hide();
-				return error(e.code);
-            } catch (const std::runtime_error &e) {
-				pinDialog->hide();
-				_log("%s", e.what());
-                return error(UNKNOWN_ERROR);
-			}
-        } while (retriesLeft > 0);
+                if (!manager->isPinpad()) {
+                    std::vector<unsigned char> result = manager->sign(BinaryUtils::hex2bin(hash),
+                        PinString(dialog.pin->text().toUtf8().constData()));
+                    return jsonxx::Object() << "signature" << BinaryUtils::bin2hex(result);
+                }
+            } catch (const AuthenticationBadInput &) {
+            } catch (const AuthenticationError &) {
+                --retriesLeft;
+            } catch (const UserCanceledError &) {
+                return jsonxx::Object() << "result" << "user_cancel";
+            } catch (const std::runtime_error &) {
+                return jsonxx::Object() << "result" << "technical_error";
+            }
+        }
         return jsonxx::Object() << "result" << "pin_blocked";
     }
 
-	virtual void retriesLeftMessage(int retriesLeft, bool isInitialCheck = false) {
-		_log("Retry count: %i", retriesLeft);
-		if (retriesLeft < 3) {
-			std::string errorMessage = l10nLabels.get("tries left") + std::to_string(retriesLeft);
-			if (!isInitialCheck) {
-				errorMessage = l10nLabels.get("incorrect PIN2") + errorMessage;
-			}
-			pinDialog->setErrorMessage(errorMessage);
-			return;
-		}
-	}
+    private:
+    void retriesLeftMessage(int retriesLeft, bool isInitialCheck = false) {
+        _log("Retry count: %i", retriesLeft);
+        if (retriesLeft < 3) {
+            std::string errorMessage = l10nLabels.get("tries left") + std::to_string(retriesLeft);
+            if (!isInitialCheck) {
+                errorMessage = l10nLabels.get("incorrect PIN2") + errorMessage;
+            }
+            if(pin) pin->clear();
+            errorLabel->setText(("<span color='red'>" + errorMessage + "</span>").c_str());
+            return;
+        }
+    }
 
-
-	virtual ~Signer() {
-        delete pinDialog;
-	}
+    QLabel *nameLabel, *pinLabel, *errorLabel;
+    QDialogButtonBox *buttons;
+    QPushButton *ok, *cancel;
+    QLineEdit *pin = nullptr;
+    QProgressBar *progress = nullptr;
+    QTimeLine *statusTimer = nullptr;
 };

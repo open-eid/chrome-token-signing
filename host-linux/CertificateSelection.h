@@ -12,43 +12,90 @@
 
 #include "PKCS11CardManager.h"
 #include "Logger.h"
-#include "CertDialog.h"
 #include "BinaryUtils.h"
+#include "jsonxx.h"
+#include "Labels.h"
+
+#include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPushButton>
+#include <QTreeWidget>
+#include <QVBoxLayout>
 
 using namespace jsonxx;
 
-class CertificateSelection {
+class CertificateSelection: public QDialog {
 public:
-    Object getCert() {
+    CertificateSelection()
+        : message(new QLabel(this))
+        , table(new QTreeWidget(this))
+        , buttons(new QDialogButtonBox(this))
+    {
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(message);
+        layout->addWidget(table);
+        layout->addWidget(buttons);
+
+        setWindowFlags(Qt::WindowStaysOnTopHint);
+        setWindowTitle(l10nLabels.get("select certificate").c_str());
+        message->setText(l10nLabels.get("cert info").c_str());
+
+        table->setColumnCount(3);
+        table->setRootIsDecorated(false);
+        table->setHeaderLabels(QStringList()
+            << l10nLabels.get("certificate").c_str()
+            << l10nLabels.get("type").c_str()
+            << l10nLabels.get("valid to").c_str());
+        table->header()->setStretchLastSection(false);
+        table->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        table->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+
+        ok = buttons->addButton(l10nLabels.get("select").c_str(), QDialogButtonBox::AcceptRole);
+        cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
+        connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        connect(table, &QTreeWidget::clicked, [&](){
+            ok->setEnabled(true);
+        });
+
+        show();
+    }
+
+    Object getCert()
+    {
         try {
-            std::unique_ptr<CertDialog> dialog(new CertDialog());
             time_t currentTime = DateUtils::now();
-            bool found = false;
+            std::vector<std::string> certs;
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 PKCS11CardManager *manager = PKCS11CardManager::instance()->getManagerForReader(token);
                 time_t validTo = manager->getValidTo();
                 if (currentTime <= validTo) {
-                    dialog->addRow(token, manager->getCN(), manager->getType(), DateUtils::timeToString(validTo));
-                    found = true;
+                    table->insertTopLevelItem(0, new QTreeWidgetItem(table, QStringList()
+                        << manager->getCN().c_str()
+                        << manager->getType().c_str()
+                        << DateUtils::timeToString(validTo).c_str()));
+                    certs.push_back(BinaryUtils::bin2hex(manager->getSignCert()));
                 }
                 delete manager;
             }
-
-            if (!found)
+            if (certs.empty())
                 return Object() << "result" << "no_certificates";
-
-            if (dialog->run() != GTK_RESPONSE_OK)
+            table->setCurrentIndex(table->model()->index(0, 0));
+            if (exec() == 0)
                 return Object() << "result" << "user_cancel";
-
-            int readerId = dialog->getSelectedCertIndex();
-            std::unique_ptr<PKCS11CardManager> manager(PKCS11CardManager::instance()->getManagerForReader(readerId));
-            std::vector<unsigned char> cert = manager->getSignCert();
-
-            _log("cert binary size = %i", cert.size());
-            return Object() << "cert" << BinaryUtils::bin2hex(cert);
+            return Object() << "cert" << certs.at(table->currentIndex().row());
         } catch (const std::runtime_error &e) {
-            _log(e.what());
+            qDebug() << e.what();
         }
         return Object() << "result" << "technical_error";
     }
+
+private:
+    QLabel *message;
+    QTreeWidget *table;
+    QDialogButtonBox *buttons;
+    QPushButton *ok, *cancel;
 };

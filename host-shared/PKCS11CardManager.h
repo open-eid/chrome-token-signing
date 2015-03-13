@@ -35,6 +35,21 @@
 #endif
 #endif
 
+class UserCanceledError : public std::runtime_error {
+    public:
+     UserCanceledError() : std::runtime_error("User canceled"){}
+};
+
+class AuthenticationError : public std::runtime_error {
+public:
+    AuthenticationError() : std::runtime_error("Authentication error"){}
+};
+
+class AuthenticationBadInput : public std::runtime_error {
+public:
+    AuthenticationBadInput() : std::runtime_error("Authentication Bad Input"){}
+};
+
 class PKCS11CardManager {
 private:
     void *library = nullptr;
@@ -189,12 +204,12 @@ public:
         switch (result) {
             case CKR_OK:
                 break;
-            case CKR_PIN_LEN_RANGE:
-                throw AuthenticationErrorBadInput();
             case CKR_FUNCTION_CANCELED:
-                throw AuthenticationErrorAborted();
+                throw UserCanceledError();
             case CKR_PIN_INCORRECT:
                 throw AuthenticationError();
+            case CKR_PIN_LEN_RANGE:
+                throw AuthenticationBadInput();
             default:
                 checkError("C_Login", result);
         }
@@ -214,9 +229,6 @@ public:
         std::vector<unsigned char> signature(signatureLength);
 
         result = fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength);
-        if (result == CKR_USER_NOT_LOGGED_IN) {
-            throw InvalidHashError();
-        }
         checkError("C_Sign", result);
         checkError("C_Logout", fl->C_Logout(session));
 
@@ -241,22 +253,22 @@ public:
     std::string getType() const {
         return getFromX509Name("organizationName");
     }
-    
+
     std::string getCardName() const {
         return getFromX509Name("givenName") + ", " + getFromX509Name("surname");
     }
-    
+
     std::string getPersonalCode() const {
         return getFromX509Name("serialNumber");
     }
-    
+
     time_t getValidTo() const {
         ASN1_GENERALIZEDTIME *gt = ASN1_TIME_to_generalizedtime(X509_get_notAfter(cert), nullptr);
         std::string timeAsString((const char *) gt->data, gt->length);
         ASN1_GENERALIZEDTIME_free(gt);
         return DateUtils::timeFromStringWithFormat(timeAsString, "%Y%m%d");
     }
-    
+
     bool isPinpad() const {
         return tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
     }

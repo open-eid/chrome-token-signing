@@ -4,15 +4,16 @@ Priority: extra
 Maintainer: RIA <info@ria.ee>
 Build-Depends:
  libssl-dev,
- libgtk-3-dev,
- libgtkmm-3.0-dev,
+ qtbase5-dev,
+ qttools5-dev,
+ qttools5-dev-tools,
  debhelper (>= 7)
 Standards-Version: 3.9.5
 Homepage: https://github.com/open-eid/chrome-token-signing
 
 Package: chrome-token-signing
 Architecture: any
-Depends: opensc, pcscd, ${shlibs:Depends}, ${misc:Depends}
+Depends: opensc, ${shlibs:Depends}, ${misc:Depends}
 Description: Estonian ID Card signing for Chrome
  Chrome extension and native messaging client.
 
