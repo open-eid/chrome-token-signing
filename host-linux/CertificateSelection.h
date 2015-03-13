@@ -11,7 +11,6 @@
 #pragma once
 
 #include "PKCS11CardManager.h"
-#include "Logger.h"
 #include "BinaryUtils.h"
 #include "jsonxx.h"
 #include "Labels.h"

@@ -13,8 +13,6 @@
 #include "PKCS11CardManager.h"
 #include "BinaryUtils.h"
 #include "Labels.h"
-#include "Logger.h"
-#include "error.h"
 
 #include <QDebug>
 #include <QDialog>
@@ -36,35 +34,39 @@ public:
         : nameLabel(new QLabel(this))
         , pinLabel(new QLabel(this))
         , errorLabel(new QLabel(this))
-        , buttons(new QDialogButtonBox(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->addWidget(errorLabel);
         layout->addWidget(nameLabel);
         layout->addWidget(pinLabel);
 
+        setMinimumWidth(350);
         setWindowFlags(Qt::WindowStaysOnTopHint);
         setWindowTitle(l10nLabels.get("signing").c_str());
         pinLabel->setText(l10nLabels.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
 
-        cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
-        connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
         if(isPinpad) {
+            setWindowFlags((windowFlags()|Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint);
             progress = new QProgressBar(this);
             progress->setRange(0, 30);
             progress->setValue(progress->maximum());
             progress->setTextVisible(false);
+
             statusTimer = new QTimeLine(progress->maximum() * 1000, this);
             statusTimer->setCurveShape(QTimeLine::LinearCurve);
             statusTimer->setFrameRange(progress->maximum(), progress->minimum());
             connect(statusTimer, &QTimeLine::frameChanged, progress, &QProgressBar::setValue);
             statusTimer->start();
+
             layout->addWidget(progress);
         } else {
+            buttons = new QDialogButtonBox(this);
+            connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+            cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
             ok = buttons->addButton(l10nLabels.get("sign").c_str(), QDialogButtonBox::AcceptRole);
             ok->setEnabled(false);
+
             pin = new QLineEdit(this);
             pin->setEchoMode(QLineEdit::Password);
             pin->setFocus();
@@ -73,10 +75,10 @@ public:
             connect(pin, &QLineEdit::textEdited, [&](const QString &text){
                 ok->setEnabled(text.size() >= 5);
             });
-            layout->addWidget(pin);
-        }
 
-        layout->addWidget(buttons);
+            layout->addWidget(pin);
+            layout->addWidget(buttons);
+        }
         show();
     }
 
@@ -184,8 +186,8 @@ public:
     }
 
     QLabel *nameLabel, *pinLabel, *errorLabel;
-    QDialogButtonBox *buttons;
-    QPushButton *ok, *cancel;
+    QDialogButtonBox *buttons = nullptr;
+    QPushButton *ok = nullptr, *cancel = nullptr;
     QLineEdit *pin = nullptr;
     QProgressBar *progress = nullptr;
     QTimeLine *statusTimer = nullptr;
