@@ -12,6 +12,7 @@
 
 #import "BinaryUtils.h"
 #import "PKCS11CardManager.h"
+#import "Labels.h"
 
 #define _L(KEY) @(l10nLabels.get(KEY).c_str())
 

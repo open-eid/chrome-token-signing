@@ -13,7 +13,6 @@
 #include "pkcs11.h"
 #include "Logger.h"
 #include "DateUtils.h"
-#include "error.h"
 #include "PinString.h"
 
 #include <openssl/x509.h>

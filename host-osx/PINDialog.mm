@@ -12,6 +12,7 @@
 
 #import "BinaryUtils.h"
 #import "PKCS11CardManager.h"
+#import "Labels.h"
 
 #include <future>
 
@@ -110,7 +111,7 @@
                 [NSApp stopModal];
                 pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
             }
-            catch(const AuthenticationErrorAborted &) {
+            catch(const UserCanceledError &) {
                 [NSApp abortModal];
                 pinpadresult = @{@"result": @"user_cancel"};
             }
@@ -148,7 +149,7 @@
             std::vector<unsigned char> signature = selected->sign(hash, PinString(dialog->pinField.stringValue.UTF8String));
             return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
         }
-        catch(const AuthenticationErrorAborted &) {
+        catch(const UserCanceledError &) {
             return @{@"result": @"user_cancel"};
         }
         catch(const AuthenticationError &) {
