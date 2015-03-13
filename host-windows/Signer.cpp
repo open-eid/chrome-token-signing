@@ -77,7 +77,6 @@ string Signer::sign() {
 
 	switch (err)
 	{
-		//TODO handle other smart card errors
 	case ERROR_SUCCESS: 
 		return BinaryUtils::bin2hex(signature);
 	case SCARD_W_CANCELLED_BY_USER:

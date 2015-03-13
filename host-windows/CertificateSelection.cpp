@@ -92,13 +92,27 @@ BOOL WINAPI filter_proc(PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert,
 }
 
 std::string CertificateSelection::getCert() {
+
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
-	if (!store) 
+	if (!store)
 	{
 		throw TechnicalException("Failed to open Cert Store");
 	}
 
-	
+	PCCERT_CONTEXT pCertContextForEnumeration = nullptr;
+	int certificatesCount = 0;
+	while (pCertContextForEnumeration = CertEnumCertificatesInStore(store, pCertContextForEnumeration)) {
+		if (isValidForSigning(pCertContextForEnumeration)) {
+			certificatesCount++;
+		}
+	}
+	if (pCertContextForEnumeration){
+		CertFreeCertificateContext(pCertContextForEnumeration);
+	}
+	if (certificatesCount < 1) {
+		throw NoCertificatesException();
+	}
+
 	CRYPTUI_SELECTCERTIFICATE_STRUCT pcsc = { sizeof(pcsc) };
 	pcsc.pFilterCallback = filter_proc;
 	pcsc.pvCallbackData = nullptr;
@@ -108,7 +122,6 @@ std::string CertificateSelection::getCert() {
 	
 	if (!cert_context)
 	{
-		//TODO throw other exceptions from cert_context
 		throw UserCancelledException();
 	}
 
