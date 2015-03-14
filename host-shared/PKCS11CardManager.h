@@ -53,13 +53,29 @@ class PKCS11CardManager {
 private:
     void *library = nullptr;
     CK_FUNCTION_LIST_PTR fl = nullptr;
-    CK_SLOT_ID slotID = 0;
     CK_TOKEN_INFO tokenInfo;
     CK_SESSION_HANDLE session = 0;
     X509 *cert = nullptr;
     std::vector<unsigned char> signCert;
 
+    std::vector<CK_OBJECT_HANDLE> findObject(CK_OBJECT_CLASS objectClass, CK_ULONG max = 1) const {
+        if (!fl) {
+            throw std::runtime_error("PKCS11 is not loaded");
+        }
+        CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
+        checkError("C_FindObjectsInit", fl->C_FindObjectsInit(session, &searchAttribute, 1));
+        CK_ULONG objectCount = max;
+        std::vector<CK_OBJECT_HANDLE> objectHandle(objectCount);
+        checkError("C_FindObjects", fl->C_FindObjects(session, &objectHandle[0], objectHandle.size(), &objectCount));
+        checkError("C_FindObjectsFinal", fl->C_FindObjectsFinal(session));
+        objectHandle.resize(objectCount);
+        return objectHandle;
+    }
+
     std::string getFromX509Name(const std::string &subjectField) const {
+        if (!cert) {
+            throw std::runtime_error("Could not parse cert");
+        }
         X509_NAME *name = X509_get_subject_name(cert);
         std::string X509Value(1024, 0);
         int length = X509_NAME_get_text_by_NID(name, OBJ_txt2nid(subjectField.c_str()), &X509Value[0], int(X509Value.size()));
@@ -75,96 +91,25 @@ private:
         }
     }
 
-    PKCS11CardManager(CK_SLOT_ID slotId, CK_FUNCTION_LIST_PTR fl)
+    PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl)
     : fl(fl)
-    , slotID(slotId)
     {
         checkError("C_GetTokenInfo", fl->C_GetTokenInfo(slotID, &tokenInfo));
-
-        CK_OBJECT_CLASS objectClass = CKO_CERTIFICATE;
-        CK_OBJECT_HANDLE objectHandle = 0;
-        CK_ULONG objectCount = 0;
-        CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
         checkError("C_OpenSession", fl->C_OpenSession(slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session));
-        checkError("C_FindObjectsInit", fl->C_FindObjectsInit(session, &searchAttribute, 1));
-        checkError("C_FindObjects", fl->C_FindObjects(session, &objectHandle, 1, &objectCount));
-        checkError("C_FindObjectsFinal", fl->C_FindObjectsFinal(session));
-
-        if (objectCount == 0) {
+        std::vector<CK_OBJECT_HANDLE> objectHandle = findObject(CKO_CERTIFICATE);
+        if (objectHandle.empty()) {
             throw std::runtime_error("Could not read cert");
         }
 
         CK_ATTRIBUTE attribute = {CKA_VALUE, nullptr, 0};
-        checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle, &attribute, 1));
-        std::vector<unsigned char> certificate(attribute.ulValueLen, 0);
-        attribute.pValue = &certificate[0];
-        checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle, &attribute, 1));
-        _log("certificate = %p, certificateLength = %i", &certificate[0], certificate.size());
+        checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle[0], &attribute, 1));
+        signCert.resize(attribute.ulValueLen, 0);
+        attribute.pValue = &signCert[0];
+        checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle[0], &attribute, 1));
+        _log("certificate = %p, certificateLength = %i", &signCert[0], signCert.size());
 
-        const unsigned char* p = &certificate[0];
-        cert = d2i_X509(NULL, &p, certificate.size());
-
-        _log("ASN X509 cert: %p", cert);
-        signCert = certificate;
-    }
-
-public:
-
-    static PKCS11CardManager* instance() {
-        static PKCS11CardManager instance;
-        return &instance;
-    }
-
-    PKCS11CardManager(const std::string &module = PKCS11_MODULE) {
-        library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
-        if (!library) {
-            _log("Failed to load module: ", module.c_str());
-            return;
-        }
-
-        CK_C_GetFunctionList GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
-        const char *error = dlerror();
-        if (error) {
-            _log("Cannot load symbol 'C_GetFunctionList': %s", error);
-            dlclose(library);
-            library = nullptr;
-            return;
-        }
-        GetFunctionList(&fl);
-        fl->C_Initialize(nullptr);
-    }
-
-    virtual ~PKCS11CardManager() {
-        if (session)
-            fl->C_CloseSession(session);
-        if (cert)
-            X509_free(cert);
-        if (!library)
-            return;
-        fl->C_Finalize(nullptr);
-        dlclose(library);
-    }
-
-    std::vector<unsigned int> getAvailableTokens() const {
-        CK_ULONG slotCount;
-        fl->C_GetSlotList(CK_TRUE, nullptr, &slotCount);
-        _log("slotCount = %i", slotCount);
-        std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
-        fl->C_GetSlotList(CK_TRUE, &slotIDs[0], &slotCount);
-
-        std::vector<unsigned int> signingSlotIDs;
-        for (CK_ULONG i = 0; i < slotCount; i++) {
-            _log("slotID: %i", slotIDs[i]);
-            if (i & 1) {
-                _log("Found signing slotID: %i", slotIDs[i]);
-                signingSlotIDs.push_back((unsigned int)slotIDs[i]);
-            }
-        }
-        return signingSlotIDs;
-    }
-
-    PKCS11CardManager *getManagerForReader(int slotId) {
-        return new PKCS11CardManager(slotId, fl);
+        const unsigned char* p = &signCert[0];
+        cert = d2i_X509(NULL, &p, signCert.size());
     }
 
     std::vector<unsigned char> getHashWithPadding(const std::vector<unsigned char> &hash) const {
@@ -192,13 +137,72 @@ public:
         return hashWithPadding;
     }
 
-    std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin) const {
-        CK_OBJECT_HANDLE privateKeyHandle = 0;
-        CK_ULONG objectCount = 0;
-        CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
-        CK_OBJECT_CLASS objectClass = CKO_PRIVATE_KEY;
-        CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
+    PKCS11CardManager(const std::string &module) {
+        library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
+        if (!library) {
+            throw std::runtime_error("PKCS11 is not loaded");
+        }
 
+        CK_C_GetFunctionList GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
+        if (dlerror()) {
+            dlclose(library);
+            library = nullptr;
+            throw std::runtime_error("PKCS11 is not loaded");
+        }
+        checkError("GetFunctionList", GetFunctionList(&fl));
+        checkError("C_Initialize", fl->C_Initialize(nullptr));
+    }
+    
+public:
+
+    static PKCS11CardManager* instance(const std::string &module = PKCS11_MODULE) {
+        static PKCS11CardManager instance(module);
+        return &instance;
+    }
+
+    virtual ~PKCS11CardManager() {
+        if (session)
+            fl->C_CloseSession(session);
+        if (cert)
+            X509_free(cert);
+        if (!library)
+            return;
+        fl->C_Finalize(nullptr);
+        dlclose(library);
+    }
+
+    std::vector<CK_SLOT_ID> getAvailableTokens() const {
+        if (!fl) {
+            throw std::runtime_error("PKCS11 is not loaded");
+        }
+        CK_ULONG slotCount = 0;
+        fl->C_GetSlotList(CK_TRUE, nullptr, &slotCount);
+        _log("slotCount = %i", slotCount);
+        std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
+        fl->C_GetSlotList(CK_TRUE, &slotIDs[0], &slotCount);
+
+        std::vector<CK_SLOT_ID> signingSlotIDs;
+        for (CK_ULONG i = 0; i < slotCount; i++) {
+            _log("slotID: %i", slotIDs[i]);
+            if (i & 1) {
+                _log("Found signing slotID: %i", slotIDs[i]);
+                signingSlotIDs.push_back(slotIDs[i]);
+            }
+        }
+        return signingSlotIDs;
+    }
+
+    PKCS11CardManager *getManagerForReader(CK_SLOT_ID slotId) {
+        if (!fl) {
+            throw std::runtime_error("PKCS11 is not loaded");
+        }
+        return new PKCS11CardManager(slotId, fl);
+    }
+
+    std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin) const {
+        if (!fl) {
+            throw std::runtime_error("PKCS11 is not loaded");
+        }
         CK_RV result = fl->C_Login(session, CKU_USER, (unsigned char*)pin.c_str(), pin.size());
         switch (result) {
             case CKR_OK:
@@ -212,23 +216,19 @@ public:
             default:
                 checkError("C_Login", result);
         }
-        checkError("C_FindObjectsInit", fl->C_FindObjectsInit(session, &searchAttribute, 1));
-        checkError("C_FindObjects", fl->C_FindObjects(session, &privateKeyHandle, 1, &objectCount));
-        checkError("C_FindObjectsFinal", fl->C_FindObjectsFinal(session));
 
-        if (objectCount == 0) {
+        std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(CKO_PRIVATE_KEY);
+        if (privateKeyHandle.empty()) {
             throw std::runtime_error("Could not read private key");
         }
 
-        checkError("C_SignInit", fl->C_SignInit(session, &mechanism, privateKeyHandle));
+        CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
+        checkError("C_SignInit", fl->C_SignInit(session, &mechanism, privateKeyHandle[0]));
         CK_ULONG signatureLength = 0;
-
         std::vector<unsigned char> hashWithPadding = getHashWithPadding(hash);
-        checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), NULL, &signatureLength));
-        std::vector<unsigned char> signature(signatureLength);
-
-        result = fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength);
-        checkError("C_Sign", result);
+        checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), nullptr, &signatureLength));
+        std::vector<unsigned char> signature(signatureLength, 0);
+        checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength));
         checkError("C_Logout", fl->C_Logout(session));
 
         return signature;
@@ -262,6 +262,9 @@ public:
     }
 
     time_t getValidTo() const {
+        if (!cert) {
+            throw std::runtime_error("Could not parse cert");
+        }
         ASN1_GENERALIZEDTIME *gt = ASN1_TIME_to_generalizedtime(X509_get_notAfter(cert), nullptr);
         std::string timeAsString((const char *) gt->data, gt->length);
         ASN1_GENERALIZEDTIME_free(gt);

@@ -22,7 +22,7 @@
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="383" width="439" height="141"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="2">
                 <rect key="frame" x="0.0" y="0.0" width="439" height="141"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -74,6 +74,7 @@ Gw
                         </secureTextFieldCell>
                         <connections>
                             <outlet property="delegate" destination="-2" id="r3E-7b-AFN"/>
+                            <outlet property="formatter" destination="jXz-RQ-RJq" id="ELL-CH-mNq"/>
                         </connections>
                     </secureTextField>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9">
@@ -122,5 +123,6 @@ Gw
             </view>
             <point key="canvasLocation" x="910.5" y="611.5"/>
         </window>
+        <customObject id="jXz-RQ-RJq" customClass="OnlyIntegerValueFormatter"/>
     </objects>
 </document>

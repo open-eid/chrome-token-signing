@@ -18,6 +18,22 @@
 
 #define _L(KEY) @(l10nLabels.get(KEY).c_str())
 
+@interface OnlyIntegerValueFormatter : NSNumberFormatter
+@end
+
+@implementation OnlyIntegerValueFormatter
+
+- (BOOL)isPartialStringValid:(NSString*)partialString newEditingString:(NSString**)newString errorDescription:(NSString**)error
+{
+    if(partialString.length == 0) {
+        return YES;
+    }
+    NSScanner *scanner = [NSScanner scannerWithString:partialString];
+    return [scanner scanInt:0] && scanner.isAtEnd;
+}
+
+@end
+
 @interface PINPanel () {
     IBOutlet NSPanel *window;
     IBOutlet NSButton *okButton;
@@ -89,80 +105,86 @@
         return @{@"result": @"invalid_argument"};
     }
 
-    int retriesLeft = selected->getPIN2RetryCount();
-    if (retriesLeft == 0) {
-        return @{@"result": @"pin_blocked"};
-    }
-
-    PINPanel *dialog = [[PINPanel alloc] init:selected->isPinpad()];
-    if (!dialog) {
-        return @{@"result": @"technical_error"};
-    }
-
-    NSDictionary *pinpadresult;
-    std::future<void> future;
-    NSTimer *timer;
-    if (selected->isPinpad()) {
-        timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
-        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
-        future = std::async(std::launch::async, [&]() {
-            try {
-                std::vector<unsigned char> signature = selected->sign(hash, PinString());
-                [NSApp stopModal];
-                pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
-            }
-            catch(const UserCanceledError &) {
-                [NSApp abortModal];
-                pinpadresult = @{@"result": @"user_cancel"};
-            }
-            catch(const AuthenticationError &) {
-                [NSApp abortModal];
-                pinpadresult = @{@"result": @"user_cancel"};
-            }
-            catch(const std::runtime_error &) {
-                [NSApp abortModal];
-                pinpadresult = @{@"result": @"technical_error"};
-            }
-        });
-    }
-
-    [dialog->nameLabel setTitleWithMnemonic:@((selected->getCardName() + ", " + selected->getPersonalCode()).c_str())];
-    if (retriesLeft < 3) {
-        [dialog->messageField setTitleWithMnemonic:[NSString stringWithFormat:@"%@ %u", _L("tries left"), retriesLeft]];
-    }
-
-    [NSApp activateIgnoringOtherApps:YES];
-    NSModalResponse result = [NSApp runModalForWindow:dialog->window];
-    [dialog->window close];
-
-    if (timer) {
-        [timer invalidate];
-        timer = nil;
-    }
-
-    if (result == NSModalResponseAbort) {
-        return @{@"result": @"user_cancel"};
-    }
-
-    if (!selected->isPinpad()) {
-        try {
-            std::vector<unsigned char> signature = selected->sign(hash, PinString(dialog->pinField.stringValue.UTF8String));
-            return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
-        }
-        catch(const UserCanceledError &) {
-            return @{@"result": @"user_cancel"};
-        }
-        catch(const AuthenticationError &) {
-            return @{@"result": @"user_cancel"};
-        }
-        catch(const std::runtime_error &) {
+    for (int retriesLeft = selected->getPIN2RetryCount(); retriesLeft > 0; ) {
+        PINPanel *dialog = [[PINPanel alloc] init:selected->isPinpad()];
+        if (!dialog) {
             return @{@"result": @"technical_error"};
         }
+
+        bool isInitialCheck = true;
+        NSDictionary *pinpadresult;
+        std::future<void> future;
+        NSTimer *timer;
+        if (selected->isPinpad()) {
+            timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
+            future = std::async(std::launch::async, [&]() {
+                try {
+                    std::vector<unsigned char> signature = selected->sign(hash, PinString());
+                    pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+                    [NSApp stopModal];
+                }
+                catch(const UserCanceledError &) {
+                    [NSApp abortModal];
+                }
+                catch(const AuthenticationError &) {
+                    --retriesLeft;
+                    [NSApp stopModal];
+                }
+                catch(const AuthenticationBadInput &) {
+                    [NSApp stopModal];
+                }
+                catch(const std::runtime_error &) {
+                    pinpadresult = @{@"result": @"technical_error"};
+                    [NSApp stopModal];
+                }
+            });
+        }
+
+        [dialog->nameLabel setTitleWithMnemonic:@((selected->getCardName() + ", " + selected->getPersonalCode()).c_str())];
+        if (retriesLeft < 3) {
+            [dialog->messageField setTitleWithMnemonic:[NSString stringWithFormat:@"%@%@ %u",
+                                                        (!isInitialCheck ? _L("incorrect PIN2") : @""),
+                                                        _L("tries left"),
+                                                        retriesLeft]];
+        }
+        isInitialCheck = false;
+
+        [NSApp activateIgnoringOtherApps:YES];
+        NSModalResponse result = [NSApp runModalForWindow:dialog->window];
+        [dialog->window close];
+
+        if (timer) {
+            [timer invalidate];
+            timer = nil;
+        }
+
+        if (result == NSModalResponseAbort) {
+            return @{@"result": @"user_cancel"};
+        }
+
+        if (selected->isPinpad()) {
+            future.wait();
+            if (pinpadresult) {
+                return pinpadresult;
+            }
+        }
+        else {
+            try {
+                std::vector<unsigned char> signature = selected->sign(hash, PinString(dialog->pinField.stringValue.UTF8String));
+                return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+            }
+            catch(const AuthenticationBadInput &) {
+            }
+            catch(const AuthenticationError &) {
+                --retriesLeft;
+            }
+            catch(const std::runtime_error &) {
+                return @{@"result": @"technical_error"};
+            }
+        }
     }
-    else {
-        future.wait();
-        return pinpadresult;
-    }
+    return @{@"result": @"pin_blocked"};
 }
 
 - (IBAction)okClicked:(id)sender
