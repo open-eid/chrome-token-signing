@@ -51,67 +51,69 @@ private:
 void Application::parse()
 {
     uint32_t messageLength = 0;
-    in.read((char*)&messageLength, sizeof(messageLength));
-    //messageLength = 110;
-    if (messageLength > 1024*8)
-    {
-        qDebug() << "Invalid message length" << messageLength;
-        write(Object() << "result" << "invalid_argument");
-        return exit(EXIT_FAILURE);
-    }
-
-    string message(messageLength, 0);
-    in.read(&message[0], messageLength);
-
-    Object json;
-    Object resp;
-    if(!json.parse(message)) {
-        write(Object() << "result" << "invalid_argument");
-        return exit(EXIT_FAILURE);
-    }
-    else if(!json.has<string>("type") || !json.has<string>("nonce") || !json.has<string>("origin")) {
-        write(Object() << "result" << "invalid_argument");
-        return exit(EXIT_FAILURE);
-    } else {
-        if (json.has<string>("lang")) {
-            l10nLabels.setLanguage(json.get<string>("lang"));
-        }
-
-        if (origin.empty()) {
-            origin = json.get<string>("origin");
-        } else if (origin != json.get<string>("origin")) {
+    while (in.peek((char*)&messageLength, sizeof(messageLength)) > 0) {
+        in.read((char*)&messageLength, sizeof(messageLength));
+        //messageLength = 110;
+        if (messageLength > 1024*8)
+        {
+            qDebug() << "Invalid message length" << messageLength;
             write(Object() << "result" << "invalid_argument");
             return exit(EXIT_FAILURE);
         }
 
-        string type = json.get<string>("type");
-        if (type == "VERSION") {
-            resp << "version" << VERSION;
-        } else if (json.get<string>("origin").compare(0, 6, "https:")) {
-            write(Object() << "result" << "not_allowed");
+        string message(messageLength, 0);
+        in.read(&message[0], messageLength);
+
+        Object json;
+        Object resp;
+        if(!json.parse(message)) {
+            write(Object() << "result" << "invalid_argument");
             return exit(EXIT_FAILURE);
         }
-        else if (type == "SIGN") {
-            if (!json.has<string>("cert") || !json.has<string>("hash")) {
-                resp << "result" << "invalid_argument";
-            } else {
-                string hash = json.get<String>("hash");
-                _log("signing hash: %s", hash.c_str());
-                resp = Signer::sign(hash, cert);
-            }
-        } else if (type == "CERT") {
-            resp = CertificateSelection().getCert();
-            if (resp.has<string>("cert")) {
-                cert = resp.get<string>("cert");
-            } else {
-                cert.clear();
-            }
+        else if(!json.has<string>("type") || !json.has<string>("nonce") || !json.has<string>("origin")) {
+            write(Object() << "result" << "invalid_argument");
+            return exit(EXIT_FAILURE);
         } else {
-            resp << "result" << "invalid_argument";
-        }
-    }
+            if (json.has<string>("lang")) {
+                l10nLabels.setLanguage(json.get<string>("lang"));
+            }
 
-    write(resp, json.get<string>("nonce"));
+            if (origin.empty()) {
+                origin = json.get<string>("origin");
+            } else if (origin != json.get<string>("origin")) {
+                write(Object() << "result" << "invalid_argument");
+                return exit(EXIT_FAILURE);
+            }
+
+            string type = json.get<string>("type");
+            if (type == "VERSION") {
+                resp << "version" << VERSION;
+            } else if (json.get<string>("origin").compare(0, 6, "https:")) {
+                write(Object() << "result" << "not_allowed");
+                return exit(EXIT_FAILURE);
+            }
+            else if (type == "SIGN") {
+                if (!json.has<string>("cert") || !json.has<string>("hash")) {
+                    resp << "result" << "invalid_argument";
+                } else {
+                    string hash = json.get<String>("hash");
+                    _log("signing hash: %s", hash.c_str());
+                    resp = Signer::sign(hash, cert);
+                }
+            } else if (type == "CERT") {
+                resp = CertificateSelection().getCert();
+                if (resp.has<string>("cert")) {
+                    cert = resp.get<string>("cert");
+                } else {
+                    cert.clear();
+                }
+            } else {
+                resp << "result" << "invalid_argument";
+            }
+        }
+
+        write(resp, json.get<string>("nonce"));
+    }
 }
 
 void Application::write(Object &resp, const string &nonce)
