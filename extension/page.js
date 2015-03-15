@@ -22,17 +22,16 @@ window.addEventListener("message", function(event) {
             // resolve
             if(event.data.result === "ok") {
                 if(event.data.signature !== undefined) {
-                    p.resolve(event.data.signature);
+                    p.resolve({hex: event.data.signature});
                 } else if(event.data.version !== undefined) {
                     p.resolve(event.data.version);
                 } else if(event.data.cert !== undefined) {
-                    p.resolve(event.data.cert);
+                    p.resolve({hex: event.data.cert});
                 } else {
                     console.log("No idea how to handle message");
                     console.log(event.data);
                 }
             } else {
-                console.log("fail");
                 // reject
                 p.reject(new Error(event.data.result));
             }
@@ -70,19 +69,15 @@ function TokenSigning(lang) {
             };
         });
     }
-    this.getCertificate = function() {
+    this.getCertificate = function(options) {
+        var msg = {type: 'CERT', lang: options.lang};
         console.log("getCertificate()");
-        return messagePromise({
-            type: 'CERT'
-        });
+        return messagePromise(msg);
     };
-    this.sign = function(cert, hash) {
+    this.sign = function(cert, hash, options) {
+        var msg = {type: 'SIGN', cert: cert, hash: hash.hex, hashtype: hash.type, lang: options.lang};
         console.log("sign()");
-        return messagePromise({
-            type: 'SIGN',
-            cert: cert,
-            hash: hash
-        });
+        return messagePromise(msg);
     };
     this.getVersion = function() {
         console.log("getVersion()");
