@@ -7,8 +7,8 @@
  * project is concerned is the original GNU Library General Public License
  * Version 2.1, February 1999
  */
-var NO_NATIVE_URL = "https://pubkey.ee/sign/no_native_installed.html";
-var HELLO_URL = "https://pubkey.ee/sign/hello.html";
+var NO_NATIVE_URL = "https://open-eid.github.io/chrome-token-signing/missing.html";
+var HELLO_URL = "https://open-eid.github.io/chrome-token-signing/hello.html";
 var DEVELOPER_URL = "https://github.com/open-eid/chrome-token-signing/wiki/DeveloperTips";
 
 var NATIVE_HOST = "ee.ria.esteid";
