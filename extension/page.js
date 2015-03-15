@@ -43,15 +43,12 @@ window.addEventListener("message", function(event) {
 }, false);
 
 
-function TokenSigning(lang) {
+function TokenSigning() {
     function nonce() {
         var val = "";
         var hex = "abcdefghijklmnopqrstuvwxyz0123456789";
         for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length));
         return val;
-    }
-    if(!lang || lang === undefined) {
-        lang = 'en';
     }
 
     function messagePromise(msg) {
@@ -59,7 +56,6 @@ function TokenSigning(lang) {
             // amend with necessary metadata
             msg['nonce'] = nonce();
             msg['src'] = 'page.js';
-            msg['lang'] = lang;
             // send message
             window.postMessage(msg, "*");
             // and store promise callbacks
