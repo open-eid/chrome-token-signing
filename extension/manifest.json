@@ -9,7 +9,7 @@
         "128": "icon128.png"
     },
     "content_scripts": [{
-        "matches": ["*://*/*"],
+        "matches": ["*://*/*", "file:///*"],
         "js": ["content.js"],
         "run_at": "document_end"
     }],
