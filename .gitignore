@@ -4,7 +4,7 @@
 *.opensdf
 *.sdf
 *.suo
-*.vcxproj.user
+*.user
 *.o
 *.msi
 *.wixobj
