@@ -13,7 +13,6 @@
 #include "pkcs11.h"
 #include "Logger.h"
 #include "DateUtils.h"
-#include "PinString.h"
 
 #include <openssl/x509.h>
 #include <dlfcn.h>
@@ -108,7 +107,7 @@ private:
         checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle[0], &attribute, 1));
         _log("certificate = %p, certificateLength = %i", &signCert[0], signCert.size());
 
-        const unsigned char* p = &signCert[0];
+        const unsigned char *p = &signCert[0];
         cert = d2i_X509(NULL, &p, signCert.size());
     }
 
@@ -182,7 +181,7 @@ public:
         fl->C_GetSlotList(CK_TRUE, &slotIDs[0], &slotCount);
 
         std::vector<CK_SLOT_ID> signingSlotIDs;
-        for (CK_ULONG i = 0; i < slotCount; i++) {
+        for (CK_ULONG i = 0; i < slotCount; ++i) {
             _log("slotID: %i", slotIDs[i]);
             if (i & 1) {
                 _log("Found signing slotID: %i", slotIDs[i]);
@@ -199,11 +198,11 @@ public:
         return new PKCS11CardManager(slotId, fl);
     }
 
-    std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const PinString &pin) const {
+    std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const char *pin) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
-        CK_RV result = fl->C_Login(session, CKU_USER, (unsigned char*)pin.c_str(), pin.size());
+        CK_RV result = fl->C_Login(session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
         switch (result) {
             case CKR_OK:
                 break;
@@ -226,9 +225,9 @@ public:
         checkError("C_SignInit", fl->C_SignInit(session, &mechanism, privateKeyHandle[0]));
         CK_ULONG signatureLength = 0;
         std::vector<unsigned char> hashWithPadding = getHashWithPadding(hash);
-        checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), nullptr, &signatureLength));
+        checkError("C_Sign", fl->C_Sign(session, &hashWithPadding[0], hashWithPadding.size(), nullptr, &signatureLength));
         std::vector<unsigned char> signature(signatureLength, 0);
-        checkError("C_Sign", fl->C_Sign(session, (CK_BYTE_PTR) &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength));
+        checkError("C_Sign", fl->C_Sign(session, &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength));
         checkError("C_Logout", fl->C_Logout(session));
 
         return signature;

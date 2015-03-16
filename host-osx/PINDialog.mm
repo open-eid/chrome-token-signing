@@ -120,7 +120,7 @@
             [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
             future = std::async(std::launch::async, [&]() {
                 try {
-                    std::vector<unsigned char> signature = selected->sign(hash, PinString());
+                    std::vector<unsigned char> signature = selected->sign(hash, nullptr);
                     pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
                     [NSApp stopModal];
                 }
@@ -171,7 +171,7 @@
         }
         else {
             try {
-                std::vector<unsigned char> signature = selected->sign(hash, PinString(dialog->pinField.stringValue.UTF8String));
+                std::vector<unsigned char> signature = selected->sign(hash, dialog->pinField.stringValue.UTF8String);
                 return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
             }
             catch(const AuthenticationBadInput &) {

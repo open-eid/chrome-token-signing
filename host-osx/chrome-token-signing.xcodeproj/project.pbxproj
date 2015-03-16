@@ -12,7 +12,6 @@
 		4E46FD221A979DA400D0F3C8 /* PINDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */; };
 		4E46FD241A979DA400D0F3C8 /* PINPadDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */; };
 		4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E46FD251A97A07000D0F3C8 /* PINDialog.mm */; };
-		4E46FD361A9B423800D0F3C8 /* locked_allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */; };
 		4E532D0B1A96393D00D28E40 /* chrome-host.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D091A96393D00D28E40 /* chrome-host.mm */; };
 		4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E532D0C1A96399600D28E40 /* CertificateSelection.xib */; };
 		4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */; };
@@ -32,8 +31,6 @@
 		4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINPadDialog.xib; sourceTree = "<group>"; };
 		4E46FD251A97A07000D0F3C8 /* PINDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PINDialog.mm; sourceTree = "<group>"; };
 		4E46FD271A97A08600D0F3C8 /* PINDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PINDialog.h; sourceTree = "<group>"; };
-		4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = locked_allocator.cpp; sourceTree = "<group>"; };
-		4E46FD351A9B423800D0F3C8 /* locked_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = locked_allocator.h; sourceTree = "<group>"; };
 		4E490EC21A9DF45E00309C5B /* ee.ria.esteid.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ee.ria.esteid.json; sourceTree = "<group>"; };
 		4E532CE01A96379500D28E40 /* chrome-token-signing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "chrome-token-signing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E532D081A96393D00D28E40 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -83,8 +80,6 @@
 				4E532D1D1A96846900D28E40 /* DateUtils.cpp */,
 				4E20282A1AA74A6A00AB9BDC /* Labels.h */,
 				4E2028291AA74A6A00AB9BDC /* Labels.cpp */,
-				4E46FD351A9B423800D0F3C8 /* locked_allocator.h */,
-				4E46FD341A9B423800D0F3C8 /* locked_allocator.cpp */,
 				4E532D211A96848400D28E40 /* Logger.h */,
 				4E532D201A96848400D28E40 /* Logger.cpp */,
 				4E7C88641AA9EAF8008758AA /* PKCS11CardManager.h */,
@@ -253,7 +248,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E46FD361A9B423800D0F3C8 /* locked_allocator.cpp in Sources */,
 				4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */,
 				4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */,
 				4E532D1F1A96846900D28E40 /* DateUtils.cpp in Sources */,
