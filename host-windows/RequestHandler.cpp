@@ -31,6 +31,9 @@ jsonxx::Object RequestHandler::handleRequest() {
 			else if (type == "SIGN" && hasSignRequestArguments()) {
 				handleSignRequest();
 			}
+			else {
+				throw InvalidArgumentException("Invalid argument");
+			}
 		}
 		else {
 			throw InvalidArgumentException("Invalid argument");
