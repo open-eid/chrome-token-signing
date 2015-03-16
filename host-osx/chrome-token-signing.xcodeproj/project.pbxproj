@@ -16,7 +16,6 @@
 		4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E532D0C1A96399600D28E40 /* CertificateSelection.xib */; };
 		4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */; };
 		4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D1B1A96843700D28E40 /* libcrypto.dylib */; };
-		4E532D1F1A96846900D28E40 /* DateUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D1D1A96846900D28E40 /* DateUtils.cpp */; };
 		4E532D221A96848400D28E40 /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D201A96848400D28E40 /* Logger.cpp */; };
 		4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D231A97941800D28E40 /* BinaryUtils.cpp */; };
 		4E532D271A97943400D28E40 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D261A97943400D28E40 /* libiconv.dylib */; };
@@ -43,8 +42,6 @@
 		4E532D141A96421900D28E40 /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
 		4E532D151A96421900D28E40 /* page.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = page.js; sourceTree = "<group>"; };
 		4E532D1B1A96843700D28E40 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
-		4E532D1D1A96846900D28E40 /* DateUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DateUtils.cpp; sourceTree = "<group>"; };
-		4E532D1E1A96846900D28E40 /* DateUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateUtils.h; sourceTree = "<group>"; };
 		4E532D201A96848400D28E40 /* Logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
 		4E532D211A96848400D28E40 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
 		4E532D231A97941800D28E40 /* BinaryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinaryUtils.cpp; sourceTree = "<group>"; };
@@ -76,8 +73,6 @@
 			children = (
 				4E532D241A97941800D28E40 /* BinaryUtils.h */,
 				4E532D231A97941800D28E40 /* BinaryUtils.cpp */,
-				4E532D1E1A96846900D28E40 /* DateUtils.h */,
-				4E532D1D1A96846900D28E40 /* DateUtils.cpp */,
 				4E20282A1AA74A6A00AB9BDC /* Labels.h */,
 				4E2028291AA74A6A00AB9BDC /* Labels.cpp */,
 				4E532D211A96848400D28E40 /* Logger.h */,
@@ -250,7 +245,6 @@
 			files = (
 				4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */,
 				4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */,
-				4E532D1F1A96846900D28E40 /* DateUtils.cpp in Sources */,
 				4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */,
 				4E532D0B1A96393D00D28E40 /* chrome-host.mm in Sources */,
 				4E20282B1AA74A6A00AB9BDC /* Labels.cpp in Sources */,

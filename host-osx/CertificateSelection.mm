@@ -34,18 +34,21 @@
     if (self = [super init]) {
         certificates = [[NSMutableArray alloc] init];
         try {
-            time_t currentTime = DateUtils::now();
+            NSDateFormatter *df = [[NSDateFormatter alloc] init];
+            df.dateFormat = @"dd.MM.YYYYHHmmss";
+            NSDateFormatter *asn1 = [[NSDateFormatter alloc] init];
+            asn1.dateFormat = @"yyyyMMddHHmmss'Z'";
+            asn1.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 PKCS11CardManager *local = PKCS11CardManager::instance()->getManagerForReader(token);
-                time_t validTo = local->getValidTo();
-                if (currentTime <= validTo) {
-                    std::vector<unsigned char> cert = local->getSignCert();
+                NSDate *date = [asn1 dateFromString:@(local->getValidTo().c_str())];
+                if ([date compare:NSDate.date] < 0) {
                     [certificates addObject: @{
-                                               @"cert": @(BinaryUtils::bin2hex(cert).c_str()),
-                                               @"validTo": @(DateUtils::timeToString(validTo).c_str()),
-                                               @"CN": @(local->getCN().c_str()),
-                                               @"type": @(local->getType().c_str()),
-                                               }];
+                        @"cert": @(BinaryUtils::bin2hex(local->getSignCert()).c_str()),
+                        @"validTo": [df stringFromDate:date],
+                        @"CN": @(local->getCN().c_str()),
+                        @"type": @(local->getType().c_str()),
+                    }];
                 }
                 delete local;
             }

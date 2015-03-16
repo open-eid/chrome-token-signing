@@ -12,7 +12,6 @@
 
 #include "pkcs11.h"
 #include "Logger.h"
-#include "DateUtils.h"
 
 #include <openssl/x509.h>
 
@@ -264,14 +263,14 @@ public:
         return getFromX509Name("serialNumber");
     }
 
-    time_t getValidTo() const {
+    std::string getValidTo() const {
         if (!cert) {
             throw std::runtime_error("Could not parse cert");
         }
         ASN1_GENERALIZEDTIME *gt = ASN1_TIME_to_generalizedtime(X509_get_notAfter(cert), nullptr);
         std::string timeAsString((const char *) gt->data, gt->length);
         ASN1_GENERALIZEDTIME_free(gt);
-        return DateUtils::timeFromStringWithFormat(timeAsString, "%Y%m%d");
+        return timeAsString;
     }
 
     bool isPinpad() const {

@@ -86,12 +86,10 @@
     }
 
     std::unique_ptr<PKCS11CardManager> selected;
-    time_t currentTime = DateUtils::now();
     try {
         for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
             selected.reset(PKCS11CardManager::instance()->getManagerForReader(token));
-            if (BinaryUtils::hex2bin(cert.UTF8String) == selected->getSignCert() &&
-                currentTime <= selected->getValidTo()) {
+            if (BinaryUtils::hex2bin(cert.UTF8String) == selected->getSignCert()) {
                 break;
             }
             selected.reset();
