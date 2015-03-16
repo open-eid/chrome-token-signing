@@ -97,7 +97,7 @@ void Application::parse()
                     resp = Signer::sign(json.value("hash").toString(), cert);
                 }
             } else if (type == "CERT") {
-                resp = CertificateSelection().getCert();
+                resp = CertificateSelection::getCert();
                 cert = resp.value("cert").toString();
             } else {
                 resp = {{"result", "invalid_argument"}};

@@ -25,7 +25,37 @@
 
 class CertificateSelection: public QDialog {
 public:
-    CertificateSelection()
+    static QVariantMap getCert()
+    {
+        try {
+            QList<QStringList> certs;
+            for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
+                PKCS11CardManager *manager = PKCS11CardManager::instance()->getManagerForReader(token);
+                QByteArray data((const char*)&manager->getSignCert()[0], manager->getSignCert().size());
+                QSslCertificate cert(data, QSsl::Der);
+                if (QDateTime::currentDateTime() < cert.expiryDate()) {
+                    certs << (QStringList()
+                        << manager->getCN().c_str()
+                        << manager->getType().c_str()
+                        << cert.expiryDate().toString("dd.MM.yyyy")
+                        << data.toHex());
+                }
+                delete manager;
+            }
+            if (certs.empty())
+                return {{"result", "no_certificates"}};
+            CertificateSelection dialog(certs);
+            if (dialog.exec() == 0)
+                return {{"result", "user_cancel"}};
+            return {{"cert", certs.at(dialog.table->currentIndex().row())[3]}};
+        } catch (const std::runtime_error &e) {
+            qDebug() << e.what();
+        }
+        return {{"result", "technical_error"}};
+    }
+
+private:
+    CertificateSelection(const QList<QStringList> &certs)
         : message(new QLabel(this))
         , table(new QTreeWidget(this))
         , buttons(new QDialogButtonBox(this))
@@ -48,6 +78,9 @@ public:
         table->header()->setStretchLastSection(false);
         table->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
         table->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+        for(const QStringList &row: certs)
+            table->insertTopLevelItem(0, new QTreeWidgetItem(table, row));
+        table->setCurrentIndex(table->model()->index(0, 0));
 
         ok = buttons->addButton(l10nLabels.get("select").c_str(), QDialogButtonBox::AcceptRole);
         cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
@@ -60,38 +93,8 @@ public:
         show();
     }
 
-    QVariantMap getCert()
-    {
-        try {
-            QStringList certs;
-            for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
-                PKCS11CardManager *manager = PKCS11CardManager::instance()->getManagerForReader(token);
-                QByteArray data((const char*)&manager->getSignCert()[0], manager->getSignCert().size());
-                QSslCertificate cert(data, QSsl::Der);
-                if (QDateTime::currentDateTime() < cert.expiryDate()) {
-                    table->insertTopLevelItem(0, new QTreeWidgetItem(table, QStringList()
-                        << manager->getCN().c_str()
-                        << manager->getType().c_str()
-                        << cert.expiryDate().toString("dd.MM.yyyy")));
-                    certs << data.toHex();
-                }
-                delete manager;
-            }
-            if (certs.empty())
-                return {{"result", "no_certificates"}};
-            table->setCurrentIndex(table->model()->index(0, 0));
-            if (exec() == 0)
-                return {{"result", "user_cancel"}};
-            return {{"cert", certs.at(table->currentIndex().row())}};
-        } catch (const std::runtime_error &e) {
-            qDebug() << e.what();
-        }
-        return {{"result", "technical_error"}};
-    }
-
-private:
     QLabel *message;
     QTreeWidget *table;
     QDialogButtonBox *buttons;
-    QPushButton *ok, *cancel;
+    QPushButton *ok = nullptr, *cancel = nullptr;
 };
