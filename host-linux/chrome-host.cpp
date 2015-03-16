@@ -71,7 +71,7 @@ void Application::parse()
             return exit(EXIT_FAILURE);
         } else {
             if (json.contains("lang")) {
-                l10nLabels.setLanguage(json.value("lang").toString().toStdString());
+                Labels::l10n.setLanguage(json.value("lang").toString().toStdString());
             }
 
             if (origin.isEmpty()) {

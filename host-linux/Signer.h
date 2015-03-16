@@ -63,8 +63,8 @@ public:
             Signer dialog(manager->isPinpad());
             if (retriesLeft < 3) {
                 dialog.errorLabel->setText(QString("<font color='red'><b>%1%2 %3</b></font>")
-                     .arg((!isInitialCheck ? l10nLabels.get("incorrect PIN2") : "").c_str())
-                     .arg(l10nLabels.get("tries left").c_str())
+                     .arg((!isInitialCheck ? Labels::l10n.get("incorrect PIN2") : "").c_str())
+                     .arg(Labels::l10n.get("tries left").c_str())
                      .arg(retriesLeft));
             }
             isInitialCheck = false;
@@ -137,8 +137,8 @@ private:
 
         setMinimumWidth(350);
         setWindowFlags(Qt::WindowStaysOnTopHint);
-        setWindowTitle(l10nLabels.get("signing").c_str());
-        pinLabel->setText(l10nLabels.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
+        setWindowTitle(Labels::l10n.get("signing").c_str());
+        pinLabel->setText(Labels::l10n.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
         errorLabel->setTextFormat(Qt::RichText);
 
         if(isPinpad) {
@@ -159,8 +159,8 @@ private:
             buttons = new QDialogButtonBox(this);
             connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-            cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
-            ok = buttons->addButton(l10nLabels.get("sign").c_str(), QDialogButtonBox::AcceptRole);
+            cancel = buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
+            ok = buttons->addButton(Labels::l10n.get("sign").c_str(), QDialogButtonBox::AcceptRole);
             ok->setEnabled(false);
 
             pin = new QLineEdit(this);

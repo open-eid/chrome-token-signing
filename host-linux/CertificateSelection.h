@@ -66,15 +66,15 @@ private:
         layout->addWidget(buttons);
 
         setWindowFlags(Qt::WindowStaysOnTopHint);
-        setWindowTitle(l10nLabels.get("select certificate").c_str());
-        message->setText(l10nLabels.get("cert info").c_str());
+        setWindowTitle(Labels::l10n.get("select certificate").c_str());
+        message->setText(Labels::l10n.get("cert info").c_str());
 
         table->setColumnCount(3);
         table->setRootIsDecorated(false);
         table->setHeaderLabels(QStringList()
-            << l10nLabels.get("certificate").c_str()
-            << l10nLabels.get("type").c_str()
-            << l10nLabels.get("valid to").c_str());
+            << Labels::l10n.get("certificate").c_str()
+            << Labels::l10n.get("type").c_str()
+            << Labels::l10n.get("valid to").c_str());
         table->header()->setStretchLastSection(false);
         table->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
         table->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -82,8 +82,8 @@ private:
             table->insertTopLevelItem(0, new QTreeWidgetItem(table, row));
         table->setCurrentIndex(table->model()->index(0, 0));
 
-        ok = buttons->addButton(l10nLabels.get("select").c_str(), QDialogButtonBox::AcceptRole);
-        cancel = buttons->addButton(l10nLabels.get("cancel").c_str(), QDialogButtonBox::RejectRole);
+        ok = buttons->addButton(Labels::l10n.get("select").c_str(), QDialogButtonBox::AcceptRole);
+        cancel = buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
         connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         connect(table, &QTreeWidget::clicked, [&](){
