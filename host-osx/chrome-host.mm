@@ -84,7 +84,7 @@ int main(int argc, const char * argv[]) {
                         return;
                     }
                     if (dict[@"lang"]) {
-                        l10nLabels.setLanguage([dict[@"lang"] UTF8String]);
+                        Labels::l10n.setLanguage([dict[@"lang"] UTF8String]);
                     }
                     if ([dict[@"type"] isEqualToString:@"VERSION"]) {
                         result = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};

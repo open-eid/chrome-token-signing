@@ -16,7 +16,7 @@
 
 #include <future>
 
-#define _L(KEY) @(l10nLabels.get(KEY).c_str())
+#define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
 @interface OnlyIntegerValueFormatter : NSNumberFormatter
 @end

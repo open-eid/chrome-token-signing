@@ -14,7 +14,7 @@
 #import "PKCS11CardManager.h"
 #import "Labels.h"
 
-#define _L(KEY) @(l10nLabels.get(KEY).c_str())
+#define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
 @interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate> {
     IBOutlet NSPanel *window;
@@ -42,7 +42,7 @@
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 PKCS11CardManager *local = PKCS11CardManager::instance()->getManagerForReader(token);
                 NSDate *date = [asn1 dateFromString:@(local->getValidTo().c_str())];
-                if ([date compare:NSDate.date] < 0) {
+                if ([date compare:NSDate.date] > 0) {
                     [certificates addObject: @{
                         @"cert": @(BinaryUtils::bin2hex(local->getSignCert()).c_str()),
                         @"validTo": [df stringFromDate:date],

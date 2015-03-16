@@ -10,19 +10,15 @@
 
 #pragma once
 
-#include <map>
 #include <string>
-#include <vector>
 
 class Labels {
- private:
+private:
 	int selectedLanguage;
-    std::map<std::string,std::vector<std::string> > labels;
-
- public:
     Labels();
+
+public:
+    static Labels l10n;
 	void setLanguage(const std::string &language);
     std::string get(const std::string &labelKey) const;
 };
-
-extern Labels l10nLabels;

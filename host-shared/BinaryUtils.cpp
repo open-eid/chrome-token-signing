@@ -9,11 +9,8 @@
 */
 
 #include "BinaryUtils.h"
-#include <cstring>
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdexcept>
-#include <string.h>
 
 using namespace std;
 

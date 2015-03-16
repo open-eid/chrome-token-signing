@@ -10,29 +10,14 @@
 
 #include "Labels.h"
 
+#include <map>
+#include <vector>
+
 using namespace std;
 
-Labels l10nLabels;
+Labels Labels::l10n = Labels();
 
 Labels::Labels() {
-    labels = {
-      {"enter PIN2",{"Allkirjastamiseks sisesta PIN2:", "For signing enter PIN2:", "Для подписания введите PIN2:" }},
-      {"enter PIN2 pinpad", {"Allkirjastamiseks sisesta PIN2 kaardilugeja sõrmistikult", "For signing enter PIN2 from PIN pad", "Для подписания введите PIN2 с PIN-клавиатуры"}},
-      {"tries left",{"Katseid jäänud:", "Tries left:", "Возможных попыток:"}},
-      {"incorrect PIN2",{"Vale PIN2! ", "Incorrect PIN2! ", "Неправильный PIN2! "}},
-      {"signing",{"Allkirjastamine", "Signing", "Подписание"}},
-      {"PIN2 blocked",{"PIN2 blokeeritud, ei saa allkirjastada!", "PIN2 blocked, cannot sign!", "PIN2 блокирован, невозможно подписать!"}},
-      {"error", {"Viga", "Error", "Ошибка"}},
-      {"cancel", {"Katkesta", "Cancel", "Отменить"}},
-      {"sign", {"Allkirjasta", "Sign", "Подписать"}},
-
-      {"select certificate", {"Sertifikaadi valik", "Select certificate", "Выбор сертификата"}},
-      {"select", {"Vali", "Select", "Выбрать"}},
-      {"certificate", {"Sertifikaat", "Certificate", "Сертификат"}},
-      {"type", {"Tüüp", "Type", "Тип"}},
-      {"valid to", {"Kehtiv kuni" ,"Valid to", "Действительный до"}},
-      {"cert info", {"Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.", "By selecting a certificate I accept that my name and personal ID code will be sent to service provider.", "Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."}}
-    };
     setLanguage("et");
 }
 
@@ -42,5 +27,39 @@ void Labels::setLanguage(const string &language) {
 }
 
 string Labels::get(const string &labelKey) const {
-  return labels.at(labelKey)[selectedLanguage];
+    static std::map<std::string,std::vector<std::string> > labels = {
+        {"enter PIN2",{
+            "Allkirjastamiseks sisesta PIN2:",
+            "For signing enter PIN2:",
+            "Для подписания введите PIN2:"
+        }},
+        {"enter PIN2 pinpad", {
+            "Allkirjastamiseks sisesta PIN2 kaardilugeja sõrmistikult",
+            "For signing enter PIN2 from PIN pad",
+            "Для подписания введите PIN2 с PIN-клавиатуры"
+        }},
+        {"tries left",{"Katseid jäänud:", "Tries left:", "Возможных попыток:"}},
+        {"incorrect PIN2",{"Vale PIN2! ", "Incorrect PIN2! ", "Неправильный PIN2! "}},
+        {"signing",{"Allkirjastamine", "Signing", "Подписание"}},
+        {"PIN2 blocked",{
+            "PIN2 blokeeritud, ei saa allkirjastada!",
+            "PIN2 blocked, cannot sign!",
+            "PIN2 блокирован, невозможно подписать!"
+        }},
+        {"error", {"Viga", "Error", "Ошибка"}},
+        {"cancel", {"Katkesta", "Cancel", "Отменить"}},
+        {"sign", {"Allkirjasta", "Sign", "Подписать"}},
+
+        {"select certificate", {"Sertifikaadi valik", "Select certificate", "Выбор сертификата"}},
+        {"select", {"Vali", "Select", "Выбрать"}},
+        {"certificate", {"Sertifikaat", "Certificate", "Сертификат"}},
+        {"type", {"Tüüp", "Type", "Тип"}},
+        {"valid to", {"Kehtiv kuni" ,"Valid to", "Действительный до"}},
+        {"cert info", {
+            "Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.",
+            "By selecting a certificate I accept that my name and personal ID code will be sent to service provider.",
+            "Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."
+        }}
+    };
+    return labels.at(labelKey)[selectedLanguage];
 }
