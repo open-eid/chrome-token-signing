@@ -71,7 +71,7 @@ function TokenSigning() {
         return messagePromise(msg);
     };
     this.sign = function(cert, hash, options) {
-        var msg = {type: 'SIGN', cert: cert, hash: hash.hex, hashtype: hash.type, lang: options.lang};
+        var msg = {type: 'SIGN', cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang};
         console.log("sign()");
         return messagePromise(msg);
     };
