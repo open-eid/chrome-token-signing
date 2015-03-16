@@ -15,7 +15,11 @@
 #include "DateUtils.h"
 
 #include <openssl/x509.h>
+
+#include <cstring>
 #include <dlfcn.h>
+#include <stdexcept>
+#include <vector>
 
 #define BINARY_SHA1_LENGTH 20
 #define BINARY_SHA224_LENGTH 28

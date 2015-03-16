@@ -28,11 +28,9 @@
 #include <future>
 #include <string>
 
-using namespace jsonxx;
-
 class Signer: public QDialog {
 public:
-    static Object sign(const std::string &hash, const std::string &cert) {
+    static QVariantMap sign(const QString &hash, const QString &cert) {
         switch(hash.length())
         {
         case BINARY_SHA1_LENGTH * 2:
@@ -41,7 +39,7 @@ public:
         case BINARY_SHA384_LENGTH * 2:
         case BINARY_SHA512_LENGTH * 2: break;
         default:
-            return Object() << "result" << "invalid_argument";
+            return {{"result", "invalid_argument"}};
         }
 
         std::unique_ptr<PKCS11CardManager> manager;
@@ -49,7 +47,7 @@ public:
             time_t currentTime = DateUtils::now();
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
-                if (manager->getSignCert() == BinaryUtils::hex2bin(cert) &&
+                if (manager->getSignCert() == BinaryUtils::hex2bin(cert.toStdString()) &&
                     currentTime <= manager->getValidTo()) {
                     break;
                 }
@@ -57,9 +55,9 @@ public:
             }
 
             if(!manager)
-                return Object() << "result" << "invalid_argument";
+                return {{"result", "invalid_argument"}};
         } catch (const std::runtime_error &a) {
-            return Object() << "result" << "technical_error";
+            return {{"result", "technical_error"}};
         }
 
         bool isInitialCheck = true;
@@ -79,7 +77,7 @@ public:
                 signature = std::async(std::launch::async, [&](){
                     std::vector<unsigned char> result;
                     try {
-                        result = manager->sign(BinaryUtils::hex2bin(hash), PinString());
+                        result = manager->sign(BinaryUtils::hex2bin(hash.toStdString()), nullptr);
                         dialog.accept();
                     } catch (const AuthenticationError &) {
                         --retriesLeft;
@@ -98,33 +96,34 @@ public:
             switch (dialog.exec())
             {
             case 0:
-                return Object() << "result" << "user_cancel";
+                return {{"result", "user_cancel"}};
             case -2:
                 continue;
             case -1:
-                return Object() << "result" << "technical_error";
+                return {{"result", "technical_error"}};
             default:
                 if (manager->isPinpad()) {
-                    return Object() << "signature" << BinaryUtils::bin2hex(signature.get());
+                    return {{"signature", BinaryUtils::bin2hex(signature.get()).c_str()}};
                 }
             }
 
             try {
                 if (!manager->isPinpad()) {
-                    std::vector<unsigned char> result = manager->sign(BinaryUtils::hex2bin(hash),
-                        PinString(dialog.pin->text().toUtf8().constData()));
-                    return Object() << "signature" << BinaryUtils::bin2hex(result);
+                    std::vector<unsigned char> result = manager->sign(
+                        BinaryUtils::hex2bin(hash.toStdString()),
+                        dialog.pin->text().toUtf8().constData());
+                    return {{"signature", BinaryUtils::bin2hex(result).c_str()}};
                 }
             } catch (const AuthenticationBadInput &) {
             } catch (const AuthenticationError &) {
                 --retriesLeft;
             } catch (const UserCanceledError &) {
-                return Object() << "result" << "user_cancel";
+                return {{"result", "user_cancel"}};
             } catch (const std::runtime_error &) {
-                return Object() << "result" << "technical_error";
+                return {{"result", "technical_error"}};
             }
         }
-        return Object() << "result" << "pin_blocked";
+        return {{"result", "pin_blocked"}};
     }
 
 private:

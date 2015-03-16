@@ -8,21 +8,18 @@
 * Version 2.1, February 1999
 */
 
-#include "jsonxx.h"
 #include "Signer.h"
 #include "CertificateSelection.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSocketNotifier>
-
-#include <iostream>
-#include <iomanip>
 
 using namespace std;
 using namespace BinaryUtils;
-using namespace jsonxx;
 
 #ifndef VERSION
 #define VERSION "1.0.0"
@@ -42,95 +39,90 @@ public:
 
 private:
     void parse();
-    void write(Object &resp, const string &nonce = string());
+    void write(QVariantMap &resp, const QString &nonce = QString()) const;
 
     QFile in;
-    string origin, cert;
+    QString origin, cert;
 };
 
 void Application::parse()
 {
     uint32_t messageLength = 0;
     while (in.peek((char*)&messageLength, sizeof(messageLength)) > 0) {
+        QVariantMap resp;
         in.read((char*)&messageLength, sizeof(messageLength));
-        //messageLength = 110;
         if (messageLength > 1024*8)
         {
             qDebug() << "Invalid message length" << messageLength;
-            write(Object() << "result" << "invalid_argument");
+            resp = {{"result", "invalid_argument"}};
+            write(resp);
             return exit(EXIT_FAILURE);
         }
 
-        string message(messageLength, 0);
-        in.read(&message[0], messageLength);
-
-        Object json;
-        Object resp;
-        if(!json.parse(message)) {
-            write(Object() << "result" << "invalid_argument");
+        QJsonObject json = QJsonDocument::fromJson(in.read(messageLength)).object();
+        if(json.isEmpty()) {
+            resp = {{"result", "invalid_argument"}};
+            write(resp, json.value("nonce").toString());
             return exit(EXIT_FAILURE);
         }
-        else if(!json.has<string>("type") || !json.has<string>("nonce") || !json.has<string>("origin")) {
-            write(Object() << "result" << "invalid_argument");
+        else if(!json.contains("type") || !json.contains("nonce") || !json.contains("origin")) {
+            resp = {{"result", "invalid_argument"}};
+            write(resp, json.value("nonce").toString());
             return exit(EXIT_FAILURE);
         } else {
-            if (json.has<string>("lang")) {
-                l10nLabels.setLanguage(json.get<string>("lang"));
+            if (json.contains("lang")) {
+                l10nLabels.setLanguage(json.value("lang").toString().toStdString());
             }
 
-            if (origin.empty()) {
-                origin = json.get<string>("origin");
-            } else if (origin != json.get<string>("origin")) {
-                write(Object() << "result" << "invalid_argument");
+            if (origin.isEmpty()) {
+                origin = json.value("origin").toString();
+            } else if (origin != json.value("origin").toString()) {
+                resp = {{"result", "invalid_argument"}};
+                write(resp, json.value("nonce").toString());
                 return exit(EXIT_FAILURE);
             }
 
-            string type = json.get<string>("type");
+            QString type = json.value("type").toString();
             if (type == "VERSION") {
-                resp << "version" << VERSION;
-            } else if (json.get<string>("origin").compare(0, 6, "https:")) {
-                write(Object() << "result" << "not_allowed");
+                resp = {{"version", VERSION}};
+            } else if (!json.value("origin").toString().startsWith("https:")) {
+                resp = {{"result", "not_allowed"}};
+                write(resp, json.value("nonce").toString());
                 return exit(EXIT_FAILURE);
             }
             else if (type == "SIGN") {
-                if (!json.has<string>("cert") || !json.has<string>("hash")) {
-                    resp << "result" << "invalid_argument";
+                if (!json.contains("cert") || !json.contains("hash")) {
+                    resp = {{"result", "invalid_argument"}};
                 } else {
-                    string hash = json.get<String>("hash");
-                    _log("signing hash: %s", hash.c_str());
-                    resp = Signer::sign(hash, cert);
+                    resp = Signer::sign(json.value("hash").toString(), cert);
                 }
             } else if (type == "CERT") {
                 resp = CertificateSelection().getCert();
-                if (resp.has<string>("cert")) {
-                    cert = resp.get<string>("cert");
-                } else {
-                    cert.clear();
-                }
+                cert = resp.value("cert").toString();
             } else {
-                resp << "result" << "invalid_argument";
+                resp = {{"result", "invalid_argument"}};
             }
         }
 
-        write(resp, json.get<string>("nonce"));
+        write(resp, json.value("nonce").toString());
     }
 }
 
-void Application::write(Object &resp, const string &nonce)
+void Application::write(QVariantMap &resp, const QString &nonce) const
 {
-    if (!nonce.empty())
-        resp << "nonce" << nonce;
+    if (!nonce.isEmpty())
+        resp["nonce"] = nonce;
 
-    if (!resp.has<string>("result"))
-        resp << "result" << "ok";
+    if (!resp.contains("result"))
+        resp["result"] = "ok";
 
-    string response = resp.json();
+    QByteArray response =  QJsonDocument::fromVariant(resp).toJson();
     uint32_t responseLength = response.size();
-    _log("Response(%i) %s ", responseLength, response.c_str());
+    _log("Response(%i) %s ", responseLength, response.constData());
     QFile out;
     out.open(stdout, QFile::WriteOnly);
     out.write((const char*)&responseLength, sizeof(responseLength));
-    out.write(response.c_str(), response.size());
+    out.write(response);
 }
 
 int main(int argc, char *argv[])

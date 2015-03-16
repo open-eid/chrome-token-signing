@@ -12,7 +12,6 @@
 
 #include "PKCS11CardManager.h"
 #include "BinaryUtils.h"
-#include "jsonxx.h"
 #include "Labels.h"
 
 #include <QDebug>
@@ -23,8 +22,6 @@
 #include <QPushButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
-
-using namespace jsonxx;
 
 class CertificateSelection: public QDialog {
 public:
@@ -63,11 +60,11 @@ public:
         show();
     }
 
-    Object getCert()
+    QVariantMap getCert()
     {
         try {
             time_t currentTime = DateUtils::now();
-            std::vector<std::string> certs;
+            QStringList certs;
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 PKCS11CardManager *manager = PKCS11CardManager::instance()->getManagerForReader(token);
                 time_t validTo = manager->getValidTo();
@@ -76,20 +73,20 @@ public:
                         << manager->getCN().c_str()
                         << manager->getType().c_str()
                         << DateUtils::timeToString(validTo).c_str()));
-                    certs.push_back(BinaryUtils::bin2hex(manager->getSignCert()));
+                    certs << BinaryUtils::bin2hex(manager->getSignCert()).c_str();
                 }
                 delete manager;
             }
             if (certs.empty())
-                return Object() << "result" << "no_certificates";
+                return {{"result", "no_certificates"}};
             table->setCurrentIndex(table->model()->index(0, 0));
             if (exec() == 0)
-                return Object() << "result" << "user_cancel";
-            return Object() << "cert" << certs.at(table->currentIndex().row());
+                return {{"result", "user_cancel"}};
+            return {{"cert", certs.at(table->currentIndex().row())}};
         } catch (const std::runtime_error &e) {
             qDebug() << e.what();
         }
-        return Object() << "result" << "technical_error";
+        return {{"result", "technical_error"}};
     }
 
 private:
