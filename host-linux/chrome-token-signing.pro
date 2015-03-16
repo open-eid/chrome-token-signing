@@ -14,3 +14,9 @@ SOURCES += \
     ../host-shared/Logger.cpp \
     chrome-host.cpp
 HEADERS += *.h ../host-shared/*.h
+target.path = /usr/bin
+hostconf.path = /etc/opt/chrome/native-messaging-hosts
+hostconf.files += ee.ria.esteid.json
+extension.path = /opt/google/chrome/extensions
+extension.files += ../ckjefchnfjhjfedoccjbhjpbncimppeg.json
+INSTALLS += target hostconf extension
