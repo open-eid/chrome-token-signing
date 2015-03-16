@@ -35,7 +35,7 @@
         certificates = [[NSMutableArray alloc] init];
         try {
             NSDateFormatter *df = [[NSDateFormatter alloc] init];
-            df.dateFormat = @"dd.MM.YYYYHHmmss";
+            df.dateFormat = @"dd.MM.YYYY";
             NSDateFormatter *asn1 = [[NSDateFormatter alloc] init];
             asn1.dateFormat = @"yyyyMMddHHmmss'Z'";
             asn1.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];

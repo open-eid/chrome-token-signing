@@ -11,7 +11,6 @@
 #pragma once
 
 #include "PKCS11CardManager.h"
-#include "BinaryUtils.h"
 #include "Labels.h"
 
 #include <QDebug>
@@ -20,6 +19,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
+#include <QSslCertificate>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
@@ -63,17 +63,17 @@ public:
     QVariantMap getCert()
     {
         try {
-            time_t currentTime = DateUtils::now();
             QStringList certs;
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 PKCS11CardManager *manager = PKCS11CardManager::instance()->getManagerForReader(token);
-                time_t validTo = manager->getValidTo();
-                if (currentTime <= validTo) {
+                QByteArray data((const char*)&manager->getSignCert()[0], manager->getSignCert().size());
+                QSslCertificate cert(data, QSsl::Der);
+                if (QDateTime::currentDateTime() < cert.expiryDate()) {
                     table->insertTopLevelItem(0, new QTreeWidgetItem(table, QStringList()
                         << manager->getCN().c_str()
                         << manager->getType().c_str()
-                        << DateUtils::timeToString(validTo).c_str()));
-                    certs << BinaryUtils::bin2hex(manager->getSignCert()).c_str();
+                        << cert.expiryDate().toString("dd.MM.yyyy")));
+                    certs << data.toHex();
                 }
                 delete manager;
             }

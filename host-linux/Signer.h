@@ -44,11 +44,9 @@ public:
 
         std::unique_ptr<PKCS11CardManager> manager;
         try {
-            time_t currentTime = DateUtils::now();
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
-                if (manager->getSignCert() == BinaryUtils::hex2bin(cert.toStdString()) &&
-                    currentTime <= manager->getValidTo()) {
+                if (manager->getSignCert() == BinaryUtils::hex2bin(cert.toStdString())) {
                     break;
                 }
                 manager.reset();
