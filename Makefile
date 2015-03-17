@@ -5,7 +5,7 @@ BUILD_NUMBER=0
 VERSION=1.0.0.$(BUILD_NUMBER)
 
 build:
-	msbuild /p:Configuration=Release;Platform=Win32 host-windows\host-windows.sln
+	msbuild /p:Configuration=Release;Platform=Win32 /property:BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
 
 pkg:
 	"$(WIX)\bin\candle.exe" host-windows\chrome-token-signing.wxs -dVERSION=$(VERSION)
