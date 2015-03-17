@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <io.h>
+#include <iostream>
 
 IOCommunicator::IOCommunicator() {
 	//Necessary for sending correct message length to stout (in Windows)
