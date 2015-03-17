@@ -18,22 +18,6 @@
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
-@interface OnlyIntegerValueFormatter : NSNumberFormatter
-@end
-
-@implementation OnlyIntegerValueFormatter
-
-- (BOOL)isPartialStringValid:(NSString*)partialString newEditingString:(NSString**)newString errorDescription:(NSString**)error
-{
-    if(partialString.length == 0) {
-        return YES;
-    }
-    NSScanner *scanner = [NSScanner scannerWithString:partialString];
-    return [scanner scanInt:0] && scanner.isAtEnd;
-}
-
-@end
-
 @interface PINPanel () {
     IBOutlet NSPanel *window;
     IBOutlet NSButton *okButton;
@@ -197,6 +181,10 @@
 
 - (void)controlTextDidChange:(NSNotification*)notification;
 {
+    // replace content with its intValue
+    pinField.stringValue = [[pinField.stringValue componentsSeparatedByCharactersInSet:
+                             NSCharacterSet.decimalDigitCharacterSet.invertedSet]
+                            componentsJoinedByString:@""];
     okButton.enabled = pinField.stringValue.length >= 5;
 }
 

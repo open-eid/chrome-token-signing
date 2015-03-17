@@ -74,7 +74,6 @@ Gw
                         </secureTextFieldCell>
                         <connections>
                             <outlet property="delegate" destination="-2" id="r3E-7b-AFN"/>
-                            <outlet property="formatter" destination="jXz-RQ-RJq" id="ELL-CH-mNq"/>
                         </connections>
                     </secureTextField>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9">
@@ -123,6 +122,5 @@ Gw
             </view>
             <point key="canvasLocation" x="910.5" y="611.5"/>
         </window>
-        <customObject id="jXz-RQ-RJq" customClass="OnlyIntegerValueFormatter"/>
     </objects>
 </document>
