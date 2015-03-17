@@ -18,12 +18,13 @@ using namespace std;
 Labels Labels::l10n = Labels();
 
 Labels::Labels() {
-    setLanguage("et");
+    setLanguage("en");
 }
 
 void Labels::setLanguage(const string &language) {
     static std::map<std::string, int> languages = {{"et",0}, {"en",1}, {"ru",2}, {"est",0}, {"eng",1}, {"rus",2}};
-    selectedLanguage = languages.at(language);
+    auto pos = languages.find(language);
+    selectedLanguage = pos == languages.end() ? 1 : pos->second;
 }
 
 string Labels::get(const string &labelKey) const {
