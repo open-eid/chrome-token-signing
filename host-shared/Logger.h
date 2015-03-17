@@ -8,27 +8,16 @@
 * Version 2.1, February 1999
 */
 
-#ifndef __esteid_pkcs11__Logger__
-#define __esteid_pkcs11__Logger__
+#pragma once
 
-#include <iostream>
-#include <stdio.h>
-#include <string>
 #include <cstdarg>
 
 namespace Logger {
-  void writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...);
-  std::string logLine(const char *functionName, const char *fileName, int lineNumber);
-  std::string getLogFileName();
+    void writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...);
 }
-
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #define _log(...) Logger::writeLog(__func__, __FILE__, __LINE__, __VA_ARGS__)
 #else
 #define _log(...) Logger::writeLog(__FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
 #endif
-
-#define FLOG _log("");
-
-#endif /* defined(__esteid_pkcs11__Logger__) */
