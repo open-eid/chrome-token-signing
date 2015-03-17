@@ -88,7 +88,6 @@
     <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="RequestHandler.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Signer.h" />
   </ItemGroup>
   <ItemGroup>
