@@ -8,6 +8,8 @@
  * Version 2.1, February 1999
  */
 
+var inuse = false;
+
 // Forward the message from page.js to background.js
 window.addEventListener("message", function(event) {
     // We only accept messages from ourselves
@@ -18,13 +20,16 @@ window.addEventListener("message", function(event) {
     if (event.data.src && (event.data.src === "page.js")) {
         event.data["origin"] = location.origin;
         chrome.runtime.sendMessage(event.data, function(response) {});
-    }
-}, false);
 
-// close the native component if page unloads
-window.addEventListener("beforeunload", function(event) {
-    console.log("window is unloaded");
-    chrome.runtime.sendMessage({src: 'page.js', type: 'DONE'});
+        // Only add unload handler if extension has been used
+        if (!inuse) {
+            // close the native component if page unloads
+            window.addEventListener("beforeunload", function(event) {
+                chrome.runtime.sendMessage({src: 'page.js', type: 'DONE'});
+            }, false);
+            inuse = true;
+        }
+    }
 }, false);
 
 // post messages from extension to page
