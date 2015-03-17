@@ -64,7 +64,7 @@
             okButton.title = _L("sign");
             cancelButton.title = _L("cancel");
         }
-        [pinFieldLabel setTitleWithMnemonic:_L(pinpad ? "enter PIN2 pinpad" : "enter PIN2")];
+        pinFieldLabel.stringValue = _L(pinpad ? "enter PIN2 pinpad" : "enter PIN2");
         window.title =_L("signing");
     }
     return self;
@@ -139,12 +139,12 @@
             });
         }
 
-        [dialog->nameLabel setTitleWithMnemonic:@((selected->getCardName() + ", " + selected->getPersonalCode()).c_str())];
+        dialog->nameLabel.stringValue = @((selected->getCardName() + ", " + selected->getPersonalCode()).c_str());
         if (retriesLeft < 3) {
-            [dialog->messageField setTitleWithMnemonic:[NSString stringWithFormat:@"%@%@ %u",
-                                                        (!isInitialCheck ? _L("incorrect PIN2") : @""),
-                                                        _L("tries left"),
-                                                        retriesLeft]];
+            dialog->messageField.stringValue = [NSString stringWithFormat:@"%@%@ %u",
+                                                (!isInitialCheck ? _L("incorrect PIN2") : @""),
+                                                _L("tries left"),
+                                                retriesLeft];
         }
         isInitialCheck = false;
 

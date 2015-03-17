@@ -65,7 +65,7 @@
         window.title = _L("select certificate");
         cancelButton.title = _L("cancel");
         okButton.title = _L("select");
-        [warningLabel setTitleWithMnemonic:_L("cert info")];
+        warningLabel.stringValue = _L("cert info");
         [[certificateSelection tableColumnWithIdentifier:@"CN"].headerCell setStringValue:_L("certificate")];
         [[certificateSelection tableColumnWithIdentifier:@"type"].headerCell setStringValue:_L("type")];
         [[certificateSelection tableColumnWithIdentifier:@"validTo"].headerCell setStringValue:_L("valid to")];
