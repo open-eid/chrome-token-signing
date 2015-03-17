@@ -91,6 +91,9 @@ private:
         });
 
         show();
+        // Make sure window is in foreground and focus
+        raise();
+        activateWindow();
     }
 
     QLabel *message;
