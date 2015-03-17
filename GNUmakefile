@@ -19,7 +19,9 @@ release:
 	zip -r extension-$(RELEASE).zip extension
 
 test: detect
-	python host-test/pipe-test.py -v
+	# wildcard will resolve to an empty string with a missing file
+	# so that OSX will not run with xvfb
+	$(wildcard /usr/bin/xvfb-run) python host-test/pipe-test.py -v
 
 # Make the targzip for the native components
 # FIXME: git describe vs $(RELEASE) ?
