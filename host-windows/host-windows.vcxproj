@@ -58,6 +58,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -87,6 +88,7 @@
     <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="RequestHandler.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Signer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +101,14 @@
     <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="chrome-token-signing.wxs">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="host-windows.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,0 +1,54 @@
+#include <winver.h>
+
+#define VER_STR_HELPER(x)	#x
+#define VER_STR(x)		VER_STR_HELPER(x)
+#define MAJOR_VER 1
+#define MINOR_VER 0
+#define RELEASE_VER 0
+#define BUILD_VER 101
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION MAJOR_VER,MINOR_VER,RELEASE_VER,BUILD_VER
+  PRODUCTVERSION MAJOR_VER,MINOR_VER,RELEASE_VER,BUILD_VER
+  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+  FILEFLAGS VS_FF_DEBUG
+#else
+  FILEFLAGS 0x0L
+#endif
+  FILEOS VOS_NT_WINDOWS32
+  FILETYPE VFT_APP
+  FILESUBTYPE VFT_UNKNOWN
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904B0"
+		BEGIN
+			VALUE "CompanyName", "RIA"
+			VALUE "FileDescription", "Chrome Token Signing Native Host"
+			VALUE "FileVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
+			VALUE "InternalName", "host-windows"
+			VALUE "LegalCopyright", "Copyright (C) 2015 Estonian Information System's Authority"
+			VALUE "OriginalFilename", "host-windows.exe"
+			VALUE "ProductName", "Chrome Token Signing Native Host"
+			VALUE "ProductVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
+		END
+		BLOCK "042504B0"
+		BEGIN
+			VALUE "CompanyName", "RIA"
+			VALUE "FileDescription", "Chrome Token Signing Native Host"
+			VALUE "FileVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
+			VALUE "InternalName", "host-windows"
+			VALUE "LegalCopyright", "Copyright (C) 2015 Riigi Infosüsteemi Amet"
+			VALUE "OriginalFilename", "host-windows.exe"
+			VALUE "ProductName", "Chrome Token Signing Native Host"
+			VALUE "ProductVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1200
+		VALUE "Translation", 0x425, 1200
+	END
+END
+/* End of Version info */
