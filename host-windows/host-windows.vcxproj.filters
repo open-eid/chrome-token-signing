@@ -82,6 +82,9 @@
     <None Include="..\Makefile">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\version.properties">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="host-windows.rc">

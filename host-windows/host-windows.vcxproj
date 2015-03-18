@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Makefile" />
+    <None Include="..\version.properties" />
     <None Include="chrome-token-signing.wxs">
       <SubType>Designer</SubType>
     </None>

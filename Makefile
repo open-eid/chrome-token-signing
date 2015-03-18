@@ -1,10 +1,10 @@
 # This is the Makefile for Windows NMake. See GNUmakefile for OSX/Linux.
+
+include version.properties
+
 !IF !DEFINED(BUILD_NUMBER)
 BUILD_NUMBER=0
 !ENDIF
-MAJOR_VERSION=1
-MINOR_VERSION=0
-RELEASE_VERSION=0
 VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(RELEASE_VERSION).$(BUILD_NUMBER)
 
 build:
