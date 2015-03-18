@@ -1,9 +1,9 @@
 EXTERNAL_PATH = /Library/Application\ Support/Google/Chrome/External\ Extensions
 NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
-VERSION = 1.0.0
 ifeq ($(BUILD_NUMBER),)
 BUILD_NUMBER = 0
 endif
+include ../VERSION.mk
 SIGNCERT = Developer ID Application: Riigi Infosüsteemi Amet
 INSTCERT = Developer ID Installer: Riigi Infosüsteemi Amet
 PROJ = xcodebuild -project chrome-token-signing.xcodeproj VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
@@ -18,8 +18,8 @@ pkg:
 	$(PROJ) DSTROOT=/tmp/chrome-token-signing.dst install
 	codesign -f -s "$(SIGNCERT)" "/tmp/chrome-token-signing.dst/$(NATIVE_PATH)/chrome-token-signing.app"
 	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing.pkg
-	productbuild --distribution chrome-token-signing.dist.xml --sign "$(INSTCERT)" --package-path . --resources . chrome-token-signing_$(VERSION).$(BUILD_NUMBER).pkg
-	pkgbuild --component build/Release/chrome-token-signing.app.dSYM --sign "$(INSTCERT)" --install-location $(NATIVE_PATH)/chrome-token-signing.app/Contents/MacOS chrome-token-signing-dbg_$(VERSION).$(BUILD_NUMBER).pkg
+	productbuild --distribution chrome-token-signing.dist.xml --sign "$(INSTCERT)" --package-path . --resources . chrome-token-signing_$(VERSIONEX).pkg
+	pkgbuild --component build/Release/chrome-token-signing.app.dSYM --sign "$(INSTCERT)" --install-location $(NATIVE_PATH)/chrome-token-signing.app/Contents/MacOS chrome-token-signing-dbg_$(VERSIONEX).pkg
 
 install:
 	mkdir -p $(NATIVE_PATH)

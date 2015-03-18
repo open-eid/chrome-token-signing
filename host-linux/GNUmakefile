@@ -1,10 +1,10 @@
 ifeq ($(BUILD_NUMBER),)
 BUILD_NUMBER = 0
 endif
-VERSION = 1.0.0.$(BUILD_NUMBER)
+include ../VERSION.mk
 
 all:
-	qmake -qt=5 VERSION=$(VERSION)
+	qmake -qt=5 VERSION=$(VERSIONEX)
 	make -f Makefile
 
 clean:

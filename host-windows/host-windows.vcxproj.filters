@@ -82,7 +82,7 @@
     <None Include="..\Makefile">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\version.properties">
+    <None Include="..\VERSION.mk">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
