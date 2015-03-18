@@ -9,7 +9,7 @@ build:
 
 pkg:
 	"$(WIX)\bin\candle.exe" host-windows\chrome-token-signing.wxs -dVERSION=$(VERSION)
-	"$(WIX)\bin\light.exe" -out chrome-token-signing_$(VERSION).msi chrome-token-signing.wixobj -v -ext WixUIExtension
+	"$(WIX)\bin\light.exe" -out chrome-token-signing_$(VERSION).msi chrome-token-signing.wixobj -v -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp
 
 test: build
 	python host-test\pipe-test.py -v
