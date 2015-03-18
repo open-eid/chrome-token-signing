@@ -61,11 +61,11 @@
     }
     std::vector<unsigned char> hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
     switch (hash.size()) {
-        case 20: // SHA1
-        case 28: // SHA224
-        case 32: // SHA256
-        case 48: // SHA384
-        case 64: break; // SHA512
+        case BINARY_SHA1_LENGTH:
+        case BINARY_SHA224_LENGTH:
+        case BINARY_SHA256_LENGTH:
+        case BINARY_SHA384_LENGTH:
+        case BINARY_SHA512_LENGTH: break;
         default: return @{@"result": @"invalid_argument"};
     }
 
