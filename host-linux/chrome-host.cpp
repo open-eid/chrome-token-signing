@@ -22,7 +22,7 @@ using namespace std;
 using namespace BinaryUtils;
 
 #ifndef VERSION
-#define VERSION "1.0.0"
+#define VERSION "1.0.0.0"
 #endif
 
 class Application: public QApplication

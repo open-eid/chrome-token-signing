@@ -41,7 +41,7 @@
             return self;
         }
         if (pinpad) {
-            [progressBar setDoubleValue:30];
+            progressBar.doubleValue = 30;
             [progressBar startAnimation:self];
         }
         else {

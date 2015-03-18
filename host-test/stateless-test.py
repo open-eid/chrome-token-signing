@@ -75,7 +75,7 @@ class TestStatelessHost(unittest.TestCase):
   def test_version(self):
       cmd = json.dumps(self.complete_msg({"type":"VERSION"}))
       resp = self.transceive(cmd)
-      self.assertTrue(resp["version"] == "LOCAL_BUILD" or re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
+      self.assertTrue(resp["version"] == "LOCAL_BUILD" or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp["version"]))
   
   def test_get_certificate_cancel(self):
       instruct('Insert card and press CANCEL in dialog')

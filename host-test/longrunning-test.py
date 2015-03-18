@@ -60,7 +60,7 @@ class TestLongrunningHost(unittest.TestCase):
     def test_version(self):
         cmd = json.dumps(self.complete_msg({'type': 'VERSION'}))
         resp = self.transceive(cmd)
-        self.assertTrue(resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d{1,3}$").match(resp['version']))
+        self.assertTrue(resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp['version']))
 
     def test_version_file(self):
         msg = self.complete_msg({'type': 'VERSION'})
@@ -68,7 +68,7 @@ class TestLongrunningHost(unittest.TestCase):
         cmd = json.dumps(msg)
         resp = self.transceive(cmd)
         self.assertEquals(resp['result'], 'ok')
-        self.assertTrue(resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d{1,3}$").match(resp['version']))
+        self.assertTrue(resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp['version']))
 
     def test_get_certificate_cancel(self):
         instruct('Insert card and press CANCEL in dialog')

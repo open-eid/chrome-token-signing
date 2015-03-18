@@ -86,25 +86,25 @@ class TestHostPipe(unittest.TestCase):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "foobar in da house"}
       resp = self.transceive(json.dumps(cmd))
       self.assertEqual(resp["result"], "ok")
-      self.assertTrue(re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
+      self.assertTrue(re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp["version"]))
 
   def test_version_file_origin(self):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "file:///tmp/index.html"}
       resp = self.transceive(json.dumps(cmd))
       self.assertEqual(resp["result"], "ok")
-      self.assertTrue(re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
+      self.assertTrue(re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp["version"]))
 
   def test_version_http_origin(self):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "http://example.com/"}
       resp = self.transceive(json.dumps(cmd))
       self.assertEqual(resp["result"], "ok")
-      self.assertTrue(re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
+      self.assertTrue(re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp["version"]))
 
   def test_version_https(self):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "https://example.com/"}
       resp = self.transceive(json.dumps(cmd))
       self.assertEqual(resp["result"], "ok")
-      self.assertTrue(re.compile("^\d\.\d+\.\d{1,3}$").match(resp["version"]))
+      self.assertTrue(re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp["version"]))
 
 
 if __name__ == '__main__':

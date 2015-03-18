@@ -87,7 +87,9 @@ int main(int argc, const char * argv[]) {
                         Labels::l10n.setLanguage([dict[@"lang"] UTF8String]);
                     }
                     if ([dict[@"type"] isEqualToString:@"VERSION"]) {
-                        result = @{@"version": [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]};
+                        result = @{@"version": [NSString stringWithFormat:@"%@.%@",
+                                                [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
+                                                [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]]};
                     }
                     else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
                         result = @{@"result": @"not_allowed"};
