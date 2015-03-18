@@ -19,29 +19,29 @@
 using namespace std;
 
 string Signer::sign() {
-	checkHash();
+
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	vector<unsigned char> digest = BinaryUtils::hex2bin(hash.c_str());
 	
 	switch (digest.size())
 	{
-	case 20:
+	case BINARY_SHA1_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA1_ALGORITHM;
 		break;
-	case 28:
+	case BINARY_SHA224_LENGTH:
 		padInfo.pszAlgId = L"SHA224";
 		break;
-	case 32:
+	case BINARY_SHA256_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA256_ALGORITHM;
 		break;
-	case 48:
+	case BINARY_SHA384_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA384_ALGORITHM;
 		break;
-	case 64:
+	case BINARY_SHA512_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA512_ALGORITHM;
 		break;
 	default:
-		padInfo.pszAlgId = nullptr;
+		throw InvalidHashException();
 	}
 	
 	SECURITY_STATUS err = 0;
@@ -101,15 +101,3 @@ string Signer::sign() {
 	}
 }
 
-void Signer::checkHash() {
-	switch (hash.length())
-	{
-	case BINARY_SHA1_LENGTH * 2:
-	case BINARY_SHA224_LENGTH * 2:
-	case BINARY_SHA256_LENGTH * 2:
-	case BINARY_SHA384_LENGTH * 2:
-	case BINARY_SHA512_LENGTH * 2: break;
-	default:
-		throw InvalidHashException();
-	}
-}

@@ -26,5 +26,4 @@ public:
 private:
 	std::string hash;
 	std::string certInHex;
-	void checkHash();
 };
