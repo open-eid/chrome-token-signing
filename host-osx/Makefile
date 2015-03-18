@@ -17,7 +17,8 @@ clean:
 pkg:
 	$(PROJ) DSTROOT=/tmp/chrome-token-signing.dst install
 	codesign -f -s "$(SIGNCERT)" "/tmp/chrome-token-signing.dst/$(NATIVE_PATH)/chrome-token-signing.app"
-	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing_$(VERSION).$(BUILD_NUMBER).pkg
+	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing.pkg
+	productbuild --distribution chrome-token-signing.dist.xml --sign "$(INSTCERT)" --package-path . --resources . chrome-token-signing_$(VERSION).$(BUILD_NUMBER).pkg
 
 install:
 	mkdir -p $(NATIVE_PATH)
