@@ -18,7 +18,6 @@
 		4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D1B1A96843700D28E40 /* libcrypto.dylib */; };
 		4E532D221A96848400D28E40 /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D201A96848400D28E40 /* Logger.cpp */; };
 		4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D231A97941800D28E40 /* BinaryUtils.cpp */; };
-		4E532D271A97943400D28E40 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D261A97943400D28E40 /* libiconv.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,7 +45,6 @@
 		4E532D211A96848400D28E40 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
 		4E532D231A97941800D28E40 /* BinaryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinaryUtils.cpp; sourceTree = "<group>"; };
 		4E532D241A97941800D28E40 /* BinaryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinaryUtils.h; sourceTree = "<group>"; };
-		4E532D261A97943400D28E40 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		4E775F271AB04E9600A48B78 /* longrunning-test.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "longrunning-test.py"; sourceTree = "<group>"; };
 		4E775F281AB04E9600A48B78 /* pipe-test.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "pipe-test.py"; sourceTree = "<group>"; };
 		4E775F291AB04E9600A48B78 /* testconf.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = testconf.py; sourceTree = "<group>"; };
@@ -61,7 +59,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E20282D1AA74E0800AB9BDC /* Cocoa.framework in Frameworks */,
-				4E532D271A97943400D28E40 /* libiconv.dylib in Frameworks */,
 				4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,7 +122,6 @@
 			children = (
 				4EF5F11B1AB8AA330023D7A3 /* chrome-token-signing.entitlements */,
 				4E20282C1AA74E0800AB9BDC /* Cocoa.framework */,
-				4E532D261A97943400D28E40 /* libiconv.dylib */,
 				4E532D1B1A96843700D28E40 /* libcrypto.dylib */,
 				4E532D081A96393D00D28E40 /* Info.plist */,
 			);
