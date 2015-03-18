@@ -2,10 +2,13 @@
 !IF !DEFINED(BUILD_NUMBER)
 BUILD_NUMBER=0
 !ENDIF
-VERSION=1.0.0.$(BUILD_NUMBER)
+MAJOR_VERSION=1
+MINOR_VERSION=0
+RELEASE_VERSION=0
+VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(RELEASE_VERSION).$(BUILD_NUMBER)
 
 build:
-	msbuild /p:Configuration=Release;Platform=Win32 /property:BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
+	msbuild /p:Configuration=Release;Platform=Win32 /property:MAJOR_VERSION=$(MAJOR_VERSION) /property:MINOR_VERSION=$(MINOR_VERSION) /property:RELEASE_VERSION=$(RELEASE_VERSION) /property:BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
 
 pkg:
 	"$(WIX)\bin\candle.exe" host-windows\chrome-token-signing.wxs -dVERSION=$(VERSION)

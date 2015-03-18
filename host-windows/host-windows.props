@@ -2,11 +2,26 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
+    <MAJOR_VERSION>1</MAJOR_VERSION>
+    <MINOR_VERSION>0</MINOR_VERSION>
+    <RELEASE_VERSION>0</RELEASE_VERSION>
     <BUILD_NUMBER>0</BUILD_NUMBER>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
+    <BuildMacro Include="MAJOR_VERSION">
+      <Value>$(MAJOR_VERSION)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="MINOR_VERSION">
+      <Value>$(MINOR_VERSION)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="RELEASE_VERSION">
+      <Value>$(RELEASE_VERSION)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
     <BuildMacro Include="BUILD_NUMBER">
       <Value>$(BUILD_NUMBER)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
