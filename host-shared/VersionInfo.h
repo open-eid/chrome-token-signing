@@ -10,5 +10,8 @@
 
 #pragma once
 
-#define VERSION "0.1.0"
-#define API "1"
+#define VER_STR_HELPER(x) #x
+#define VER_STR(x) VER_STR_HELPER(x)
+
+#define VERSION VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
+#define API 1
