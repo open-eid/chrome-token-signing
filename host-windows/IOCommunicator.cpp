@@ -22,7 +22,7 @@ IOCommunicator::IOCommunicator() {
 	_setmode(_fileno(stdout), O_BINARY);
 }
 
-string IOCommunicator::readMessage() {
+string IOCommunicator::readMessage() const {
 	uint32_t messageLength = 0;
 	cin.read((char*)&messageLength, sizeof(messageLength));
 	if (messageLength > 1024 * 8)
@@ -35,8 +35,8 @@ string IOCommunicator::readMessage() {
 	return message;
 }
 
-void IOCommunicator::sendMessage(string message) {
-	uint32_t messageLength = strlen(message.c_str());
+void IOCommunicator::sendMessage(const string &message) {
+	uint32_t messageLength = message.length();
 	cout.write((char *)&messageLength, sizeof(messageLength));
 	_log("Response(%i) %s ", messageLength, message.c_str());
 	cout << message;

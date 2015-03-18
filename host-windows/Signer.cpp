@@ -61,19 +61,32 @@ string Signer::sign() {
 
 	if (!certInStore)
 	{
+		CertCloseStore(store, 0);
 		throw NoCertificatesException();
 	}
 
 	DWORD flags = CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG;
 	DWORD spec = 0;
-	BOOL ncrypt = false;
+	BOOL freeKeyHandle = false;
 	NCRYPT_KEY_HANDLE key= NULL;
-	CryptAcquireCertificatePrivateKey(certInStore, flags, 0, &key, &spec, &ncrypt);
-	CertFreeCertificateContext(certInStore);
+	CryptAcquireCertificatePrivateKey(certInStore, flags, 0, &key, &spec, &freeKeyHandle);
 
 	err = NCryptSignHash(key, &padInfo, PBYTE(&digest[0]), DWORD(digest.size()),
 		&signature[0], DWORD(signature.size()), (DWORD*)&size, BCRYPT_PAD_PKCS1);
 	signature.resize(size);
+
+	//Otherwise the key handle is realeased on the last free action of the certificate context.
+	if (freeKeyHandle) {
+		//How to release depends on if it's an Ncrypt key
+		if (spec == CERT_NCRYPT_KEY_SPEC) {
+			NCryptFreeObject(key);
+		}
+		else {
+			CryptReleaseContext(key, 0);
+		}
+	}
+	CertFreeCertificateContext(certInStore);
+	CertCloseStore(store, 0);
 
 	switch (err)
 	{
@@ -97,6 +110,6 @@ void Signer::checkHash() {
 	case BINARY_SHA384_LENGTH * 2:
 	case BINARY_SHA512_LENGTH * 2: break;
 	default:
-		throw InvalidHashException("Invalid Hash");
+		throw InvalidHashException();
 	}
 }

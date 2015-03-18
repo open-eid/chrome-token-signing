@@ -18,19 +18,19 @@ using namespace std;
 std::string ContextMaintainer::selectedCertificate;
 std::string ContextMaintainer::savedOrigin;
 
-void ContextMaintainer::saveCertificate(string certificate) {
+void ContextMaintainer::saveCertificate(const string &certificate) {
 	ContextMaintainer::selectedCertificate = certificate;
 }
 
-bool ContextMaintainer::isSelectedCertificate(std::string &certificate) {
+bool ContextMaintainer::isSelectedCertificate(const std::string &certificate) {
 	return ContextMaintainer::selectedCertificate == certificate;
 }
 
-void ContextMaintainer::saveOrigin(std::string origin) {
+void ContextMaintainer::saveOrigin(const std::string &origin) {
 	ContextMaintainer::savedOrigin = origin;
 }
 
-bool ContextMaintainer::isSameOrigin(std::string &origin) {
+bool ContextMaintainer::isSameOrigin(const std::string &origin) {
 	if (ContextMaintainer::savedOrigin.empty()) {
 		saveOrigin(origin);
 		return true;

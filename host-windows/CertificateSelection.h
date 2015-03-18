@@ -15,7 +15,5 @@
 
 class CertificateSelection {
   public:
-
-	  CertificateSelection() {}
-	  std::string getCert() throw(UserCancelledException, TechnicalException);
+	static std::string getCert() throw(UserCancelledException, TechnicalException);
 };

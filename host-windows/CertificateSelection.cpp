@@ -110,6 +110,7 @@ std::string CertificateSelection::getCert() {
 		CertFreeCertificateContext(pCertContextForEnumeration);
 	}
 	if (certificatesCount < 1) {
+		CertCloseStore(store, 0);
 		throw NoCertificatesException();
 	}
 
@@ -122,6 +123,7 @@ std::string CertificateSelection::getCert() {
 	
 	if (!cert_context)
 	{
+		CertCloseStore(store, 0);
 		throw UserCancelledException();
 	}
 

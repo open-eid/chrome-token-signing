@@ -39,10 +39,10 @@ jsonxx::Object RequestHandler::handleRequest() {
 			throw InvalidArgumentException("Invalid argument");
 		}
 	}
-	catch (InvalidArgumentException &e) {
+	catch (const InvalidArgumentException &e) {
 		throw e;
 	}
-	catch (BaseException &e) {
+	catch (const BaseException &e) {
 		handleException(e);
 	}
 	completeResponse();
@@ -68,13 +68,13 @@ void RequestHandler::validateSecureOrigin() {
 	}
 }
 
-void RequestHandler::validateContext(string &signingCertificate) {
+void RequestHandler::validateContext(const string &signingCertificate) {
 	if (!ContextMaintainer::isSelectedCertificate(signingCertificate)) {
 		throw NotSelectedCertificateException();
 	}
 }
 
-void RequestHandler::validateOrigin(string &origin) {
+void RequestHandler::validateOrigin(const string &origin) {
 	if (!ContextMaintainer::isSameOrigin(origin)) {
 		throw InconsistentOriginException();
 	}
@@ -99,8 +99,7 @@ void RequestHandler::handleVersionRequest() {
 
 void RequestHandler::handleCertRequest() {
 	validateSecureOrigin();
-	CertificateSelection cert;
-	string selectedCert = cert.getCert();
+	string selectedCert = CertificateSelection::getCert();
 	ContextMaintainer::saveCertificate(selectedCert);
 	jsonResponse << "cert" << selectedCert;
 }
@@ -115,7 +114,7 @@ void RequestHandler::handleSignRequest() {
 	jsonResponse << "signature" << signer.sign();
 }
 
-void RequestHandler::handleException(BaseException &e) {
+void RequestHandler::handleException(const BaseException &e) {
 	jsonxx::Object exceptionalJson;
 	exceptionalJson << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
 	jsonResponse = exceptionalJson;

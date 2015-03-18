@@ -18,7 +18,7 @@
 using namespace std;
 using namespace jsonxx;
 
-void handleException(BaseException &e, IOCommunicator &ioCommunicator);
+void handleException(const BaseException &e, IOCommunicator &ioCommunicator);
 
 int main(int argc, char **argv) {
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 			ioCommunicator.sendMessage(response);
 		}
 		// Only catch terminating exceptions here
-		catch (InvalidArgumentException &e)
+		catch (const InvalidArgumentException &e)
 		{
 			handleException(e, ioCommunicator);
 			return EXIT_FAILURE;
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 	return EXIT_SUCCESS;
 }
 
-void handleException(BaseException &e, IOCommunicator &ioCommunicator) {
+void handleException(const BaseException &e, IOCommunicator &ioCommunicator) {
 	_log(("Handling exception: " + e.getErrorCode()).c_str());
 	Object json;
 	json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();

@@ -17,6 +17,6 @@ using namespace std;
 class IOCommunicator {
 public:
 	IOCommunicator();
-	string readMessage();
-	void sendMessage(string msg);
+	string readMessage() const;
+	void sendMessage(const string &msg);
 };

@@ -26,13 +26,13 @@ private:
 	void handleVersionRequest();
 	void handleCertRequest();
 	void handleSignRequest();
-	void handleException(BaseException &e);
+	void handleException(const BaseException &e);
 	jsonxx::Object notAllowed();
 	bool hasGloballyRequiredArguments();
 	bool hasSignRequestArguments();
 	void validateSecureOrigin();
-	void validateContext(std::string &signingCertificate);
-	void validateOrigin(std::string &origin);
+	void validateContext(const std::string &signingCertificate);
+	void validateOrigin(const std::string &origin);
 	void completeResponse();
 };
 
