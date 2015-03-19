@@ -40,7 +40,7 @@ jsonxx::Object RequestHandler::handleRequest() {
 		}
 	}
 	catch (const InvalidArgumentException &e) {
-		throw e;
+		throw;
 	}
 	catch (const BaseException &e) {
 		handleException(e);
