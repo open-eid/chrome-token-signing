@@ -1,7 +1,4 @@
 #!/bin/bash
 set -e
-
-if [ -L /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json ]
-then
-    sudo rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
-fi
+rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
+rmdir -p --ignore-fail-on-non-empty /etc/opt/chrome/native-messaging-hosts

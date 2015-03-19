@@ -5,8 +5,6 @@ Maintainer: RIA <info@ria.ee>
 Build-Depends:
  libssl-dev,
  qtbase5-dev,
- qttools5-dev,
- qttools5-dev-tools,
  debhelper (>= 7)
 Standards-Version: 3.9.5
 Homepage: https://github.com/open-eid/chrome-token-signing

@@ -1,11 +1,4 @@
 #!/bin/bash
 set -e
-
-sudo mkdir -p /etc/opt/chrome/native-messaging-hosts
-
-if [ -L /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json ]
-then
-    sudo rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
-fi
-
-sudo ln -s /usr/share/chrome-token-signing/ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
+mkdir -p /etc/opt/chrome/native-messaging-hosts
+ln -sf /usr/share/chrome-token-signing/ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
