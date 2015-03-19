@@ -12,7 +12,7 @@
       Id="*" Language="1033" Version="$(var.VERSION)" Codepage="1251" Manufacturer="RIA">
     <Package Keywords="Installer" InstallerVersion="405" Compressed="yes"/>
     <MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
-    <!--Icon Id="Icon.ico" SourceFile="Icon.ico"/-->
+    <Icon Id="Icon.ico" SourceFile="host-windows\ID.ico"/>
     <Property Id="ARPPRODUCTICON" Value="Icon.ico"/>
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage=
       "A newer version of [ProductName] is already installed. If you are trying to downgrade, please uninstall the newer version first."/>
