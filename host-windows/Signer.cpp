@@ -17,20 +17,19 @@
  */
 
 #include "Signer.h"
-#include "Logger.h"
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
 #include <Windows.h>
 #include <ncrypt.h>
 #include <WinCrypt.h>
 #include <cryptuiapi.h>
-#include <comdef.h>
 
 using namespace std;
 
 string Signer::sign() {
 
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
+	DWORD obtainKeyStrategy = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
 	vector<unsigned char> digest = BinaryUtils::hex2bin(hash.c_str());
 
 	ALG_ID alg = 0;
@@ -43,6 +42,7 @@ string Signer::sign() {
 		break;
 	case BINARY_SHA224_LENGTH:
 		padInfo.pszAlgId = L"SHA224";
+		obtainKeyStrategy = CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG;
 		break;
 	case BINARY_SHA256_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA256_ALGORITHM;
@@ -81,87 +81,70 @@ string Signer::sign() {
 		throw NoCertificatesException();
 	}
 
-	DWORD flags = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG;
+	DWORD flags = obtainKeyStrategy | CRYPT_ACQUIRE_COMPARE_KEY_FLAG;
 	DWORD spec = 0;
 	BOOL freeKeyHandle = false;
 	HCRYPTPROV_OR_NCRYPT_KEY_HANDLE key = NULL;
 	BOOL gotKey = true;
 	gotKey = CryptAcquireCertificatePrivateKey(certInStore, flags, 0, &key, &spec, &freeKeyHandle);
+	CertFreeCertificateContext(certInStore);
+	CertCloseStore(store, 0);
 
-
-	//TODO: Remove temporary logging stuff
-	_log("Key acquired: %s", gotKey ? "true" : "false");
-	_log("Free Key Handle: %s", freeKeyHandle ? "true" : "false");
-	_log("Spec: %s", spec == AT_SIGNATURE ? "AT_SIGNATURE" : "OTHER");
-
-	if (spec == CERT_NCRYPT_KEY_SPEC) {
-
+	switch (spec) 
+	{
+	case CERT_NCRYPT_KEY_SPEC:
+	{
 		err = NCryptSignHash(key, &padInfo, PBYTE(&digest[0]), DWORD(digest.size()),
 			&signature[0], DWORD(signature.size()), (DWORD*)&size, BCRYPT_PAD_PKCS1);
-		signature.resize(size);
-
-		//Otherwise the key handle is realeased on the last free action of the certificate context.
 		if (freeKeyHandle) {
-			//How to release depends on if it's an Ncrypt key
-			if (spec == CERT_NCRYPT_KEY_SPEC) {
-				NCryptFreeObject(key);
-			}
-			else {
+			NCryptFreeObject(key);
+		}
+		break;
+	}
+	case AT_SIGNATURE:
+	{
+		HCRYPTHASH hash = 0;
+		if (!CryptCreateHash(key, alg, 0, 0, &hash)) {
+			if (freeKeyHandle) {
 				CryptReleaseContext(key, 0);
 			}
-		}
-		CertFreeCertificateContext(certInStore);
-		CertCloseStore(store, 0);
-
-		//TODO: Remove temporary logging stuff
-		_com_error error(err);
-		_bstr_t b(error.ErrorMessage());
-		const char* c = b;
-		_log(c);
-
-		switch (err)
-		{
-		case ERROR_SUCCESS:
-			return BinaryUtils::bin2hex(signature);
-		case SCARD_W_CANCELLED_BY_USER:
-			throw UserCancelledException("Signing was cancelled");
-		case SCARD_W_CHV_BLOCKED:
-			throw PinBlockedException();
-		case NTE_INVALID_HANDLE:
-			throw TechnicalException("The supplied handle is invalid");
-		default:
-			throw TechnicalException("Signing failed");
-		}
-	
-	}
-	else if (spec == AT_SIGNATURE) {
-
-		HCRYPTHASH hash = 0;
-		if (!CryptCreateHash(key, alg, 0, 0, &hash))
 			throw TechnicalException("CreateHash failed");
+		}
 
-		if (!CryptSetHashParam(hash, HP_HASHVAL, digest.data(), 0))
-		{
+		if (!CryptSetHashParam(hash, HP_HASHVAL, digest.data(), 0))	{
+			if (freeKeyHandle) {
+				CryptReleaseContext(key, 0);
+			}
 			CryptDestroyHash(hash);
 			throw TechnicalException("SetHashParam failed");
 		}
 
-		DWORD size = 256;
-
-		if (CryptSignHashW(hash, AT_SIGNATURE, 0, 0, LPBYTE(signature.data()), &size))
-			signature.resize(size);
-		else
-			signature.clear();
-		switch (GetLastError())
-		{
-		case ERROR_CANCELLED: 
-			throw UserCancelledException("CSP Signing was cancelled");
-		default: break;
+		CryptSignHashW(hash, AT_SIGNATURE, 0, 0, LPBYTE(signature.data()), &size);
+		err = GetLastError();
+		if (freeKeyHandle) {
+			CryptReleaseContext(key, 0);
 		}
-
 		CryptDestroyHash(hash);
-		return BinaryUtils::bin2hex(signature);
+		break;
+	}
+	default:
+		throw TechnicalException("Incompatible key");
 	}
 
+	switch (err)
+	{
+	case ERROR_SUCCESS:
+		break;
+	case SCARD_W_CANCELLED_BY_USER: case ERROR_CANCELLED:
+		throw UserCancelledException("Signing was cancelled");
+	case SCARD_W_CHV_BLOCKED:
+		throw PinBlockedException();
+	case NTE_INVALID_HANDLE:
+		throw TechnicalException("The supplied handle is invalid");
+	default:
+		throw TechnicalException("Signing failed");
+	}
+	signature.resize(size);
+	return BinaryUtils::bin2hex(signature);
 }
 
