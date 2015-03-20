@@ -18,8 +18,12 @@ pkg:
 	$(PROJ) DSTROOT=/tmp/chrome-token-signing.dst install
 	codesign -f -s "$(SIGNCERT)" "/tmp/chrome-token-signing.dst/$(NATIVE_PATH)/chrome-token-signing.app"
 	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing.pkg
-	productbuild --distribution chrome-token-signing.dist.xml --sign "$(INSTCERT)" --package-path . --resources . chrome-token-signing_$(VERSIONEX).pkg
-	pkgbuild --component build/Release/chrome-token-signing.app.dSYM --sign "$(INSTCERT)" --install-location $(NATIVE_PATH)/chrome-token-signing.app/Contents/MacOS chrome-token-signing-dbg_$(VERSIONEX).pkg
+	productbuild --distribution chrome-token-signing.dist.xml --sign "$(INSTCERT)" \
+		--package-path . --resources . chrome-token-signing_$(VERSIONEX).pkg
+	pkgbuild --component build/Release/chrome-token-signing.app.dSYM --sign "$(INSTCERT)" \
+		--identifier "ee.ria.chrome-token-signing-dbg" --version "$(VERSION)" \
+		--install-location $(NATIVE_PATH)/chrome-token-signing.app/Contents/MacOS \
+		chrome-token-signing-dbg_$(VERSIONEX).pkg
 
 install:
 	mkdir -p $(NATIVE_PATH)
