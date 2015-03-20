@@ -14,6 +14,7 @@
     <ProjectGuid>{601210E5-2192-42B9-83E9-46CACC818900}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>hostwindows</RootNamespace>
+    <ProjectName>chrome-token-signing</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -34,11 +35,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="host-windows.props" />
+    <Import Project="chrome-token-signing.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="host-windows.props" />
+    <Import Project="chrome-token-signing.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -105,7 +106,7 @@
     <ClCompile Include="..\host-shared\Logger.cpp" />
     <ClCompile Include="CertificateSelection.cpp" />
     <ClCompile Include="ContextMaintainer.cpp" />
-    <ClCompile Include="host-windows.cpp" />
+    <ClCompile Include="chrome-token-signing.cpp" />
     <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
@@ -118,7 +119,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="host-windows.rc" />
+    <ResourceCompile Include="chrome-token-signing.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -25,10 +25,10 @@ def get_exe():
     elif sys.platform == "linux2":
         return "host-linux/chrome-token-signing"
     elif sys.platform == 'win32':
-        if os.path.isfile("host-windows\\Debug\\host-windows.exe"):
-            return "host-windows\\Debug\\host-windows.exe"
+        if os.path.isfile("host-windows\\Debug\\chrome-token-signing.exe"):
+            return "host-windows\\Debug\\chrome-token-signing.exe"
         else:
-            return "host-windows\\Release\\host-windows.exe"
+            return "host-windows\\Release\\chrome-token-signing.exe"
     else:
         print("Unsupported platform: %s" % sys.platform)
         sys.exit(1)

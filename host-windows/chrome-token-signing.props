@@ -7,7 +7,9 @@
     <RELEASE_VERSION>0</RELEASE_VERSION>
     <BUILD_NUMBER>0</BUILD_NUMBER>
   </PropertyGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <_PropertySheetDisplayName>chrome-token-signing</_PropertySheetDisplayName>
+  </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup>
     <BuildMacro Include="MAJOR_VERSION">
