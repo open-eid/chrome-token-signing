@@ -44,6 +44,8 @@
 #endif
 #endif
 
+#define C(API, ...) Call(__FILE__, __LINE__, "C_"#API, fl->C_##API, __VA_ARGS__)
+
 class UserCanceledError : public std::runtime_error {
     public:
      UserCanceledError() : std::runtime_error("User canceled"){}
@@ -68,16 +70,35 @@ private:
     X509 *cert = nullptr;
     std::vector<unsigned char> signCert;
 
+    template <typename Func, typename... Args>
+    void Call(const char *file, int line, const char *function, Func func, Args... args) const
+    {
+        CK_RV rv = func(args...);
+        Logger::writeLog(function, file, line, "return value %u", rv);
+        switch (rv) {
+            case CKR_OK:
+                break;
+            case CKR_FUNCTION_CANCELED:
+                throw UserCanceledError();
+            case CKR_PIN_INCORRECT:
+                throw AuthenticationError();
+            case CKR_PIN_LEN_RANGE:
+                throw AuthenticationBadInput();
+            default:
+                throw std::runtime_error("PKCS11 method failed.");
+        }
+    }
+
     std::vector<CK_OBJECT_HANDLE> findObject(CK_OBJECT_CLASS objectClass, CK_ULONG max = 1) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
         CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
-        checkError("C_FindObjectsInit", fl->C_FindObjectsInit(session, &searchAttribute, 1));
+        C(FindObjectsInit, session, &searchAttribute, 1);
         CK_ULONG objectCount = max;
         std::vector<CK_OBJECT_HANDLE> objectHandle(objectCount);
-        checkError("C_FindObjects", fl->C_FindObjects(session, &objectHandle[0], objectHandle.size(), &objectCount));
-        checkError("C_FindObjectsFinal", fl->C_FindObjectsFinal(session));
+        C(FindObjects, session, &objectHandle[0], objectHandle.size(), &objectCount);
+        C(FindObjectsFinal, session);
         objectHandle.resize(objectCount);
         return objectHandle;
     }
@@ -90,61 +111,28 @@ private:
         std::string X509Value(1024, 0);
         int length = X509_NAME_get_text_by_NID(name, OBJ_txt2nid(subjectField.c_str()), &X509Value[0], int(X509Value.size()));
         X509Value.resize(std::max(0, length));
-        _log("%s length is %i, %p", subjectField.c_str(), length, X509Value.c_str());
+        _log("%s length is %i, %s", subjectField.c_str(), length, X509Value.c_str());
         return X509Value;
-    }
-
-    void checkError(const std::string &methodName, CK_RV methodResult) const {
-        if (methodResult != CKR_OK) {
-            _log("%s return value %i", methodName.c_str(), methodResult);
-            throw std::runtime_error("PKCS11 method failed.");
-        }
     }
 
     PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl)
     : fl(fl)
     {
-        checkError("C_GetTokenInfo", fl->C_GetTokenInfo(slotID, &tokenInfo));
-        checkError("C_OpenSession", fl->C_OpenSession(slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session));
+        C(GetTokenInfo, slotID, &tokenInfo);
+        C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
         std::vector<CK_OBJECT_HANDLE> objectHandle = findObject(CKO_CERTIFICATE);
         if (objectHandle.empty()) {
             throw std::runtime_error("Could not read cert");
         }
 
         CK_ATTRIBUTE attribute = {CKA_VALUE, nullptr, 0};
-        checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle[0], &attribute, 1));
+        C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
         signCert.resize(attribute.ulValueLen, 0);
         attribute.pValue = &signCert[0];
-        checkError("C_GetAttributeValue", fl->C_GetAttributeValue(session, objectHandle[0], &attribute, 1));
-        _log("certificate = %p, certificateLength = %i", &signCert[0], signCert.size());
+        C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
 
         const unsigned char *p = &signCert[0];
         cert = d2i_X509(NULL, &p, signCert.size());
-    }
-
-    std::vector<unsigned char> getHashWithPadding(const std::vector<unsigned char> &hash) const {
-        std::vector<unsigned char> hashWithPadding;
-        switch (hash.size()) {
-            case BINARY_SHA1_LENGTH:
-                hashWithPadding = {0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14};
-                break;
-            case BINARY_SHA224_LENGTH:
-                hashWithPadding = {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c};
-                break;
-            case BINARY_SHA256_LENGTH:
-                hashWithPadding = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
-                break;
-            case BINARY_SHA384_LENGTH:
-                hashWithPadding = {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30};
-                break;
-            case BINARY_SHA512_LENGTH:
-                hashWithPadding = {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
-                break;
-            default:
-                _log("incorrect digest length, dropping padding");
-        }
-        hashWithPadding.insert(hashWithPadding.end(), hash.begin(), hash.end());
-        return hashWithPadding;
     }
 
     PKCS11CardManager(const std::string &module) {
@@ -153,14 +141,14 @@ private:
             throw std::runtime_error("PKCS11 is not loaded");
         }
 
-        CK_C_GetFunctionList GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
+        CK_C_GetFunctionList C_GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
         if (dlerror()) {
             dlclose(library);
             library = nullptr;
             throw std::runtime_error("PKCS11 is not loaded");
         }
-        checkError("GetFunctionList", GetFunctionList(&fl));
-        checkError("C_Initialize", fl->C_Initialize(nullptr));
+        Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
+        C(Initialize, nullptr);
     }
     
 public:
@@ -170,14 +158,14 @@ public:
         return &instance;
     }
 
-    virtual ~PKCS11CardManager() {
+    ~PKCS11CardManager() {
         if (session)
-            fl->C_CloseSession(session);
+            C(CloseSession, session);
         if (cert)
             X509_free(cert);
         if (!library)
             return;
-        fl->C_Finalize(nullptr);
+        C(Finalize, nullptr);
         dlclose(library);
     }
 
@@ -186,10 +174,10 @@ public:
             throw std::runtime_error("PKCS11 is not loaded");
         }
         CK_ULONG slotCount = 0;
-        fl->C_GetSlotList(CK_TRUE, nullptr, &slotCount);
+        C(GetSlotList, CK_TRUE, nullptr, &slotCount);
         _log("slotCount = %i", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
-        fl->C_GetSlotList(CK_TRUE, &slotIDs[0], &slotCount);
+        C(GetSlotList, CK_TRUE, &slotIDs[0], &slotCount);
 
         std::vector<CK_SLOT_ID> signingSlotIDs;
         for (CK_ULONG i = 0; i < slotCount; ++i) {
@@ -213,33 +201,40 @@ public:
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
-        CK_RV result = fl->C_Login(session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
-        switch (result) {
-            case CKR_OK:
-                break;
-            case CKR_FUNCTION_CANCELED:
-                throw UserCanceledError();
-            case CKR_PIN_INCORRECT:
-                throw AuthenticationError();
-            case CKR_PIN_LEN_RANGE:
-                throw AuthenticationBadInput();
-            default:
-                checkError("C_Login", result);
-        }
-
+        C(Login, session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
         std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(CKO_PRIVATE_KEY);
         if (privateKeyHandle.empty()) {
             throw std::runtime_error("Could not read private key");
         }
 
         CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
-        checkError("C_SignInit", fl->C_SignInit(session, &mechanism, privateKeyHandle[0]));
+        C(SignInit, session, &mechanism, privateKeyHandle[0]);
+        std::vector<unsigned char> hashWithPadding;
+        switch (hash.size()) {
+            case BINARY_SHA1_LENGTH:
+                hashWithPadding = {0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14};
+                break;
+            case BINARY_SHA224_LENGTH:
+                hashWithPadding = {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c};
+                break;
+            case BINARY_SHA256_LENGTH:
+                hashWithPadding = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
+                break;
+            case BINARY_SHA384_LENGTH:
+                hashWithPadding = {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30};
+                break;
+            case BINARY_SHA512_LENGTH:
+                hashWithPadding = {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
+                break;
+            default:
+                _log("incorrect digest length, dropping padding");
+        }
+        hashWithPadding.insert(hashWithPadding.end(), hash.begin(), hash.end());
         CK_ULONG signatureLength = 0;
-        std::vector<unsigned char> hashWithPadding = getHashWithPadding(hash);
-        checkError("C_Sign", fl->C_Sign(session, &hashWithPadding[0], hashWithPadding.size(), nullptr, &signatureLength));
+        C(Sign, session, &hashWithPadding[0], hashWithPadding.size(), nullptr, &signatureLength);
         std::vector<unsigned char> signature(signatureLength, 0);
-        checkError("C_Sign", fl->C_Sign(session, &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength));
-        checkError("C_Logout", fl->C_Logout(session));
+        C(Sign, session, &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength);
+        C(Logout, session);
 
         return signature;
     }
