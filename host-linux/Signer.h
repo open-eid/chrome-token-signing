@@ -62,6 +62,7 @@ public:
         for (int retriesLeft = manager->getPIN2RetryCount(); retriesLeft > 0; ) {
             Signer dialog(manager->isPinpad());
             if (retriesLeft < 3) {
+                dialog.errorLabel->show();
                 dialog.errorLabel->setText(QString("<font color='red'><b>%1%2 %3</b></font>")
                      .arg((!isInitialCheck ? Labels::l10n.get("incorrect PIN2") : "").c_str())
                      .arg(Labels::l10n.get("tries left").c_str())
@@ -140,6 +141,7 @@ private:
         setWindowTitle(Labels::l10n.get("signing").c_str());
         pinLabel->setText(Labels::l10n.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
         errorLabel->setTextFormat(Qt::RichText);
+        errorLabel->hide();
 
         if(isPinpad) {
             setWindowFlags((windowFlags()|Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint);
