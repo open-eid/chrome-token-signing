@@ -39,9 +39,12 @@ console.log("Background page activated");
 
 // XXX: probe test, because connectNative() does not allow to check the presence
 // of native component for some reason
-_testNativeComponent().then(function(result) {
-	if (result === "ok")
-		missing = false;
+chrome.runtime.onStartup.addListener(function() {
+	_testNativeComponent().then(function(result) {
+		if (result === "ok") {
+			missing = false;
+		}
+	});
 });
 
 // Force kill of native process

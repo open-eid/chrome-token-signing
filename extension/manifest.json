@@ -14,8 +14,7 @@
         "run_at": "document_end"
     }],
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "scripts": ["background.js"]
     },
     "web_accessible_resources": ["page.js"],
     "permissions": ["nativeMessaging"]
