@@ -8,7 +8,6 @@ INCLUDEPATH += ../host-shared
 LIBS += -ldl
 DEFINES += VERSION=\\\"$$VERSION\\\"
 SOURCES += \
-    ../host-shared/BinaryUtils.cpp \
     ../host-shared/Labels.cpp \
     ../host-shared/Logger.cpp \
     chrome-host.cpp

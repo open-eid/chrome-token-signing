@@ -19,7 +19,6 @@
 #pragma once
 
 #include "PKCS11CardManager.h"
-#include "BinaryUtils.h"
 #include "Labels.h"
 
 #include <QDebug>
@@ -37,6 +36,11 @@
 #include <string>
 
 class Signer: public QDialog {
+    enum {
+        UserCancel = 0,
+        TechnicalError = -1,
+        AuthError = -2,
+    };
 public:
     static QVariantMap sign(const QString &hash, const QString &cert) {
         switch(hash.length())
@@ -54,7 +58,7 @@ public:
         try {
             for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
                 manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
-                if (manager->getSignCert() == BinaryUtils::hex2bin(cert.toStdString())) {
+                if (manager->getSignCert() == fromHex(cert)) {
                     break;
                 }
                 manager.reset();
@@ -84,17 +88,17 @@ public:
                 signature = std::async(std::launch::async, [&](){
                     std::vector<unsigned char> result;
                     try {
-                        result = manager->sign(BinaryUtils::hex2bin(hash.toStdString()), nullptr);
+                        result = manager->sign(fromHex(hash), nullptr);
                         dialog.accept();
                     } catch (const AuthenticationError &) {
                         --retriesLeft;
-                        dialog.done(-2);
+                        dialog.done(AuthError);
                     } catch (const AuthenticationBadInput &) {
-                        dialog.done(-2);
+                        dialog.done(AuthError);
                     } catch (const UserCanceledError &) {
-                        dialog.reject();
+                        dialog.done(UserCancel);
                     } catch (const std::runtime_error &) {
-                        dialog.done(-1);
+                        dialog.done(TechnicalError);
                     }
                     return result;
                 });
@@ -102,24 +106,23 @@ public:
 
             switch (dialog.exec())
             {
-            case 0:
+            case UserCancel:
                 return {{"result", "user_cancel"}};
-            case -2:
+            case AuthError:
                 continue;
-            case -1:
+            case TechnicalError:
                 return {{"result", "technical_error"}};
             default:
                 if (manager->isPinpad()) {
-                    return {{"signature", BinaryUtils::bin2hex(signature.get()).c_str()}};
+                    return {{"signature", toHex(signature.get())}};
                 }
             }
 
             try {
                 if (!manager->isPinpad()) {
-                    std::vector<unsigned char> result = manager->sign(
-                        BinaryUtils::hex2bin(hash.toStdString()),
+                    std::vector<unsigned char> result = manager->sign(fromHex(hash),
                         dialog.pin->text().toUtf8().constData());
-                    return {{"signature", BinaryUtils::bin2hex(result).c_str()}};
+                    return {{"signature", toHex(result)}};
                 }
             } catch (const AuthenticationBadInput &) {
             } catch (const AuthenticationError &) {
@@ -134,6 +137,17 @@ public:
     }
 
 private:
+    static QByteArray toHex(const std::vector<unsigned char> &data)
+    {
+        return QByteArray((const char*)data.data(), data.size()).toHex();
+    }
+
+    static std::vector<unsigned char> fromHex(const QString &data)
+    {
+        QByteArray bin = QByteArray::fromHex(data.toLatin1());
+        return std::vector<unsigned char>(bin.constData(), bin.constData() + bin.size());
+    }
+
     Signer(bool isPinpad)
         : nameLabel(new QLabel(this))
         , pinLabel(new QLabel(this))
