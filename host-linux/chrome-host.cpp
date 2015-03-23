@@ -36,6 +36,7 @@ public:
     Application(int &argc, char *argv[])
         : QApplication(argc, argv)
     {
+        setWindowIcon(QIcon(":/chrome-token-signing.png"));
         setQuitOnLastWindowClosed(false);
         in.open(stdin, QFile::ReadOnly);
         QSocketNotifier *n1 = new QSocketNotifier(0, QSocketNotifier::Read, this);
@@ -70,43 +71,44 @@ void Application::parse()
             write(resp, json.value("nonce").toString());
             return exit(EXIT_FAILURE);
         }
-        else if(!json.contains("type") || !json.contains("nonce") || !json.contains("origin")) {
+
+        if(!json.contains("type") || !json.contains("nonce") || !json.contains("origin")) {
             resp = {{"result", "invalid_argument"}};
             write(resp, json.value("nonce").toString());
             return exit(EXIT_FAILURE);
-        } else {
-            if (json.contains("lang")) {
-                Labels::l10n.setLanguage(json.value("lang").toString().toStdString());
-            }
+        }
 
-            if (origin.isEmpty()) {
-                origin = json.value("origin").toString();
-            } else if (origin != json.value("origin").toString()) {
+        if (origin.isEmpty()) {
+            origin = json.value("origin").toString();
+        } else if (origin != json.value("origin").toString()) {
+            resp = {{"result", "invalid_argument"}};
+            write(resp, json.value("nonce").toString());
+            return exit(EXIT_FAILURE);
+        }
+
+        if (json.contains("lang")) {
+            Labels::l10n.setLanguage(json.value("lang").toString().toStdString());
+        }
+
+        QString type = json.value("type").toString();
+        if (type == "VERSION") {
+            resp = {{"version", VERSION}};
+        } else if (!json.value("origin").toString().startsWith("https:")) {
+            resp = {{"result", "not_allowed"}};
+            write(resp, json.value("nonce").toString());
+            return exit(EXIT_FAILURE);
+        }
+        else if (type == "SIGN") {
+            if (!json.contains("cert") || !json.contains("hash")) {
                 resp = {{"result", "invalid_argument"}};
-                write(resp, json.value("nonce").toString());
-                return exit(EXIT_FAILURE);
-            }
-
-            QString type = json.value("type").toString();
-            if (type == "VERSION") {
-                resp = {{"version", VERSION}};
-            } else if (!json.value("origin").toString().startsWith("https:")) {
-                resp = {{"result", "not_allowed"}};
-                write(resp, json.value("nonce").toString());
-                return exit(EXIT_FAILURE);
-            }
-            else if (type == "SIGN") {
-                if (!json.contains("cert") || !json.contains("hash")) {
-                    resp = {{"result", "invalid_argument"}};
-                } else {
-                    resp = Signer::sign(json.value("hash").toString(), cert);
-                }
-            } else if (type == "CERT") {
-                resp = CertificateSelection::getCert();
-                cert = resp.value("cert").toString();
             } else {
-                resp = {{"result", "invalid_argument"}};
+                resp = Signer::sign(json.value("hash").toString(), cert);
             }
+        } else if (type == "CERT") {
+            resp = CertificateSelection::getCert();
+            cert = resp.value("cert").toString();
+        } else {
+            resp = {{"result", "invalid_argument"}};
         }
 
         write(resp, json.value("nonce").toString());

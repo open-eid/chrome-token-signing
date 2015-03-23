@@ -12,6 +12,7 @@ SOURCES += \
     ../host-shared/Logger.cpp \
     chrome-host.cpp
 HEADERS += *.h ../host-shared/*.h
+RESOURCES += chrome-token-signing.qrc
 target.path = /usr/bin
 hostconf.path = /etc/opt/chrome/native-messaging-hosts
 hostconf.files += ee.ria.esteid.json
