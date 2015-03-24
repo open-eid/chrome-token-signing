@@ -20,6 +20,7 @@ ifeq ($(BUILD_NUMBER),)
 BUILD_NUMBER = 0
 endif
 include ../VERSION.mk
+include /etc/lsb-release
 
 all:
 	qmake -qt=5 VERSION=$(VERSIONEX)
@@ -33,3 +34,10 @@ install:
 
 uninstall:
 	make -f Makefile uninstall
+
+debian:
+	cd ..; \
+	git-archive-all ../chrome-token-signing_$(VERSIONEX).orig.tar.gz; \
+	dch --distribution unstable -v $(VERSIONEX)-$(subst .,,$(DISTRIB_RELEASE)) "Release: $(VERSIONEX)."; \
+	dpkg-buildpackage
+
