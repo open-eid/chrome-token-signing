@@ -95,13 +95,13 @@
         return @{@"result": @"invalid_argument"};
     }
 
+    bool isInitialCheck = true;
     for (int retriesLeft = selected->getPIN2RetryCount(); retriesLeft > 0; ) {
         PINPanel *dialog = [[PINPanel alloc] init:selected->isPinpad()];
         if (!dialog) {
             return @{@"result": @"technical_error"};
         }
 
-        bool isInitialCheck = true;
         NSDictionary *pinpadresult;
         std::future<void> future;
         NSTimer *timer;
@@ -134,7 +134,7 @@
         dialog->nameLabel.stringValue = @((selected->getCardName() + ", " + selected->getPersonalCode()).c_str());
         if (retriesLeft < 3) {
             dialog->messageField.stringValue = [NSString stringWithFormat:@"%@%@ %u",
-                                                (!isInitialCheck ? _L("incorrect PIN2") : @""),
+                                                (isInitialCheck ? @"" : _L("incorrect PIN2")),
                                                 _L("tries left"),
                                                 retriesLeft];
         }
