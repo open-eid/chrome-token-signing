@@ -18,17 +18,43 @@
 
 #include "Logger.h"
 #include <cstdio>
+#include <string>
 #ifndef _WIN32
 #include <unistd.h>
+#include <iostream>
 #endif
 
+using namespace std;
+
+void printCurrentDateTime(FILE *log) {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    int year = 1900 + ltm->tm_year;
+    int month = ltm->tm_mon;
+    int day = ltm->tm_mday;
+    int hour = ltm->tm_hour;
+    int min = ltm->tm_min;
+    int sec = ltm->tm_sec;
+    //Date format yyyy-MM-dd hh:mm:ss
+    fprintf(log, "%i-%i-%i %i:%i:%i ",year, month, day, hour, min, sec);
+}
+
+string getLogFilePath() {
+#ifdef _WIN32
+    return string(getenv("TEMP"))+"/chrome-signing.log";
+#else
+    return string(getenv("HOME"))+"/tmp/chrome-signing.log";
+#endif
+}
+
 void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...) {
-    FILE *log = fopen("/tmp/chrome-signing.log", "a");
+    FILE *log = fopen(getLogFilePath().c_str(), "a");
     if (!log) {
         return;
     }
+    printCurrentDateTime(log);
 #ifndef _WIN32
-    fprintf(log, "[%i]", getpid());
+    fprintf(log, "[%i] ", getpid());
 #endif
     fprintf(log, "%s() [%s:%i] ", functionName, fileName, lineNumber);
     va_list args;

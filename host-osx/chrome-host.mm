@@ -19,6 +19,7 @@
 #import "CertificateSelection.h"
 #import "PINDialog.h"
 #import "Labels.h"
+#import "Logger.h"
 
 static void write(NSDictionary *data, NSString *nonce)
 {
@@ -40,6 +41,7 @@ static void write(NSDictionary *data, NSString *nonce)
 }
 
 int main(int argc, const char * argv[]) {
+    _log("Starting native host");
     @autoreleasepool {
         /* -[NSFileManager waitForDataInBackgroundAndNotify] doc say I need
          an "active run loop".  I don't know what they mean by "active". */
