@@ -28,17 +28,24 @@
 
 using namespace std;
 
+string transformIntegerFormat(int &value) {
+	if (value > 9) {
+		return (to_string(value));
+	}
+	return ("0" + to_string(value));
+}
+
 void printCurrentDateTime(FILE *log) {
     time_t now = time(0);
     tm *ltm = localtime(&now);
     int year = 1900 + ltm->tm_year;
-    int month = ltm->tm_mon;
-    int day = ltm->tm_mday;
-    int hour = ltm->tm_hour;
-    int min = ltm->tm_min;
-    int sec = ltm->tm_sec;
+	string month = transformIntegerFormat(ltm->tm_mon);
+	string day = transformIntegerFormat(ltm->tm_mday);
+	string hour = transformIntegerFormat(ltm->tm_hour);
+	string min = transformIntegerFormat(ltm->tm_min);
+	string sec = transformIntegerFormat(ltm->tm_sec);
     //Date format yyyy-MM-dd hh:mm:ss
-    fprintf(log, "%i-%i-%i %i:%i:%i ",year, month, day, hour, min, sec);
+	fprintf(log, "%i-%s-%s %s:%s:%s ", year, month.c_str(), day.c_str(), hour.c_str(), min.c_str(), sec.c_str());
 }
 
 string getLogFilePath() {
@@ -50,7 +57,12 @@ string getLogFilePath() {
 }
 
 bool logFileExist() {
-	return fopen(getLogFilePath().c_str(), "r");
+	FILE *file = fopen(getLogFilePath().c_str(), "r");
+	if (!file) {
+		return false;
+	}
+	fclose(file);
+	return true;
 }
 
 void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...) {
