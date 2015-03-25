@@ -22,6 +22,8 @@
 #ifndef _WIN32
 #include <unistd.h>
 #include <iostream>
+#else
+#include <time.h>
 #endif
 
 using namespace std;
@@ -41,7 +43,7 @@ void printCurrentDateTime(FILE *log) {
 
 string getLogFilePath() {
 #ifdef _WIN32
-    return string(getenv("TEMP"))+"/chrome-signing.log";
+    return string(getenv("TEMP"))+"\\chrome-signing.log";
 #else
     return string(getenv("HOME"))+"/tmp/chrome-signing.log";
 #endif
