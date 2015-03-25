@@ -49,7 +49,14 @@ string getLogFilePath() {
 #endif
 }
 
+bool logFileExist() {
+	return fopen(getLogFilePath().c_str(), "r");
+}
+
 void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...) {
+	if (!logFileExist()) {
+		return;
+	}
     FILE *log = fopen(getLogFilePath().c_str(), "a");
     if (!log) {
         return;
