@@ -131,7 +131,7 @@ private:
         attribute.pValue = &signCert[0];
         C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
 
-        const unsigned char *p = &signCert[0];
+        const unsigned char *p = signCert.data();
         cert = d2i_X509(NULL, &p, signCert.size());
     }
 

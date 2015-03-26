@@ -36,6 +36,7 @@ public:
     Application(int &argc, char *argv[])
         : QApplication(argc, argv)
     {
+        _log("Starting native host");
         setWindowIcon(QIcon(":/chrome-token-signing.png"));
         setQuitOnLastWindowClosed(false);
         in.open(stdin, QFile::ReadOnly);
@@ -57,6 +58,7 @@ void Application::parse()
     while (in.peek((char*)&messageLength, sizeof(messageLength)) > 0) {
         QVariantMap resp;
         in.read((char*)&messageLength, sizeof(messageLength));
+        _log("Message size: %u", messageLength);
         if (messageLength > 1024*8)
         {
             qDebug() << "Invalid message length" << messageLength;
@@ -65,7 +67,9 @@ void Application::parse()
             return exit(EXIT_FAILURE);
         }
 
-        QJsonObject json = QJsonDocument::fromJson(in.read(messageLength)).object();
+        QByteArray message = in.read(messageLength);
+        _log("Message (%u): %s", messageLength, message.constData());
+        QJsonObject json = QJsonDocument::fromJson(message).object();
         if(json.isEmpty()) {
             resp = {{"result", "invalid_argument"}};
             write(resp, json.value("nonce").toString());
