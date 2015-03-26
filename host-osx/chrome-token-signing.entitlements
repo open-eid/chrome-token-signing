@@ -8,7 +8,5 @@
 	<true/>
 	<key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
 	<string>/private/var/run/pcscd.pub</string>
-	<key>com.apple.security.temporary-exception.files.absolute-path.read-write</key>
-	<string>/private/tmp/chrome-signing.log</string>
 </dict>
 </plist>
