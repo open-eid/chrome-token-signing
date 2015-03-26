@@ -28,27 +28,20 @@
 
 using namespace std;
 
-string transformIntegerFormat(int &value) {
-	if (value > 9) {
-		return (to_string(value));
-	}
-	return ("0" + to_string(value));
-}
-
-void printCurrentDateTime(FILE *log) {
+static void printCurrentDateTime(FILE *log) {
     time_t now = time(0);
     tm *ltm = localtime(&now);
-    int year = 1900 + ltm->tm_year;
-	string month = transformIntegerFormat(ltm->tm_mon);
-	string day = transformIntegerFormat(ltm->tm_mday);
-	string hour = transformIntegerFormat(ltm->tm_hour);
-	string min = transformIntegerFormat(ltm->tm_min);
-	string sec = transformIntegerFormat(ltm->tm_sec);
     //Date format yyyy-MM-dd hh:mm:ss
-	fprintf(log, "%i-%s-%s %s:%s:%s ", year, month.c_str(), day.c_str(), hour.c_str(), min.c_str(), sec.c_str());
+	fprintf(log, "%i-%.2i-%.2i %.2i:%.2i:%.2i ",
+            1900 + ltm->tm_year,
+            ltm->tm_mon + 1,
+            ltm->tm_mday,
+            ltm->tm_hour,
+            ltm->tm_min,
+            ltm->tm_sec);
 }
 
-string getLogFilePath() {
+static string getLogFilePath() {
 #ifdef _WIN32
     return string(getenv("TEMP"))+"\\chrome-signing.log";
 #else
@@ -56,7 +49,7 @@ string getLogFilePath() {
 #endif
 }
 
-bool logFileExist() {
+static bool logFileExist() {
 	FILE *file = fopen(getLogFilePath().c_str(), "r");
 	if (!file) {
 		return false;
