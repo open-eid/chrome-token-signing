@@ -54,67 +54,67 @@ int main(int argc, const char * argv[]) {
         [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification *note) {
             NSData *data = [input availableData];
             if (data.length == 0) {
-                exit(0);
-                return;
+                return exit(0);
             }
             [input waitForDataInBackgroundAndNotify];
 
             for (NSUInteger pos = 0; pos < data.length;) {
                 uint32_t size = 0;
                 [data getBytes:&size range:NSMakeRange(pos, sizeof(size))];
+                pos += sizeof(size);
+                _log("Message size: %u", size);
                 if (size > 8*1024) {
                     write(@{@"result": @"invalid_argument"}, nil);
-                    exit(1);
-                    return;
+                    return exit(1);
                 }
 
-                NSData *json = [data subdataWithRange:NSMakeRange(pos + 4, size)];
-                pos += 4 + size;
+                NSData *json = [data subdataWithRange:NSMakeRange(pos, size)];
+                pos += size;
+                _log("Message (%u): %s", size, (const char*)json.bytes);
 
                 NSError *error;
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
                 NSDictionary *result;
                 if (error) {
-                    NSLog(@"Message (%u): %@", size, [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding]);
                     write(@{@"result": @"invalid_argument"}, nil);
-                    exit(1);
-                    return;
+                    return exit(1);
                 }
-                else if(!dict[@"nonce"] || !dict[@"type"] || !dict[@"origin"]) {
+
+                if(!dict[@"nonce"] || !dict[@"type"] || !dict[@"origin"]) {
                     write(@{@"result": @"invalid_argument"}, dict[@"nonce"]);
-                    exit(1);
-                    return;
+                    return exit(1);
+                }
+
+                if (!origin) {
+                    origin = dict[@"origin"];
+                } else if (![origin isEqualToString:dict[@"origin"]]) {
+                    write(@{@"result": @"invalid_argument"}, nil);
+                    return exit(1);
+                }
+
+                if (dict[@"lang"]) {
+                    Labels::l10n.setLanguage([dict[@"lang"] UTF8String]);
+                }
+
+                if ([dict[@"type"] isEqualToString:@"VERSION"]) {
+                    result = @{@"version": [NSString stringWithFormat:@"%@.%@",
+                                            [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
+                                            [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]]};
+                }
+                else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
+                    result = @{@"result": @"not_allowed"};
+                }
+                else if([dict[@"type"] isEqualToString:@"CERT"]) {
+                    result = [CertificateSelection show];
+                    cert = (NSString*)result[@"cert"];
+                }
+                else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
+                    result = [PINPanel show:dict cert:cert];
                 }
                 else {
-                    if (!origin) {
-                        origin = dict[@"origin"];
-                    } else if (![origin isEqualToString:dict[@"origin"]]) {
-                        write(@{@"result": @"invalid_argument"}, nil);
-                        exit(1);
-                        return;
-                    }
-                    if (dict[@"lang"]) {
-                        Labels::l10n.setLanguage([dict[@"lang"] UTF8String]);
-                    }
-                    if ([dict[@"type"] isEqualToString:@"VERSION"]) {
-                        result = @{@"version": [NSString stringWithFormat:@"%@.%@",
-                                                [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
-                                                [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]]};
-                    }
-                    else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
-                        result = @{@"result": @"not_allowed"};
-                    }
-                    else if([dict[@"type"] isEqualToString:@"CERT"]) {
-                        result = [CertificateSelection show];
-                        cert = (NSString*)result[@"cert"];
-                    }
-                    else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
-                        result = [PINPanel show:dict cert:cert];
-                    }
-                    else {
-                        result = @{@"result": @"invalid_argument"};
-                    }
+                    result = @{@"result": @"invalid_argument"};
                 }
+
                 write(result, dict[@"nonce"]);
             }
         }];
