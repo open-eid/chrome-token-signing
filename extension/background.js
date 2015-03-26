@@ -27,6 +27,7 @@ var K_ORIGIN = "origin";
 var K_NONCE = "nonce";
 var K_RESULT = "result";
 var K_TAB = "tab";
+var K_EXTENSION = "extension";
 
 // Stores the longrunning ports per tab
 // Used to route all request from a tab to the same host instance
@@ -135,6 +136,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 // Send the message back to the originating tab
 function _reply(tab, msg) {
 	msg[K_SRC] = "background.js";
+	msg[K_EXTENSION] = chrome.app.getDetails().version;
 	chrome.tabs.sendMessage(tab, msg);
 }
 

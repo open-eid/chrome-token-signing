@@ -33,7 +33,7 @@ window.addEventListener("message", function(event) {
                 if(event.data.signature !== undefined) {
                     p.resolve({hex: event.data.signature});
                 } else if(event.data.version !== undefined) {
-                    p.resolve(event.data.version);
+                    p.resolve(event.data.extension + "/" + event.data.version);
                 } else if(event.data.cert !== undefined) {
                     p.resolve({hex: event.data.cert});
                 } else {
