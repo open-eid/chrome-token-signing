@@ -35,6 +35,8 @@ static void write(NSDictionary *data, NSString *nonce)
     NSData *json = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
 
     uint32_t size = (uint32_t)json.length;
+    _log("Response(%u) %s", size, (const char*)json.bytes);
+
     NSData *sizeout = [NSData dataWithBytes:&size length:sizeof(size)];
     [NSFileHandle.fileHandleWithStandardOutput writeData:sizeout];
     [NSFileHandle.fileHandleWithStandardOutput writeData:json];
