@@ -43,13 +43,15 @@ static void write(NSDictionary *data, NSString *nonce)
 }
 
 int main(int argc, const char * argv[]) {
-    _log("Starting native host");
     @autoreleasepool {
         /* -[NSFileManager waitForDataInBackgroundAndNotify] doc say I need
          an "active run loop".  I don't know what they mean by "active". */
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
-        __block NSString *cert, *origin;
+        __block NSString *cert, *origin, *version = [NSString stringWithFormat:@"%@.%@",
+                                                     [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
+                                                     [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];
+        _log("Starting native host %s", version.UTF8String);
         NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
         [input waitForDataInBackgroundAndNotify];
         NSNotificationCenter *dc = NSNotificationCenter.defaultCenter;
@@ -99,9 +101,7 @@ int main(int argc, const char * argv[]) {
                 }
 
                 if ([dict[@"type"] isEqualToString:@"VERSION"]) {
-                    result = @{@"version": [NSString stringWithFormat:@"%@.%@",
-                                            [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
-                                            [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]]};
+                    result = @{@"version": version};
                 }
                 else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
                     result = @{@"result": @"not_allowed"};

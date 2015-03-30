@@ -36,7 +36,7 @@ public:
     Application(int &argc, char *argv[])
         : QApplication(argc, argv)
     {
-        _log("Starting native host");
+        _log("Starting native host %s", VERSION);
         setWindowIcon(QIcon(":/chrome-token-signing.png"));
         setQuitOnLastWindowClosed(false);
         in.open(stdin, QFile::ReadOnly);
