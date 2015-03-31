@@ -1,3 +1,21 @@
+Chrome Token Signing 1.0.0 release notes
+--------------------------------------------
+Changes compared to ver 3.9
+
+- Changed native messaging API https://github.com/open-eid/chrome-token-signing/wiki/NativeMessagingAPI
+- Added native messaging hosts for OSX and Windows
+- Changed linux native messaging host UI from using GTK to QT
+- Native messaging hosts changed to being stateful
+	- to maintain certificate selection binding (only user-confirmed certificate can be used for signing) 
+	- to check for same origin in all messages after first technically valid CERT request containing origin
+- Added python test suite for native messaging hosts
+- Improved logging
+- changed error codes to use string constants instead of numbers
+- Changed extension API 
+- Moved extension to Chrome Web Store
+- Added branding to extension
+- Changed versioning - starting from 1.0.0
+
 Release 3.9 Chrome Linux plugin release notes
 --------------------------------------------
 
