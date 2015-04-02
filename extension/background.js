@@ -93,7 +93,9 @@ chrome.runtime.onInstalled.addListener(function(details) {
 		_testNativeComponent().then(function(result) {
 				var url = null;
 				if (result === "ok" && details.reason === "install") {
-					url = HELLO_URL;
+					// TODO: Add back HELLO pag on install
+					// once there is a nice tutorial
+					// url = HELLO_URL;
 				} else if (result === "forbidden") {
 					url = DEVELOPER_URL;
 				} else if (result === "missing"){
