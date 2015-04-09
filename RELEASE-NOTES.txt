@@ -4,6 +4,7 @@ Changes compared to ver 3.9
 
 - Changed native messaging API https://github.com/open-eid/chrome-token-signing/wiki/NativeMessagingAPI
 - Added native messaging hosts for OSX and Windows
+- Added support for CAPI and CNG on Windows and PKCS#11 on Linux/OSX
 - Changed linux native messaging host UI from using GTK to QT
 - Native messaging hosts changed to being stateful
 	- to maintain certificate selection binding (only user-confirmed certificate can be used for signing) 
