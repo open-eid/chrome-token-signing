@@ -23,10 +23,18 @@
 
 #include <openssl/x509.h>
 
+#include <algorithm>
 #include <cstring>
-#include <dlfcn.h>
 #include <stdexcept>
 #include <vector>
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#else
+#include <dlfcn.h>
+#endif
 
 #define BINARY_SHA1_LENGTH 20
 #define BINARY_SHA224_LENGTH 28
@@ -63,7 +71,11 @@ public:
 
 class PKCS11CardManager {
 private:
+#ifdef _WIN32
+    HINSTANCE library = 0;
+#else
     void *library = nullptr;
+#endif
     CK_FUNCTION_LIST_PTR fl = nullptr;
     CK_TOKEN_INFO tokenInfo;
     CK_SESSION_HANDLE session = 0;
@@ -136,15 +148,18 @@ private:
     }
 
     PKCS11CardManager(const std::string &module) {
+        CK_C_GetFunctionList C_GetFunctionList = nullptr;
+#ifdef _WIN32
+        library = LoadLibraryA(module.c_str());
+        if (library)
+            C_GetFunctionList = (CK_C_GetFunctionList) GetProcAddress(library, "C_GetFunctionList");
+#else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
-        if (!library) {
-            throw std::runtime_error("PKCS11 is not loaded");
-        }
+        if (library)
+            C_GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
+#endif
 
-        CK_C_GetFunctionList C_GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
-        if (dlerror()) {
-            dlclose(library);
-            library = nullptr;
+        if (!C_GetFunctionList) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
@@ -166,7 +181,11 @@ public:
         if (!library)
             return;
         C(Finalize, nullptr);
+#ifdef _WIN32
+        FreeLibrary(library);
+#else
         dlclose(library);
+#endif
     }
 
     std::vector<CK_SLOT_ID> getAvailableTokens() const {
