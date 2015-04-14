@@ -21,8 +21,7 @@
 #include "VersionInfo.h"
 #include "CertificateSelection.h"
 #include "ContextMaintainer.h"
-#include "CngCapiSigner.h"
-#include "Pkcs11Signer.h"
+#include "SignerFactory.h"
 
 using namespace std;
 
@@ -115,21 +114,10 @@ void RequestHandler::handleCertRequest() {
 
 void RequestHandler::handleSignRequest() {
 	validateSecureOrigin();
-	string hashFromStdIn = jsonRequest.get<string>("hash");
-	string cert = jsonRequest.get<string>("cert");
-	validateContext(cert);
-	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
-	bool usePkcs11Module = false;//TODO replace with extension parameter
-	Signer *signer;
-	if (usePkcs11Module) {
-		signer = new Pkcs11Signer(hashFromStdIn, cert);
-	}
-	else {
-		signer = new CngCapiSigner(hashFromStdIn, cert);
-	}
+	Signer * signer = SignerFactory::createSigner(jsonRequest);
+	_log("signing hash: %s, with certId: %s", signer->getHash().c_str(), signer->getCertInHex().c_str());
+	validateContext(signer->getCertInHex());
 	jsonResponse << "signature" << signer->sign();
-	delete signer;
-
 }
 
 void RequestHandler::handleException(const BaseException &e) {
