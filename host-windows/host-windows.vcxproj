@@ -44,6 +44,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\OpenSSL-Win32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -54,12 +55,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared;C:\OpenSSL-Win32\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile />
     <ResourceCompile>
@@ -92,13 +93,17 @@
     <ClInclude Include="..\host-shared\BinaryUtils.h" />
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
+    <ClInclude Include="..\host-shared\PKCS11CardManager.h" />
     <ClInclude Include="..\host-shared\VersionInfo.h" />
     <ClInclude Include="CertificateSelection.h" />
+    <ClInclude Include="CngCapiSigner.h" />
     <ClInclude Include="ContextMaintainer.h" />
     <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
+    <ClInclude Include="Pkcs11Signer.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Signer.h" />
+    <ClInclude Include="SignerFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp" />
@@ -108,8 +113,10 @@
     <ClCompile Include="ContextMaintainer.cpp" />
     <ClCompile Include="chrome-token-signing.cpp" />
     <ClCompile Include="IOCommunicator.cpp" />
+    <ClCompile Include="Pkcs11Signer.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
+    <ClCompile Include="SignerFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Makefile" />

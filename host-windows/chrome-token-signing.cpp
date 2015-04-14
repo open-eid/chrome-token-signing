@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 }
 
 void handleException(const BaseException &e, IOCommunicator &ioCommunicator) {
-	_log(("Handling exception: " + e.getErrorCode()).c_str());
+	_log("Handling exception: %s", e.getErrorCode());
 	Object json;
 	json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
 	string response = json.json();

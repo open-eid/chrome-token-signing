@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "Signer.h"
+#include "CngCapiSigner.h"
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
 #include <Windows.h>
@@ -26,11 +26,11 @@
 
 using namespace std;
 
-string Signer::sign() {
+string CngCapiSigner::sign() {
 
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	DWORD obtainKeyStrategy = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
-	vector<unsigned char> digest = BinaryUtils::hex2bin(hash.c_str());
+	vector<unsigned char> digest = BinaryUtils::hex2bin((getHash()).c_str());
 
 	ALG_ID alg = 0;
 	
@@ -69,7 +69,7 @@ string Signer::sign() {
 		throw TechnicalException("Failed to open Cert Store");
 	}
 	
-	vector<unsigned char> certInBinary = BinaryUtils::hex2bin(certInHex.c_str());
+	vector<unsigned char> certInBinary = BinaryUtils::hex2bin((getCertInHex()).c_str());
 	
 	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, &certInBinary[0], certInBinary.size());
 	PCCERT_CONTEXT certInStore = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_EXISTING, certFromBinary, 0);

@@ -18,10 +18,11 @@
 
 #include "RequestHandler.h"
 #include "Logger.h"
-#include "Signer.h"
 #include "VersionInfo.h"
 #include "CertificateSelection.h"
 #include "ContextMaintainer.h"
+#include "CngCapiSigner.h"
+#include "Pkcs11Signer.h"
 
 using namespace std;
 
@@ -118,8 +119,17 @@ void RequestHandler::handleSignRequest() {
 	string cert = jsonRequest.get<string>("cert");
 	validateContext(cert);
 	_log("signing hash: %s, with certId: %s", hashFromStdIn.c_str(), cert.c_str());
-	Signer signer(hashFromStdIn, cert);
-	jsonResponse << "signature" << signer.sign();
+	bool usePkcs11Module = false;//TODO replace with extension parameter
+	Signer *signer;
+	if (usePkcs11Module) {
+		signer = new Pkcs11Signer(hashFromStdIn, cert);
+	}
+	else {
+		signer = new CngCapiSigner(hashFromStdIn, cert);
+	}
+	jsonResponse << "signature" << signer->sign();
+	delete signer;
+
 }
 
 void RequestHandler::handleException(const BaseException &e) {

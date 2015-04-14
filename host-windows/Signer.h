@@ -19,6 +19,7 @@
 #pragma once
 
 #include <string>
+#include "Logger.h"
 
 #define BINARY_SHA1_LENGTH 20
 #define BINARY_SHA224_LENGTH 28
@@ -26,12 +27,22 @@
 #define BINARY_SHA384_LENGTH 48
 #define BINARY_SHA512_LENGTH 64
 
+using namespace std;
+
 class Signer {
 public:
-	Signer(const std::string &_hash, const std::string &_certInHex) : hash(_hash), certInHex(_certInHex) {}
-	std::string sign();
+	Signer(const string &_hash, const string &_certInHex) : hash(_hash), certInHex(_certInHex) {}
+	virtual string sign() = 0;
+	
+	string getHash() {
+		return hash;
+	}
+
+	string getCertInHex() {
+		return certInHex;
+	}
 
 private:
-	std::string hash;
-	std::string certInHex;
+	string hash;
+	string certInHex;
 };

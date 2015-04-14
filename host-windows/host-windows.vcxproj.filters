@@ -45,6 +45,18 @@
     <ClInclude Include="..\host-shared\VersionInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\host-shared\PKCS11CardManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pkcs11Signer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CngCapiSigner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SignerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp">
@@ -72,6 +84,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="chrome-token-signing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pkcs11Signer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SignerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
