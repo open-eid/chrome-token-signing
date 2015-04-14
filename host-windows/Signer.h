@@ -34,12 +34,12 @@ public:
 	Signer(const string &_hash, const string &_certInHex) : hash(_hash), certInHex(_certInHex) {}
 	virtual string sign() = 0;
 	
-	string getHash() {
-		return hash;
+	string * getHash() {
+		return &hash;
 	}
 
-	string getCertInHex() {
-		return certInHex;
+	string * getCertInHex() {
+		return &certInHex;
 	}
 
 private:

@@ -30,7 +30,7 @@ string CngCapiSigner::sign() {
 
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	DWORD obtainKeyStrategy = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
-	vector<unsigned char> digest = BinaryUtils::hex2bin((getHash()).c_str());
+	vector<unsigned char> digest = BinaryUtils::hex2bin(getHash()->c_str());
 
 	ALG_ID alg = 0;
 	
@@ -69,7 +69,7 @@ string CngCapiSigner::sign() {
 		throw TechnicalException("Failed to open Cert Store");
 	}
 	
-	vector<unsigned char> certInBinary = BinaryUtils::hex2bin((getCertInHex()).c_str());
+	vector<unsigned char> certInBinary = BinaryUtils::hex2bin(getCertInHex()->c_str());
 	
 	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, &certInBinary[0], certInBinary.size());
 	PCCERT_CONTEXT certInStore = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_EXISTING, certFromBinary, 0);

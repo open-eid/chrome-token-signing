@@ -115,8 +115,8 @@ void RequestHandler::handleCertRequest() {
 void RequestHandler::handleSignRequest() {
 	validateSecureOrigin();
 	Signer * signer = SignerFactory::createSigner(jsonRequest);
-	_log("signing hash: %s, with certId: %s", signer->getHash().c_str(), signer->getCertInHex().c_str());
-	validateContext(signer->getCertInHex());
+	_log("signing hash: %s, with certId: %s", signer->getHash()->c_str(), signer->getCertInHex()->c_str());
+	validateContext(*signer->getCertInHex());
 	jsonResponse << "signature" << signer->sign();
 }
 
