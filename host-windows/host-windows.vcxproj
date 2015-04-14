@@ -115,7 +115,7 @@
     <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="Pkcs11Signer.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
-    <ClCompile Include="Signer.cpp" />
+    <ClCompile Include="CngCapiSigner.cpp" />
     <ClCompile Include="SignerFactory.cpp" />
   </ItemGroup>
   <ItemGroup>

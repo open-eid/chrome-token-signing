@@ -69,6 +69,6 @@ string Pkcs11Signer::sign() {
 	string signingPin = "01497";//TODO replace with PIN dialog window
 	result = manager->sign(BinaryUtils::hex2bin(*getHash()), signingPin.c_str());
 	string signature = BinaryUtils::bin2hex(result);
-	_log("Sign result: %s", signature);
+	_log("Sign result: %s", signature.c_str());
 	return signature;
 }
