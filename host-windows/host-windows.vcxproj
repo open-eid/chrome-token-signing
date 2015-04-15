@@ -100,6 +100,7 @@
     <ClInclude Include="ContextMaintainer.h" />
     <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
+    <ClInclude Include="PinDialog.h" />
     <ClInclude Include="Pkcs11Signer.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Signer.h" />
@@ -113,6 +114,7 @@
     <ClCompile Include="ContextMaintainer.cpp" />
     <ClCompile Include="chrome-token-signing.cpp" />
     <ClCompile Include="IOCommunicator.cpp" />
+    <ClCompile Include="PinDialog.cpp" />
     <ClCompile Include="Pkcs11Signer.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="CngCapiSigner.cpp" />

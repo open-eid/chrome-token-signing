@@ -16,19 +16,12 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "SignerFactory.h"
-#include "CngCapiSigner.h"
-#include "Pkcs11Signer.h"
-#include <string>
+#include "PinDialog.h"
 
-Signer * SignerFactory::createSigner(const jsonxx::Object &jsonRequest){
-	string hashFromStdIn = jsonRequest.get<string>("hash");
-	string cert = jsonRequest.get<string>("cert");
-	bool usePkcs11Module = true;//TODO replace with extension parameter
-	if (usePkcs11Module) {
-		return new Pkcs11Signer(hashFromStdIn, cert);
-	}
-	else {
-		return new CngCapiSigner(hashFromStdIn, cert);
-	}
+PinDialog::PinDialog(){
+}
+
+string PinDialog::getPin() {
+	string signingPin = "01497";//TODO replace with PIN dialog window
+	return signingPin;
 }

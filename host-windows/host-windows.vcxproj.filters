@@ -57,6 +57,9 @@
     <ClInclude Include="SignerFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PinDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp">
@@ -90,6 +93,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CngCapiSigner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PinDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
