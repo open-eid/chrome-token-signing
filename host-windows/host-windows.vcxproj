@@ -22,6 +22,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -56,11 +57,15 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared;C:\OpenSSL-Win32\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile />
     <ResourceCompile>
@@ -98,11 +103,13 @@
     <ClInclude Include="CertificateSelection.h" />
     <ClInclude Include="CngCapiSigner.h" />
     <ClInclude Include="ContextMaintainer.h" />
+    <ClInclude Include="DialogManager.h" />
     <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="PinDialog.h" />
     <ClInclude Include="Pkcs11Signer.h" />
     <ClInclude Include="RequestHandler.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Signer.h" />
     <ClInclude Include="SignerFactory.h" />
   </ItemGroup>
@@ -113,6 +120,7 @@
     <ClCompile Include="CertificateSelection.cpp" />
     <ClCompile Include="ContextMaintainer.cpp" />
     <ClCompile Include="chrome-token-signing.cpp" />
+    <ClCompile Include="DialogManager.cpp" />
     <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="PinDialog.cpp" />
     <ClCompile Include="Pkcs11Signer.cpp" />
@@ -129,8 +137,14 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="chrome-token-signing.rc" />
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="chrome-token-signing.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

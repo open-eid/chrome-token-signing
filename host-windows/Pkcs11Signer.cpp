@@ -21,7 +21,7 @@
 #include "Logger.h"
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
-#include "PinDialog.h"
+#include "DialogManager.h"
 
 #include <future>
 #include <string>
@@ -66,8 +66,8 @@ string Pkcs11Signer::sign() {
 	validateHashLength();
 	unique_ptr<PKCS11CardManager> manager = getCardManager();
 	vector<unsigned char> result;
-	PinDialog pinDialog;
-	string signingPin = pinDialog.getPin();
+	DialogManager dialog;
+	string signingPin = dialog.getPin();
 	result = manager->sign(BinaryUtils::hex2bin(*getHash()), signingPin.c_str());
 	string signature = BinaryUtils::bin2hex(result);
 	_log("Sign result: %s", signature.c_str());

@@ -18,15 +18,28 @@
 
 #pragma once
 
+#include "resource.h"
+#include "afxcmn.h"
 #include <string>
 
-using namespace std;
-
-class PinDialog
+class PinDialog : public CDialog
 {
-public:
-	PinDialog(){}
-	~PinDialog(){}
-	string getPin();
-};
+	DECLARE_DYNAMIC(PinDialog)
 
+public:
+	PinDialog(CWnd* pParent = NULL);
+	virtual ~PinDialog();
+	std::string getPin();
+
+// Dialog Data
+	enum { IDD = IDD_PIN_DIALOG };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+	DECLARE_MESSAGE_MAP()
+private:
+	std::string pin;
+public:
+	afx_msg void OnBnClickedOk();
+};

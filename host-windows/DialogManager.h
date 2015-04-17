@@ -16,49 +16,17 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "PinDialog.h"
-#include "afxdialogex.h"
+#pragma once
+
 #include <string>
 
 using namespace std;
 
-
-IMPLEMENT_DYNAMIC(PinDialog, CDialog)
-
-PinDialog::PinDialog(CWnd* pParent) : CDialog(PinDialog::IDD, pParent) {
-}
-
-PinDialog::~PinDialog()
+class DialogManager
 {
-}
+public:
+	DialogManager(){}
+	~DialogManager(){}
+	string getPin();
+};
 
-void PinDialog::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-}
-
-
-BEGIN_MESSAGE_MAP(PinDialog, CDialog)
-	ON_BN_CLICKED(IDOK, &PinDialog::OnBnClickedOk)
-END_MESSAGE_MAP()
-
-
-// PinDialog message handlers
-
-
-void PinDialog::OnBnClickedOk()
-{
-	// TODO: Improve
-
-	CString rawPin;
-	GetDlgItem(IDC_PIN_FIELD)->GetWindowText(rawPin);
-	char * pinChar = _strdup(ATL::CT2CA(rawPin));
-	string pinStr(pinChar);
-	pin = pinStr;
-
-	CDialog::OnOK();
-}
-
-string PinDialog::getPin() {
-	return pin;
-}

@@ -60,6 +60,12 @@
     <ClInclude Include="PinDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DialogManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp">
@@ -98,6 +104,9 @@
     <ClCompile Include="PinDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DialogManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="chrome-token-signing.wxs">
@@ -112,6 +121,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="chrome-token-signing.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resource.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
