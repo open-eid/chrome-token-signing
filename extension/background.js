@@ -41,6 +41,7 @@ console.log("Background page activated");
 // XXX: probe test, because connectNative() does not allow to check the presence
 // of native component for some reason
 chrome.runtime.onStartup.addListener(function() {
+	// Also probed for in onInstalled()
 	_testNativeComponent().then(function(result) {
 		if (result === "ok") {
 			missing = false;
@@ -93,7 +94,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
 		_testNativeComponent().then(function(result) {
 				var url = null;
 				if (result === "ok" && details.reason === "install") {
-					// TODO: Add back HELLO pag on install
+					// Also set the flag, onStartup() shall be called only
+					// on next startup
+					missing = false;
+					// TODO: Add back HELLO page on install
 					// once there is a nice tutorial
 					// url = HELLO_URL;
 				} else if (result === "forbidden") {
