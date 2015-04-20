@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
             <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcp120.dll"/>
             <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcr120.dll"/>
             <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\vccorlib120.dll"/>
+            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.MFC\mfc120u.dll"/>
             <File Source="host-windows/Release/chrome-token-signing.exe"/>
             <File Source="host-windows/ee.ria.esteid.json"/>
             <RegistryValue Root='HKLM' Type='string' Value='[APPLICATIONFOLDER]ee.ria.esteid.json'

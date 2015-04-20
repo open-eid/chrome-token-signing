@@ -33,5 +33,9 @@ pkg:
 	"$(WIX)\bin\light.exe" -out chrome-token-signing_$(VERSIONEX).msi chrome-token-signing.wixobj -v -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp
 	$(SIGN) chrome-token-signing_$(VERSIONEX).msi
 
+pkg-unsigned:
+	"$(WIX)\bin\candle.exe" host-windows\chrome-token-signing.wxs -dVERSION=$(VERSIONEX)
+	"$(WIX)\bin\light.exe" -out chrome-token-signing_$(VERSIONEX).msi chrome-token-signing.wixobj -v -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp
+	
 test: build
 	python host-test\pipe-test.py -v
