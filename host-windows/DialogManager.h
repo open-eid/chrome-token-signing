@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <string>
-
 using namespace std;
 
 class DialogManager
@@ -27,6 +25,6 @@ class DialogManager
 public:
 	DialogManager(){}
 	~DialogManager(){}
-	string getPin();
+	char* getPin();
 };
 

@@ -67,8 +67,8 @@ string Pkcs11Signer::sign() {
 	unique_ptr<PKCS11CardManager> manager = getCardManager();
 	vector<unsigned char> result;
 	DialogManager dialog;
-	string signingPin = dialog.getPin();
-	result = manager->sign(BinaryUtils::hex2bin(*getHash()), signingPin.c_str());
+	char* signingPin = dialog.getPin();
+	result = manager->sign(BinaryUtils::hex2bin(*getHash()), signingPin);
 	string signature = BinaryUtils::bin2hex(result);
 	_log("Sign result: %s", signature.c_str());
 	return signature;

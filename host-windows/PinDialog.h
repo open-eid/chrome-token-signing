@@ -20,26 +20,22 @@
 
 #include "resource.h"
 #include "afxcmn.h"
-#include <string>
 
 class PinDialog : public CDialog
 {
 	DECLARE_DYNAMIC(PinDialog)
 
 public:
-	PinDialog(CWnd* pParent = NULL);
-	virtual ~PinDialog();
-	std::string getPin();
+	PinDialog(CWnd* pParent = NULL) : CDialog(PinDialog::IDD, pParent) {}
+	virtual ~PinDialog(){}
+	char* getPin();
+	afx_msg void OnBnClickedOk();
 
-// Dialog Data
+	// Dialog Data
 	enum { IDD = IDD_PIN_DIALOG };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
 	DECLARE_MESSAGE_MAP()
 private:
-	std::string pin;
-public:
-	afx_msg void OnBnClickedOk();
+	char* pin;
 };
