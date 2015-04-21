@@ -24,7 +24,7 @@
 Signer * SignerFactory::createSigner(const jsonxx::Object &jsonRequest){
 	string hashFromStdIn = jsonRequest.get<string>("hash");
 	string cert = jsonRequest.get<string>("cert");
-	bool usePkcs11Module = true;//TODO replace with extension parameter
+	bool usePkcs11Module = jsonRequest.has<bool>("forcePkcs11") && jsonRequest.get<bool>("forcePkcs11");
 	if (usePkcs11Module) {
 		return new Pkcs11Signer(hashFromStdIn, cert);
 	}
