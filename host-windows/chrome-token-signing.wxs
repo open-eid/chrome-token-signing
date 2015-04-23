@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
             <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcr120.dll"/>
             <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\vccorlib120.dll"/>
             <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.MFC\mfc120u.dll"/>
+            <File Source="C:\OpenSSL-Win32\bin\libeay32.dll"/>
             <File Source="host-windows/Release/chrome-token-signing.exe"/>
             <File Source="host-windows/ee.ria.esteid.json"/>
             <RegistryValue Root='HKLM' Type='string' Value='[APPLICATIONFOLDER]ee.ria.esteid.json'
@@ -56,10 +57,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
           </Component>
         </Directory>
       </Directory>
+      <Directory Id="SystemFolder"/>
     </Directory>
+
+    <DirectoryRef Id="SystemFolder">
+        <Component Id="opensc_pkcs11.dll" Guid="1ab23348-a7ca-45dc-858c-3bc7626a0cc5">
+            <File Source="C:\install\IdCard\opensc\bin\opensc-pkcs11.dll" />
+        </Component>
+    </DirectoryRef>
 
     <Feature Id="Install" Level="1" Title="Chrome Token Signing" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
       <ComponentRef Id="Application"/>
+      <ComponentRef Id="opensc_pkcs11.dll"/>
     </Feature>
   </Product>
 </Wix>
