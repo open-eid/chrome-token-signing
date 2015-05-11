@@ -22,24 +22,19 @@
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
 #include "DialogManager.h"
-
 #include <future>
 #include <string>
 
 using namespace std;
 
-void Pkcs11Signer::validateHashLength() {
-	int length = getHash()->length();
-	if (length != BINARY_SHA1_LENGTH * 2 && length != BINARY_SHA224_LENGTH * 2 && length != BINARY_SHA256_LENGTH * 2 && length != BINARY_SHA384_LENGTH * 2 && length != BINARY_SHA512_LENGTH * 2) {
-		_log("Hash length %i is invalid", getHash()->length());
-		throw InvalidHashException();
-	}
+Pkcs11Signer::Pkcs11Signer(const string &_hash, const string &_certInHex) : Signer(_hash, _certInHex){
+	cardManager = getCardManager();
+	pinTriesLeft = cardManager->getPIN2RetryCount();
 }
 
 unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
-	unique_ptr<PKCS11CardManager> manager;
-
 	try {
+		unique_ptr<PKCS11CardManager> manager;
 		for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
 			manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
 			if (manager->getSignCert() == BinaryUtils::hex2bin(*getCertInHex())) {
@@ -52,24 +47,71 @@ unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
 			_log("No card manager found for this certificate");
 			throw InvalidArgumentException("No card manager found for this certificate");
 		}
+		return manager;
 	}
 	catch (const std::runtime_error &a) {
 		_log("Technical error: %s",a.what());
 		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
-	return manager;
 }
 
 string Pkcs11Signer::sign() {
 	_log("Signing using PKCS#11 module");
 	_log("Hash is %s and cert is %s", getHash()->c_str(), getCertInHex()->c_str());
 	validateHashLength();
-	unique_ptr<PKCS11CardManager> manager = getCardManager();
-	vector<unsigned char> result;
-	DialogManager dialog;
+	return askPinAndSignHash();
+}
+
+string Pkcs11Signer::askPinAndSignHash() {
+	try {
+		validatePinNotBlocked();
+		char* signingPin = askPin();
+		vector<unsigned char> binaryHash = BinaryUtils::hex2bin(*getHash());
+		vector<unsigned char> result = cardManager->sign(binaryHash, signingPin);
+		string signature = BinaryUtils::bin2hex(result);
+		_log("Sign result: %s", signature.c_str());
+		return signature;
+	}
+	catch (AuthenticationError &e) {
+		_log("Wrong pin");
+		handleWrongPinEntry();
+		return askPinAndSignHash();
+	}
+	catch (AuthenticationBadInput &e) {
+		_log("Bad pin input");
+		handleWrongPinEntry();
+		return askPinAndSignHash();
+	}
+}
+
+char* Pkcs11Signer::askPin() {
 	char* signingPin = dialog.getPin();
-	result = manager->sign(BinaryUtils::hex2bin(*getHash()), signingPin);
-	string signature = BinaryUtils::bin2hex(result);
-	_log("Sign result: %s", signature.c_str());
-	return signature;
+	if (strlen(signingPin) < 4) {
+		_log("Pin is too short");
+		dialog.showWrongPinError(pinTriesLeft);
+		return askPin();
+	}
+	return signingPin;
+}
+
+void Pkcs11Signer::validateHashLength() {
+	int length = getHash()->length();
+	if (length != BINARY_SHA1_LENGTH * 2 && length != BINARY_SHA224_LENGTH * 2 && length != BINARY_SHA256_LENGTH * 2 && length != BINARY_SHA384_LENGTH * 2 && length != BINARY_SHA512_LENGTH * 2) {
+		_log("Hash length %i is invalid", getHash()->length());
+		throw InvalidHashException();
+	}
+}
+
+void Pkcs11Signer::validatePinNotBlocked() {
+	if (pinTriesLeft <= 0) {
+		_log("PIN2 retry count is zero");
+		dialog.showPinBlocked();
+		throw PinBlockedException();
+	}
+}
+
+void Pkcs11Signer::handleWrongPinEntry() {
+	pinTriesLeft--;
+	validatePinNotBlocked();
+	dialog.showWrongPinError(pinTriesLeft);
 }

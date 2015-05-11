@@ -20,6 +20,7 @@
 
 #include "Signer.h"
 #include "PKCS11CardManager.h"
+#include "DialogManager.h"
 #include <future>
 #include <string>
 
@@ -27,9 +28,16 @@ using namespace std;
 
 class Pkcs11Signer : public Signer {
 public:
-	Pkcs11Signer(const string &_hash, const string &_certInHex) : Signer(_hash, _certInHex){}
+	Pkcs11Signer(const string &_hash, const string &_certInHex);
 	string sign();
 private:
-	void validateHashLength();
+	int pinTriesLeft;
+	DialogManager dialog;
+	unique_ptr<PKCS11CardManager> cardManager;
 	unique_ptr<PKCS11CardManager> getCardManager();
+	void validateHashLength();
+	void validatePinNotBlocked();
+	string askPinAndSignHash();
+	char* askPin();
+	void handleWrongPinEntry();
 };

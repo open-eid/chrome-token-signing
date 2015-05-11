@@ -20,6 +20,9 @@
 #include "PinDialog.h"
 #include "HostExceptions.h"
 #include "Logger.h"
+#include <string>
+
+using namespace std;
 
 void initializeMFC() {
 	HMODULE hModule = ::GetModuleHandle(NULL);
@@ -34,7 +37,16 @@ void initializeMFC() {
 	}
 }
 
+wstring getWrongPinErrorMessage(int triesLeft) {
+	wstring msg = L"An incorrect PIN was entered. You have ";
+	if (triesLeft == 1) {
+		return msg + L"1 retry left!";
+	}
+	return msg + to_wstring(triesLeft) + L" retries left!";
+}
+
 char* DialogManager::getPin() {
+	_log("Showing pin entry dialog");
 	initializeMFC();
 	PinDialog dialog;
 	INT_PTR nResponse = dialog.DoModal();
@@ -45,4 +57,15 @@ char* DialogManager::getPin() {
 		_log("User cancelled");
 		throw UserCancelledException();
 	}
+}
+
+void DialogManager::showWrongPinError(int triesLeft) {
+	_log("Showing incorrect pin error dialog, %i tries left", triesLeft);
+	wstring msg = getWrongPinErrorMessage(triesLeft);
+	MessageBox(NULL, msg.c_str(), L"Wrong PIN", MB_OK | MB_ICONERROR);
+}
+
+void DialogManager::showPinBlocked() {
+	_log("Showing pin blocked dialog");
+	MessageBox(NULL, L"You have entered wrong PIN for too many times. Your PIN is blocked.", L"PIN Blocked", MB_OK | MB_ICONERROR);
 }

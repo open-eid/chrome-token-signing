@@ -26,5 +26,7 @@ public:
 	DialogManager(){}
 	~DialogManager(){}
 	char* getPin();
+	void showWrongPinError(int triesLeft);
+	void showPinBlocked();
 };
 
