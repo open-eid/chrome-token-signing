@@ -27,7 +27,7 @@
 
 using namespace std;
 
-Pkcs11Signer::Pkcs11Signer(const string &_hash, const string &_certInHex) : Signer(_hash, _certInHex){
+void Pkcs11Signer::initialize() {
 	cardManager = getCardManager();
 	pinTriesLeft = cardManager->getPIN2RetryCount();
 }
@@ -35,8 +35,8 @@ Pkcs11Signer::Pkcs11Signer(const string &_hash, const string &_certInHex) : Sign
 unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
 	try {
 		unique_ptr<PKCS11CardManager> manager;
-		for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
-			manager.reset(PKCS11CardManager::instance()->getManagerForReader(token));
+		for (auto &token : createCardManager()->getAvailableTokens()) {
+			manager.reset(createCardManager()->getManagerForReader(token));
 			if (manager->getSignCert() == BinaryUtils::hex2bin(*getCertInHex())) {
 				break;
 			}
@@ -53,6 +53,13 @@ unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
 		_log("Technical error: %s",a.what());
 		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
+}
+
+PKCS11CardManager* Pkcs11Signer::createCardManager() {
+	if (pkcs11ModulePath.empty()) {
+		return PKCS11CardManager::instance();
+	}
+	return PKCS11CardManager::instance(pkcs11ModulePath);
 }
 
 string Pkcs11Signer::sign() {
@@ -114,4 +121,8 @@ void Pkcs11Signer::handleWrongPinEntry() {
 	pinTriesLeft--;
 	validatePinNotBlocked();
 	dialog.showWrongPinError(pinTriesLeft);
+}
+
+void Pkcs11Signer::setPkcs11ModulePath(string &path) {
+	pkcs11ModulePath = path;
 }

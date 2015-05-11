@@ -26,7 +26,13 @@ Signer * SignerFactory::createSigner(const jsonxx::Object &jsonRequest){
 	string cert = jsonRequest.get<string>("cert");
 	bool usePkcs11Module = jsonRequest.has<bool>("forcePkcs11") && jsonRequest.get<bool>("forcePkcs11");
 	if (usePkcs11Module) {
-		return new Pkcs11Signer(hashFromStdIn, cert);
+		Pkcs11Signer *signer = new Pkcs11Signer(hashFromStdIn, cert);
+		if (jsonRequest.has<string>("pkcs11ModulePath")) {
+			string pkcs11ModulePath = jsonRequest.get<string>("pkcs11ModulePath");
+			signer->setPkcs11ModulePath(pkcs11ModulePath);
+		}
+		signer->initialize();
+		return signer;
 	}
 	else {
 		return new CngCapiSigner(hashFromStdIn, cert);
