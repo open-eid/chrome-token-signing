@@ -18,10 +18,14 @@
 
 #pragma once
 
+//TODO: use polymorphism for Windows/Linux/OSX specifics. This is such an ifndef mess
+
 #include "pkcs11.h"
 #include "Logger.h"
 
+#ifndef _WIN32
 #include <openssl/x509.h>
+#endif
 
 #include <algorithm>
 #include <cstring>
@@ -79,7 +83,9 @@ private:
     CK_FUNCTION_LIST_PTR fl = nullptr;
     CK_TOKEN_INFO tokenInfo;
     CK_SESSION_HANDLE session = 0;
+#ifndef _WIN32
     X509 *cert = nullptr;
+#endif
     std::vector<unsigned char> signCert;
 
     template <typename Func, typename... Args>
@@ -115,6 +121,7 @@ private:
         return objectHandle;
     }
 
+#ifndef _WIN32
     std::string getFromX509Name(const std::string &subjectField) const {
         if (!cert) {
             throw std::runtime_error("Could not parse cert");
@@ -126,6 +133,7 @@ private:
         _log("%s length is %i, %s", subjectField.c_str(), length, X509Value.c_str());
         return X509Value;
     }
+#endif
 
     PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl)
     : fl(fl)
@@ -144,7 +152,9 @@ private:
         C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
 
         const unsigned char *p = signCert.data();
+#ifndef _WIN32
         cert = d2i_X509(NULL, &p, signCert.size());
+#endif
     }
 
     PKCS11CardManager(const std::string &module) {
@@ -176,8 +186,10 @@ public:
     ~PKCS11CardManager() {
         if (session)
             C(CloseSession, session);
-        if (cert)
+#ifndef _WIN32
+		if (cert)
             X509_free(cert);
+#endif
         if (!library)
             return;
         C(Finalize, nullptr);
@@ -269,6 +281,7 @@ public:
         return signCert;
     }
 
+#ifndef _WIN32
     std::string getCN() const {
         return getFromX509Name("commonName");
     }
@@ -294,6 +307,7 @@ public:
         ASN1_GENERALIZEDTIME_free(gt);
         return timeAsString;
     }
+#endif
 
     bool isPinpad() const {
         return tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
