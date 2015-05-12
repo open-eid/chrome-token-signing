@@ -125,6 +125,7 @@ string CngCapiSigner::sign() {
 			CryptReleaseContext(key, 0);
 		}
 		CryptDestroyHash(hash);
+		reverse(signature.begin(), signature.end());
 		break;
 	}
 	default:
