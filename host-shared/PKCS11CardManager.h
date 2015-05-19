@@ -23,10 +23,6 @@
 #include "pkcs11.h"
 #include "Logger.h"
 
-#ifndef _WIN32
-#include <openssl/x509.h>
-#endif
-
 #include <algorithm>
 #include <cstring>
 #include <stdexcept>
@@ -38,6 +34,7 @@
 #include <afx.h> //Using afx.h instead of windows.h because of MFC
 #else
 #include <dlfcn.h>
+#include <openssl/x509.h>
 #endif
 
 #define BINARY_SHA1_LENGTH 20
@@ -79,13 +76,11 @@ private:
     HINSTANCE library = 0;
 #else
     void *library = nullptr;
+    X509 *cert = nullptr;
 #endif
     CK_FUNCTION_LIST_PTR fl = nullptr;
     CK_TOKEN_INFO tokenInfo;
     CK_SESSION_HANDLE session = 0;
-#ifndef _WIN32
-    X509 *cert = nullptr;
-#endif
     std::vector<unsigned char> signCert;
 
     template <typename Func, typename... Args>
@@ -115,25 +110,11 @@ private:
         C(FindObjectsInit, session, &searchAttribute, 1);
         CK_ULONG objectCount = max;
         std::vector<CK_OBJECT_HANDLE> objectHandle(objectCount);
-        C(FindObjects, session, &objectHandle[0], objectHandle.size(), &objectCount);
+        C(FindObjects, session, objectHandle.data(), objectHandle.size(), &objectCount);
         C(FindObjectsFinal, session);
         objectHandle.resize(objectCount);
         return objectHandle;
     }
-
-#ifndef _WIN32
-    std::string getFromX509Name(const std::string &subjectField) const {
-        if (!cert) {
-            throw std::runtime_error("Could not parse cert");
-        }
-        X509_NAME *name = X509_get_subject_name(cert);
-        std::string X509Value(1024, 0);
-        int length = X509_NAME_get_text_by_NID(name, OBJ_txt2nid(subjectField.c_str()), &X509Value[0], int(X509Value.size()));
-        X509Value.resize(std::max(0, length));
-        _log("%s length is %i, %s", subjectField.c_str(), length, X509Value.c_str());
-        return X509Value;
-    }
-#endif
 
     PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl)
     : fl(fl)
@@ -148,11 +129,11 @@ private:
         CK_ATTRIBUTE attribute = {CKA_VALUE, nullptr, 0};
         C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
         signCert.resize(attribute.ulValueLen, 0);
-        attribute.pValue = &signCert[0];
+        attribute.pValue = signCert.data();
         C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
 
-        const unsigned char *p = signCert.data();
 #ifndef _WIN32
+        const unsigned char *p = signCert.data();
         cert = d2i_X509(NULL, &p, signCert.size());
 #endif
     }
@@ -162,11 +143,11 @@ private:
 #ifdef _WIN32
         library = LoadLibraryA(module.c_str());
         if (library)
-            C_GetFunctionList = (CK_C_GetFunctionList) GetProcAddress(library, "C_GetFunctionList");
+            C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
-            C_GetFunctionList = (CK_C_GetFunctionList) dlsym(library, "C_GetFunctionList");
+            C_GetFunctionList = CK_C_GetFunctionList(dlsym(library, "C_GetFunctionList"));
 #endif
 
         if (!C_GetFunctionList) {
@@ -208,7 +189,7 @@ public:
         C(GetSlotList, CK_TRUE, nullptr, &slotCount);
         _log("slotCount = %i", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
-        C(GetSlotList, CK_TRUE, &slotIDs[0], &slotCount);
+        C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
 
         std::vector<CK_SLOT_ID> signingSlotIDs;
         for (CK_ULONG i = 0; i < slotCount; ++i) {
@@ -262,12 +243,16 @@ public:
         }
         hashWithPadding.insert(hashWithPadding.end(), hash.begin(), hash.end());
         CK_ULONG signatureLength = 0;
-        C(Sign, session, &hashWithPadding[0], hashWithPadding.size(), nullptr, &signatureLength);
+        C(Sign, session, hashWithPadding.data(), hashWithPadding.size(), nullptr, &signatureLength);
         std::vector<unsigned char> signature(signatureLength, 0);
-        C(Sign, session, &hashWithPadding[0], hashWithPadding.size(), &signature[0], &signatureLength);
+        C(Sign, session, hashWithPadding.data(), hashWithPadding.size(), signature.data(), &signatureLength);
         C(Logout, session);
 
         return signature;
+    }
+
+    bool isPinpad() const {
+        return tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
     }
 
     int getPIN2RetryCount() const {
@@ -282,20 +267,31 @@ public:
     }
 
 #ifndef _WIN32
+    std::string getSubjectX509Name(const std::string &object) const {
+        if (!cert) {
+            throw std::runtime_error("Could not parse cert");
+        }
+        std::string X509Value(1024, 0);
+        int length = X509_NAME_get_text_by_NID(X509_get_subject_name(cert), OBJ_txt2nid(object.c_str()), &X509Value[0], int(X509Value.size()));
+        X509Value.resize(std::max(0, length));
+        _log("%s length is %i, %s", object.c_str(), length, X509Value.c_str());
+        return X509Value;
+    }
+
     std::string getCN() const {
-        return getFromX509Name("commonName");
+        return getSubjectX509Name("commonName");
     }
 
     std::string getType() const {
-        return getFromX509Name("organizationName");
+        return getSubjectX509Name("organizationName");
     }
 
     std::string getCardName() const {
-        return getFromX509Name("givenName") + ", " + getFromX509Name("surname");
+        return getSubjectX509Name("givenName") + ", " + getSubjectX509Name("surname");
     }
 
     std::string getPersonalCode() const {
-        return getFromX509Name("serialNumber");
+        return getSubjectX509Name("serialNumber");
     }
 
     std::string getValidTo() const {
@@ -308,8 +304,4 @@ public:
         return timeAsString;
     }
 #endif
-
-    bool isPinpad() const {
-        return tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
-    }
 };
