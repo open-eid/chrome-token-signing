@@ -13,6 +13,7 @@ Changes compared to ver 1.0.0
 	- Fixed Latvian ID-card signing with CAPI (in addition to PKCS#11)
 	
 List of known issues: https://github.com/open-eid/chrome-token-signing/wiki/Known-Issues
+List of supported tokens: https://github.com/open-eid/chrome-token-signing/wiki/Token-Support
 
 
 Chrome Token Signing 1.0.0 release notes
