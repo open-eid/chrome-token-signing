@@ -5,7 +5,7 @@ Changes compared to ver 1.0.0
 - Added support for pkcs#11 on Windows
 	- Added support for negative scenarios with pkcs#11 backend in Windows (wrong pin, no pin, retries, etc.)
 	- Windows native host can be configured to load a specific pkcs#11 module by sending {pkcs11ModulePath:"full-path-to-pkcs11-module"} e.g. {pkcs11ModulePath:"C:\opensc-pkcs11.dll"} from extension. In order to use this {forcePkcs11:true} must also be sent.
-	- The native host looks for pkcs#11 module with name opensc-pkcs11.dll
+	- The native host looks for pkcs#11 module with name opensc-pkcs11.dll when forcePkcs11:true is sent without pkcs11ModulePath
 - Removed openssl dependency on Windows build
 - Fixed CAPI support for Windows
 	- Reversing CAPI signature
