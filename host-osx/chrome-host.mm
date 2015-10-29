@@ -71,6 +71,11 @@ int main(int argc, const char * argv[]) {
                     write(@{@"result": @"invalid_argument"}, nil);
                     return exit(1);
                 }
+                else if (data.length < pos + size) {
+                    _log("Size (%u) exceeds available data (%u)", size, data.length - pos);
+                    write(@{@"result": @"invalid_argument"}, nil);
+                    return exit(1);
+                }
 
                 NSData *json = [data subdataWithRange:NSMakeRange(pos, size)];
                 pos += size;

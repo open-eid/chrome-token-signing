@@ -80,7 +80,15 @@ class TestHostPipe(unittest.TestCase):
       resp = self.get_response()
       self.assertEquals(resp["result"], "invalid_argument")
       self.assertEqual(self.p.wait(), 1)
-	  
+
+#  def test_length_exceeds_data(self):
+#      # write length > data size
+#      self.p.stdin.write(struct.pack("=I", 0x0000000F))
+#      self.p.stdin.write("Hello World!")
+#      resp = self.get_response()
+#      self.assertEquals(resp["result"], "invalid_argument")
+#      self.assertEqual(self.p.wait(), 1)
+
   def test_inconsistent_origin(self):
       cmd = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "http://example.com/"}
       cmd2 = {"type": "VERSION", "nonce": str(uuid.uuid4()), "origin": "http://badexample.com/"}
