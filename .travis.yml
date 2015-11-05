@@ -1,10 +1,19 @@
+sudo: required
+services:
+ - docker
 before_install:
-- sudo apt-get update -qq
-- sudo apt-get install -y libgtkmm-3.0-dev libssl-dev
+- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    sudo apt-get update -qq;
+    sudo apt-get install -y qtbase5-dev qttools5-dev qttools5-dev-tools libssl-dev;
+  fi
 script:
-- make
+- make test
+os:
+- linux
+- osx
 env:
   global:
+  - PARAMS="CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO"
   - secure: oRtk0cC35ItGNDY0z9gRenVW8qTE8St+XmhFNkh/K4BWLp5vMzv+hOBzXK9ZJ38prppcGur6evVNqJ7NCrGyH6DjS3TjBzd/FalvD1lEZyAKPKVihHjLwOr2uayt6nGhA7wt7HlFLvL1pfiuWnR6tFWxP3fI8duuu0x9N0ILyu0=
 addons:
   coverity_scan:

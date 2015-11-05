@@ -24,7 +24,7 @@ endif
 include ../VERSION.mk
 SIGNCERT = Developer ID Application: Riigi Infosüsteemi Amet
 INSTCERT = Developer ID Installer: Riigi Infosüsteemi Amet
-PROJ = xcodebuild -project chrome-token-signing.xcodeproj VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
+PROJ = xcodebuild -project chrome-token-signing.xcodeproj VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER) $(PARAMS)
 
 all: *.mm
 	$(PROJ)
