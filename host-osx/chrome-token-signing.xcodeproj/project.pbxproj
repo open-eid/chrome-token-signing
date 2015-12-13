@@ -18,6 +18,9 @@
 		4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D1B1A96843700D28E40 /* libcrypto.dylib */; };
 		4E532D221A96848400D28E40 /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D201A96848400D28E40 /* Logger.cpp */; };
 		4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D231A97941800D28E40 /* BinaryUtils.cpp */; };
+		9D2933101C0DFB8200A9DEC4 /* PKCS11Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D29330F1C0DFB8200A9DEC4 /* PKCS11Path.cpp */; };
+		9D8198A51C19AF7900707089 /* PCSC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D8198A41C19AF7900707089 /* PCSC.framework */; };
+		9D8198A81C1A062B00707089 /* AtrFetcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D8198A61C1A062B00707089 /* AtrFetcher.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +54,11 @@
 		4E7C88641AA9EAF8008758AA /* PKCS11CardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKCS11CardManager.h; sourceTree = "<group>"; };
 		4E894C171AA655F70059CB93 /* stateless-test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "stateless-test.py"; sourceTree = "<group>"; };
 		4EF5F11B1AB8AA330023D7A3 /* chrome-token-signing.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "chrome-token-signing.entitlements"; sourceTree = "<group>"; };
+		9D29330E1C0DFA5200A9DEC4 /* PKCS11Path.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PKCS11Path.h; sourceTree = "<group>"; };
+		9D29330F1C0DFB8200A9DEC4 /* PKCS11Path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PKCS11Path.cpp; sourceTree = "<group>"; };
+		9D8198A41C19AF7900707089 /* PCSC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PCSC.framework; path = System/Library/Frameworks/PCSC.framework; sourceTree = SDKROOT; };
+		9D8198A61C1A062B00707089 /* AtrFetcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AtrFetcher.cpp; sourceTree = "<group>"; };
+		9D8198A71C1A062B00707089 /* AtrFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AtrFetcher.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D8198A51C19AF7900707089 /* PCSC.framework in Frameworks */,
 				4E20282D1AA74E0800AB9BDC /* Cocoa.framework in Frameworks */,
 				4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */,
 			);
@@ -76,6 +85,10 @@
 				4E532D211A96848400D28E40 /* Logger.h */,
 				4E532D201A96848400D28E40 /* Logger.cpp */,
 				4E7C88641AA9EAF8008758AA /* PKCS11CardManager.h */,
+				9D29330E1C0DFA5200A9DEC4 /* PKCS11Path.h */,
+				9D29330F1C0DFB8200A9DEC4 /* PKCS11Path.cpp */,
+				9D8198A61C1A062B00707089 /* AtrFetcher.cpp */,
+				9D8198A71C1A062B00707089 /* AtrFetcher.h */,
 			);
 			name = "Host-shared";
 			path = "../host-shared";
@@ -120,6 +133,7 @@
 		4E532CE31A96379500D28E40 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9D8198A41C19AF7900707089 /* PCSC.framework */,
 				4EF5F11B1AB8AA330023D7A3 /* chrome-token-signing.entitlements */,
 				4E20282C1AA74E0800AB9BDC /* Cocoa.framework */,
 				4E532D1B1A96843700D28E40 /* libcrypto.dylib */,
@@ -248,10 +262,12 @@
 			files = (
 				4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */,
 				4E46FD261A97A07000D0F3C8 /* PINDialog.mm in Sources */,
+				9D2933101C0DFB8200A9DEC4 /* PKCS11Path.cpp in Sources */,
 				4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */,
 				4E532D0B1A96393D00D28E40 /* chrome-host.mm in Sources */,
 				4E20282B1AA74A6A00AB9BDC /* Labels.cpp in Sources */,
 				4E532D221A96848400D28E40 /* Logger.cpp in Sources */,
+				9D8198A81C1A062B00707089 /* AtrFetcher.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -298,7 +314,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PKCS11_MODULE = "/Library/EstonianIDCard/lib/esteid-pkcs11.so";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.10;
 				VERSION = 1.0.0;
 			};
 			name = Debug;
@@ -337,7 +353,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PKCS11_MODULE = "/Library/EstonianIDCard/lib/esteid-pkcs11.so";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.10;
 				VERSION = 1.0.0;
 			};
 			name = Release;
@@ -346,7 +362,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "chrome-token-signing.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
@@ -358,7 +373,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "chrome-token-signing.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;

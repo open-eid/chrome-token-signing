@@ -21,6 +21,7 @@
 #import "BinaryUtils.h"
 #import "PKCS11CardManager.h"
 #import "Labels.h"
+#import "PKCS11Path.h"
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
@@ -47,8 +48,9 @@
             NSDateFormatter *asn1 = [[NSDateFormatter alloc] init];
             asn1.dateFormat = @"yyyyMMddHHmmss'Z'";
             asn1.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
-            for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
-                PKCS11CardManager *local = PKCS11CardManager::instance()->getManagerForReader(token);
+            std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
+            for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
+                PKCS11CardManager *local = PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token);
                 NSDate *date = [asn1 dateFromString:@(local->getValidTo().c_str())];
                 if ([date compare:NSDate.date] > 0) {
                     [certificates addObject: @{

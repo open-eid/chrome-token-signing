@@ -21,6 +21,7 @@
 #import "BinaryUtils.h"
 #import "PKCS11CardManager.h"
 #import "Labels.h"
+#import "PKCS11Path.h"
 
 #include <future>
 
@@ -76,11 +77,11 @@
         case BINARY_SHA512_LENGTH: break;
         default: return @{@"result": @"invalid_argument"};
     }
-
+    std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
     std::unique_ptr<PKCS11CardManager> selected;
     try {
-        for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
-            selected.reset(PKCS11CardManager::instance()->getManagerForReader(token));
+        for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
+            selected.reset(PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token));
             if (BinaryUtils::hex2bin(cert.UTF8String) == selected->getSignCert()) {
                 break;
             }
