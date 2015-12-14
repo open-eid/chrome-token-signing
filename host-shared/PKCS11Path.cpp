@@ -29,14 +29,13 @@ static std::map<std::string, std::string> createMap() {
 #ifdef __APPLE__
     const std::string estPath("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
     const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
-    const std::string finPath("/Library/OpenSC/lib/opensc-pkcs11.so");
+    const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
     const std::string litPath("/System/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
 #else
-    //TODO: add correct linux paths
-    const std::string estPath("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
-    const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
-    const std::string finPath("/Library/OpenSC/lib/opensc-pkcs11.so");
-    const std::string litPath("/System/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    const std::string estPath("opensc-pkcs11.so");
+    const std::string latPath("otlv-pkcs11.so");
+    const std::string finPath("opensc-pkcs11.so");
+    const std::string litPath("/usr/lib/ccs/libccpkip11.so");
 #endif
     std::map<std::string, std::string> m;
     

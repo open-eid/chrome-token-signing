@@ -19,8 +19,12 @@
 
 #include <string>
 #include <vector>
+#ifdef __APPLE__
 #include <PCSC/winscard.h>
 #include <PCSC/wintypes.h>
+#else
+#include <winscard.h>
+#endif
 
 class CardReader {
 public:

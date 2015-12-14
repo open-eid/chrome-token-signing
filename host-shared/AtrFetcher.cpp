@@ -19,6 +19,7 @@
 #include "AtrFetcher.h"
 #include "Logger.h"
 #include "BinaryUtils.h"
+#include <stdexcept>
 
 class PcscException : public std::runtime_error {
 private:
