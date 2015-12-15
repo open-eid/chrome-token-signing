@@ -51,6 +51,10 @@
             std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
             for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
                 PKCS11CardManager *local = PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token);
+                if (!local -> hasSignCert()) {
+                    delete local;
+                    continue;
+                }
                 NSDate *date = [asn1 dateFromString:@(local->getValidTo().c_str())];
                 if ([date compare:NSDate.date] > 0) {
                     [certificates addObject: @{

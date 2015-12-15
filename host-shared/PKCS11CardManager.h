@@ -31,10 +31,12 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#include "ContextMaintainer.h"
+#include "BinaryUtils.h"
 #include <afx.h> //Using afx.h instead of windows.h because of MFC
 #else
 #include <dlfcn.h>
-#include <openssl/x509.h>
+#include <openssl/x509v3.h>
 #endif
 
 #define BINARY_SHA1_LENGTH 20
@@ -82,6 +84,7 @@ private:
     CK_TOKEN_INFO tokenInfo;
     CK_SESSION_HANDLE session = 0;
     std::vector<unsigned char> signCert;
+    size_t certIndex = 0;
 
     template <typename Func, typename... Args>
     void Call(const char *file, int line, const char *function, Func func, Args... args) const
@@ -102,7 +105,7 @@ private:
         }
     }
 
-    std::vector<CK_OBJECT_HANDLE> findObject(CK_OBJECT_CLASS objectClass, CK_ULONG max = 1) const {
+    std::vector<CK_OBJECT_HANDLE> findObject(CK_OBJECT_CLASS objectClass, CK_ULONG max = 2) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
@@ -115,27 +118,58 @@ private:
         objectHandle.resize(objectCount);
         return objectHandle;
     }
-
-    PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl)
-    : fl(fl)
-    {
-        C(GetTokenInfo, slotID, &tokenInfo);
-        C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
-        std::vector<CK_OBJECT_HANDLE> objectHandle = findObject(CKO_CERTIFICATE);
-        if (objectHandle.empty()) {
+    
+    bool isSignCertificate(const std::vector<unsigned char> &certificateCandidate) {
+#ifdef _WIN32
+        return ContextMaintainer::isSelectedCertificate(BinaryUtils::bin2hex(certificateCandidate));
+#else
+        const unsigned char *p = certificateCandidate.data();
+        X509 *cert = d2i_X509(NULL, &p, certificateCandidate.size());
+        ASN1_BIT_STRING *keyusage = (ASN1_BIT_STRING*)X509_get_ext_d2i(cert, NID_key_usage, 0, 0);
+        BASIC_CONSTRAINTS * cons = (BASIC_CONSTRAINTS*)X509_get_ext_d2i(cert, NID_basic_constraints, 0, 0);
+        const int keyUsageNonRepudiation = 1;
+        const bool isNonRepudiation = ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation);
+        const bool isCa = cons && cons->ca > 0;
+        ASN1_BIT_STRING_free(keyusage);
+        BASIC_CONSTRAINTS_free(cons);
+        X509_free(cert);
+        _log("non repudiation && not ca: %s", isNonRepudiation && !isCa ? "true" : "false");
+        return isNonRepudiation && !isCa;
+#endif
+    }
+    
+    void findSigningCertificate() {
+        std::vector<CK_OBJECT_HANDLE> certificateObjectHandle = findObject(CKO_CERTIFICATE);
+        size_t certificateCount = certificateObjectHandle.size();
+        _log("certificate count: %i", certificateCount);
+        if (certificateObjectHandle.empty()) {
             throw std::runtime_error("Could not read cert");
         }
-
-        CK_ATTRIBUTE attribute = {CKA_VALUE, nullptr, 0};
-        C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
-        signCert.resize(attribute.ulValueLen, 0);
-        attribute.pValue = signCert.data();
-        C(GetAttributeValue, session, objectHandle[0], &attribute, 1);
-
+        
+        for (size_t i = 0; i < certificateCount; i++) {
+            _log("check cert %i", i);
+            std::vector<unsigned char> certCandidate;
+            CK_ATTRIBUTE attribute = {CKA_VALUE, nullptr, 0};
+            C(GetAttributeValue, session, certificateObjectHandle[i], &attribute, 1);
+            certCandidate.resize(attribute.ulValueLen, 0);
+            attribute.pValue = certCandidate.data();
+            C(GetAttributeValue, session, certificateObjectHandle[i], &attribute, 1);
+            if (isSignCertificate(certCandidate)) {
+                signCert = certCandidate;
+                certIndex = i;
 #ifndef _WIN32
-        const unsigned char *p = signCert.data();
-        cert = d2i_X509(NULL, &p, signCert.size());
+                const unsigned char *p = signCert.data();
+                cert = d2i_X509(NULL, &p, signCert.size());
 #endif
+                break;
+            }
+        }
+    }
+
+    PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl) : fl(fl) {
+        C(GetTokenInfo, slotID, &tokenInfo);
+        C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
+        findSigningCertificate();
     }
 
     PKCS11CardManager(const std::string &module) {
@@ -190,16 +224,7 @@ public:
         _log("slotCount = %i", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
         C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
-
-        std::vector<CK_SLOT_ID> signingSlotIDs;
-        for (CK_ULONG i = 0; i < slotCount; ++i) {
-            _log("slotID: %i", slotIDs[i]);
-            if (i & 1) {
-                _log("Found signing slotID: %i", slotIDs[i]);
-                signingSlotIDs.push_back(slotIDs[i]);
-            }
-        }
-        return signingSlotIDs;
+        return slotIDs;
     }
 
     PKCS11CardManager *getManagerForReader(CK_SLOT_ID slotId) {
@@ -218,9 +243,9 @@ public:
         if (privateKeyHandle.empty()) {
             throw std::runtime_error("Could not read private key");
         }
-
         CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
-        C(SignInit, session, &mechanism, privateKeyHandle[0]);
+        _log("found %i private keys in slot, using key in position %i", privateKeyHandle.size(), certIndex);
+        C(SignInit, session, &mechanism, privateKeyHandle[certIndex]);
         std::vector<unsigned char> hashWithPadding;
         switch (hash.size()) {
             case BINARY_SHA1_LENGTH:
@@ -264,6 +289,10 @@ public:
 
     std::vector<unsigned char> getSignCert() const {
         return signCert;
+    }
+    
+    bool hasSignCert() {
+        return !signCert.empty();
     }
 
 #ifndef _WIN32

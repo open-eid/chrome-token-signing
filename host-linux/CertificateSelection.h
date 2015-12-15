@@ -41,6 +41,10 @@ public:
             std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
             for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
                 PKCS11CardManager *manager = PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token);
+                if (!manager -> hasSignCert()) {
+                   delete manager;
+                   continue;
+                }
                 QByteArray data((const char*)&manager->getSignCert()[0], manager->getSignCert().size());
                 QSslCertificate cert(data, QSsl::Der);
                 if (QDateTime::currentDateTime() < cert.expiryDate()) {
