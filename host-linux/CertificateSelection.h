@@ -47,7 +47,7 @@ public:
                 }
                 QByteArray data((const char*)&manager->getSignCert()[0], manager->getSignCert().size());
                 QSslCertificate cert(data, QSsl::Der);
-                if (QDateTime::currentDateTime() < cert.expiryDate()) {
+                if (QDateTime::currentDateTime() < cert.expiryDate() && !isDuplicate(certs, data.toHex())) {
                     certs << (QStringList()
                         << manager->getCN().c_str()
                         << manager->getType().c_str()
@@ -69,6 +69,14 @@ public:
     }
 
 private:
+    static bool isDuplicate(const QList<QStringList> &certs, const QString &cert)
+    {
+        for(const QStringList &row : certs) {
+            if(cert.compare(row[3]) == 0) return true;
+        }
+        return false;
+    }
+
     CertificateSelection(const QList<QStringList> &certs)
         : message(new QLabel(this))
         , table(new QTreeWidget(this))

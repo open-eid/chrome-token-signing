@@ -22,6 +22,7 @@
 #import "PKCS11CardManager.h"
 #import "Labels.h"
 #import "PKCS11Path.h"
+#import "Logger.h"
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
@@ -38,6 +39,13 @@
 
 @implementation CertificateSelection
 
+- (bool)isDuplicate:(NSString*) certificate {
+    for(NSUInteger i = 0; i < [certificates count]; i++) {
+        if ([certificates[i][@"cert"] isEqualToString:certificate]) return true;
+    }
+    return false;
+}
+
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -52,11 +60,13 @@
             for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
                 PKCS11CardManager *local = PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token);
                 if (!local -> hasSignCert()) {
+                    _log("no signing certificate, moving on to next token...");
                     delete local;
                     continue;
                 }
                 NSDate *date = [asn1 dateFromString:@(local->getValidTo().c_str())];
-                if ([date compare:NSDate.date] > 0) {
+                if ([date compare:NSDate.date] > 0 && ![self isDuplicate:@(BinaryUtils::bin2hex(local->getSignCert()).c_str())]) {
+                    _log("token has valid signing certificate, adding it to selection");
                     [certificates addObject: @{
                         @"cert": @(BinaryUtils::bin2hex(local->getSignCert()).c_str()),
                         @"validTo": [df stringFromDate:date],
