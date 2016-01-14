@@ -160,7 +160,7 @@ private:
         layout->addWidget(nameLabel);
         layout->addWidget(pinLabel);
 
-        setMinimumWidth(350);
+        setMinimumWidth(400);
         setWindowFlags(Qt::WindowStaysOnTopHint);
         setWindowTitle(Labels::l10n.get("signing").c_str());
         pinLabel->setText(Labels::l10n.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
