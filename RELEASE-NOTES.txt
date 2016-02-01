@@ -1,3 +1,18 @@
+Chrome Token Signing 1.0.3 release notes
+--------------------------------------------
+Changes compared to ver 1.0.2
+
+- Fixed RUS PIN attempts remaining text not fitting into dialog window on Linux
+- Fixed duplicate certificates appearing in certificate selection dialog with Finnish eID and technical error on sign
+- Added Token Support for Lithuanian eID on OSX and Linux
+- Added Lithuanian Token support when using PKCS#11 on windows native component.
+- Added Token Support for Latvian and Finnish eID on OSX and Linux.
+
+Notes: 
+- You need to have middleware for the eID that you are using installed (Finland, Estonia, Latvia or Lithuania). No other configuration should be necessary.
+- Note that if you want to use PKCS#11 in windows, then you must add the extension manually from the release zip file, enable forcing pkcs11 and add the path to pkcs#11 module you want to use in the extension options menu. See https://github.com/open-eid/chrome-token-signing/wiki/DeveloperTips on how to manually add extension to chrome
+
+
 Chrome Token Signing 1.0.2 release notes
 --------------------------------------------
 Changes compared to ver 1.0.0
