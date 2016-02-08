@@ -112,13 +112,11 @@ void CardReader::connect() {
 }
 
 void CardReader::populateAtr() {
-    std::vector<char> name(100, sizeof(char));
     std::vector<unsigned char> bAtr(MAX_ATR_SIZE, 0);
-    DWORD nameSize = name.size();
     DWORD atrSize = bAtr.size();
     DWORD dwState, dwProtocol;
     
-    LONG err = SCardStatus(cardHandle, name.data(), &nameSize, &dwState, &dwProtocol, bAtr.data(), &atrSize);
+    LONG err = SCardStatus(cardHandle, nullptr, nullptr, &dwState, &dwProtocol, bAtr.data(), &atrSize);
     if( err != SCARD_S_SUCCESS) {
         _log("SCardStatus ERROR for %s: %x", this -> name.c_str(), err);
         throw PcscException("status");
