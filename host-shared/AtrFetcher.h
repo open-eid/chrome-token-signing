@@ -26,16 +26,20 @@
 #include <winscard.h>
 #endif
 
+#ifdef _WIN32
+	#define MAX_ATR_SIZE 33	/**< Maximum ATR size */
+#endif
+
 class CardReader {
 public:
-    CardReader(const std::string &_name, SCARDCONTEXT _context) : name(_name), context(_context){}
+    CardReader(const std::wstring &_name, SCARDCONTEXT _context) : name(_name), context(_context){}
     void connect();
     void populateAtr();
     void release();
-    std::string getName();
+    std::wstring getName();
     std::string getAtr();
 private:
-    std::string name;
+    std::wstring name;
     std::string atr;
     SCARDHANDLE cardHandle;
     SCARDCONTEXT context;
@@ -57,6 +61,5 @@ private:
     SCARDCONTEXT hContext;
     SCARDHANDLE hCard;
     std::vector<CardReader*> readerList;
-    
 };
 

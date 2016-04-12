@@ -21,9 +21,6 @@
     <ClInclude Include="..\host-shared\json\jsonxx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CertificateSelection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Signer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,15 +63,33 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CertificateSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeCertificateSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CertificateSelectorFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\host-shared\AtrFetcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKCS11CertificateSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKCS11ModulePath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\host-shared\json\jsonxx.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CertificateSelection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\host-shared\Logger.cpp">
@@ -105,6 +120,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DialogManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeCertificateSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CertificateSelectorFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\host-shared\AtrFetcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PKCS11CertificateSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

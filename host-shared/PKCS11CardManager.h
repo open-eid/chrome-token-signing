@@ -34,6 +34,7 @@
 #include "ContextMaintainer.h"
 #include "BinaryUtils.h"
 #include <afx.h> //Using afx.h instead of windows.h because of MFC
+#include <WinCrypt.h>
 #else
 #include <dlfcn.h>
 #include <openssl/x509v3.h>
@@ -76,6 +77,7 @@ class PKCS11CardManager {
 private:
 #ifdef _WIN32
     HINSTANCE library = 0;
+	PCCERT_CONTEXT cert = NULL;
 #else
     void *library = nullptr;
     X509 *cert = nullptr;
@@ -120,8 +122,21 @@ private:
     }
     
     bool isSignCertificate(const std::vector<unsigned char> &certificateCandidate) {
-#ifdef _WIN32
-        return ContextMaintainer::isSelectedCertificate(BinaryUtils::bin2hex(certificateCandidate));
+#ifdef _WIN32		
+		if (ContextMaintainer::isSelectedCertificate(BinaryUtils::bin2hex(certificateCandidate))) {
+			//Can only be true when certificate has already been chosen
+			return true;
+		}
+		bool validForSigning = false;
+		if (cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificateCandidate.data(), certificateCandidate.size())) {
+			_log("new certificate handle created.");			
+			BYTE keyUsage;
+			CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
+			if ((keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) && (CertVerifyTimeValidity(NULL, cert->pCertInfo) == 0)) {
+				validForSigning = true;
+			} 
+		} 
+		return validForSigning;
 #else
         const unsigned char *p = certificateCandidate.data();
         X509 *cert = d2i_X509(NULL, &p, certificateCandidate.size());
@@ -176,7 +191,8 @@ private:
         CK_C_GetFunctionList C_GetFunctionList = nullptr;
 #ifdef _WIN32
         library = LoadLibraryA(module.c_str());
-        if (library)
+		if (library)
+			_log("library loaded");
             C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
@@ -185,9 +201,11 @@ private:
 #endif
 
         if (!C_GetFunctionList) {
+			_log("Function List not loaded");
             throw std::runtime_error("PKCS11 is not loaded");
         }
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
+		_log("initializing module");
         C(Initialize, nullptr);
     }
     
@@ -204,6 +222,9 @@ public:
 #ifndef _WIN32
 		if (cert)
             X509_free(cert);
+#else
+		if (cert)
+			CertFreeCertificateContext(cert);
 #endif
         if (!library)
             return;
@@ -230,6 +251,7 @@ public:
 
     PKCS11CardManager *getManagerForReader(CK_SLOT_ID slotId) {
         if (!fl) {
+			_log("PKCS11 is not loaded");
             throw std::runtime_error("PKCS11 is not loaded");
         }
         return new PKCS11CardManager(slotId, fl);
