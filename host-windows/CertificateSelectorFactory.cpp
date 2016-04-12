@@ -16,28 +16,24 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "SignerFactory.h"
-#include "CngCapiSigner.h"
-#include "Pkcs11Signer.h"
+#include "CertificateSelectorFactory.h"
+#include "NativeCertificateSelector.h"
+#include "PKCS11CertificateSelector.h"
 #include "AtrFetcher.h"
 #include "PKCS11ModulePath.h"
+#include "Logger.h"
+
 #include <string>
 
-Signer * SignerFactory::createSigner(const jsonxx::Object &jsonRequest){
-	string hashFromStdIn = jsonRequest.get<string>("hash");
-	string cert = jsonRequest.get<string>("cert");
-	
+CertificateSelector * CertificateSelectorFactory::createCertificateSelector(){
+
 	AtrFetcher * atrFetcher = new AtrFetcher();
 	std::vector<std::string> atrs = atrFetcher->fetchAtr();
+
 	for (int i = 0; i < atrs.size(); i++) {
-		//3BFD1800008031FE4553434536302D43443134352D46CD - SafeSign C:\\Windows\\System32\\aetpkss1.dll
-		//3BFA1800008031FE45FE654944202F20504B4903 - Värnik opensc-pkcs11.dll
 		if (PKCS11ModulePath::isKnownAtr(atrs[i])) {
-			Pkcs11Signer *signer = new Pkcs11Signer(hashFromStdIn, cert);
-			signer->setPkcs11ModulePath(PKCS11ModulePath::getModulePath());
-			signer->initialize();
-			return signer;
+			return new PKCS11CertificateSelector(PKCS11ModulePath::getModulePath());
 		}
 	}
-	return new CngCapiSigner(hashFromStdIn, cert);
+	return new NativeCertificateSelector();
 }

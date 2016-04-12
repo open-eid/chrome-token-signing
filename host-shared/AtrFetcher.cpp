@@ -63,20 +63,20 @@ void AtrFetcher::listReaders() {
         _log("SCardListReaders || !size ERROR: %x", err);
         throw PcscException("list_readers");
     }
-    std::vector<char> readers(size, sizeof(char));
+	std::vector<wchar_t> readers(size, sizeof(wchar_t));
     
     err = SCardListReaders(hContext, NULL, readers.data(), &size);
     if( err != SCARD_S_SUCCESS) {
         _log("SCardListReaders ERROR: %x", err);
         throw PcscException("list_readers");
     }
-    readers.resize(size, sizeof(char));
+	readers.resize(size, sizeof(wchar_t));
 
-    for(std::vector<char>::const_iterator i = readers.begin(); i != readers.end(); ++i) {
-        std::string readerName(&*i);
+	for (std::vector<wchar_t>::const_iterator i = readers.begin(); i != readers.end(); ++i) {
+        std::wstring readerName(&*i);
         if( !readerName.empty() ) {
             CardReader *reader = new CardReader(readerName, hContext);
-            _log("found reader: %s", reader->getName().c_str());
+            _log("found reader: %ws", reader->getName().c_str());
             readerList.push_back(reader);
         }
         i += readerName.size();
@@ -123,14 +123,14 @@ void CardReader::populateAtr() {
     }
     bAtr.resize(atrSize);
     atr = BinaryUtils::bin2hex(bAtr);
-    _log("Set ATR = %s for reader %s", atr.c_str(), this -> name.c_str());
+    _log("Set ATR = %s for reader %ws", atr.c_str(), this -> name.c_str());
 }
 
 std::string CardReader::getAtr() {
     return atr;
 }
 
-std::string CardReader::getName() {
+std::wstring CardReader::getName() {
     return name;
 }
 
