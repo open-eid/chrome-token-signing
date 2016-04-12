@@ -32,14 +32,26 @@
 
 class CardReader {
 public:
+#ifdef _WIN32
     CardReader(const std::wstring &_name, SCARDCONTEXT _context) : name(_name), context(_context){}
+#else
+    CardReader(const std::string &_name, SCARDCONTEXT _context) : name(_name), context(_context){}
+#endif
     void connect();
     void populateAtr();
     void release();
+#ifdef _WIN32
     std::wstring getName();
+#else
+    std::string getName();
+#endif
     std::string getAtr();
 private:
+#ifdef _WIN32
     std::wstring name;
+#else
+    std::string name;
+#endif
     std::string atr;
     SCARDHANDLE cardHandle;
     SCARDCONTEXT context;
