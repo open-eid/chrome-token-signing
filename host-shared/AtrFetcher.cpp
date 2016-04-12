@@ -63,17 +63,24 @@ void AtrFetcher::listReaders() {
         _log("SCardListReaders || !size ERROR: %x", err);
         throw PcscException("list_readers");
     }
+#ifdef _WIN32
 	std::vector<wchar_t> readers(size, sizeof(wchar_t));
-    
+#else
+    std::vector<char> readers(size, sizeof(char));
+#endif
     err = SCardListReaders(hContext, NULL, readers.data(), &size);
     if( err != SCARD_S_SUCCESS) {
         _log("SCardListReaders ERROR: %x", err);
         throw PcscException("list_readers");
     }
 	readers.resize(size, sizeof(wchar_t));
-
+#ifdef _WIN32
 	for (std::vector<wchar_t>::const_iterator i = readers.begin(); i != readers.end(); ++i) {
         std::wstring readerName(&*i);
+#else
+    for (std::vector<char>::const_iterator i = readers.begin(); i != readers.end(); ++i) {
+        std::string readerName(&*i);
+#endif
         if( !readerName.empty() ) {
             CardReader *reader = new CardReader(readerName, hContext);
             _log("found reader: %ws", reader->getName().c_str());
@@ -129,8 +136,11 @@ void CardReader::populateAtr() {
 std::string CardReader::getAtr() {
     return atr;
 }
-
+#ifdef _WIN32
 std::wstring CardReader::getName() {
+#else
+std::string CardReader::getName() {
+#endif
     return name;
 }
 
