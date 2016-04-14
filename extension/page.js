@@ -63,8 +63,8 @@ function TokenSigning() {
     function messagePromise(msg) {
         return new Promise(function(resolve, reject) {
             // amend with necessary metadata
-            msg['nonce'] = nonce();
-            msg['src'] = 'page.js';
+            msg["nonce"] = nonce();
+            msg["src"] = "page.js";
             // send message
             window.postMessage(msg, "*");
             // and store promise callbacks
@@ -75,19 +75,19 @@ function TokenSigning() {
         });
     }
     this.getCertificate = function(options) {
-        var msg = {type: 'CERT', lang: options.lang};
+        var msg = {type: "CERT", lang: options.lang};
         console.log("getCertificate()");
         return messagePromise(msg);
     };
     this.sign = function(cert, hash, options) {
-        var msg = {type: 'SIGN', cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang};
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang};
         console.log("sign()");
         return messagePromise(msg);
     };
     this.getVersion = function() {
         console.log("getVersion()");
         return messagePromise({
-            type: 'VERSION'
+            type: "VERSION"
         });
     };
 }
