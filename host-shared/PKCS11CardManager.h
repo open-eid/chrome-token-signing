@@ -78,6 +78,11 @@ public:
 	PKCS11TokenNotRecognized() : std::runtime_error("Token not recognized.") {}
 };
 
+class PKCS11TokenNotPresent: public std::runtime_error {
+public:
+	PKCS11TokenNotPresent() : std::runtime_error("Token not recognized.") {}
+};
+
 class PKCS11CardManager {
 private:
 #ifdef _WIN32
@@ -109,6 +114,8 @@ private:
                 throw AuthenticationBadInput();
 			case CKR_TOKEN_NOT_RECOGNIZED:
 				throw PKCS11TokenNotRecognized();
+			case CKR_TOKEN_NOT_PRESENT:
+				throw PKCS11TokenNotPresent();
             default:
                 throw std::runtime_error("PKCS11 method failed.");
         }
