@@ -73,6 +73,11 @@ public:
     AuthenticationBadInput() : std::runtime_error("Authentication Bad Input"){}
 };
 
+class PKCS11TokenNotRecognized: public std::runtime_error {
+public:
+	PKCS11TokenNotRecognized() : std::runtime_error("Token not recognized.") {}
+};
+
 class PKCS11CardManager {
 private:
 #ifdef _WIN32
@@ -102,6 +107,8 @@ private:
                 throw AuthenticationError();
             case CKR_PIN_LEN_RANGE:
                 throw AuthenticationBadInput();
+			case CKR_TOKEN_NOT_RECOGNIZED:
+				throw PKCS11TokenNotRecognized();
             default:
                 throw std::runtime_error("PKCS11 method failed.");
         }
