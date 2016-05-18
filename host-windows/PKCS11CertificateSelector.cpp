@@ -47,6 +47,10 @@ void PKCS11CertificateSelector::fetchAllSigningCertificates() {
 				_log("%s", ex.what());
 				continue;
 			}
+			catch (PKCS11TokenNotPresent &ex) {
+				_log("%s", ex.what());
+				continue;
+			}
 			if (manager -> hasSignCert()) {
 				addCertificateToMemoryStore(manager->getSignCert());
 				certificateAddedToMemoryStore = true;
