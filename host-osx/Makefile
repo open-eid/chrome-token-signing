@@ -18,31 +18,56 @@
 
 EXTERNAL_PATH = /Library/Application\ Support/Google/Chrome/External\ Extensions
 NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
-ifeq ($(BUILD_NUMBER),)
-BUILD_NUMBER = 0
-endif
-include ../VERSION.mk
-SIGNCERT = Developer ID Application: Riigi Infosüsteemi Amet
-INSTCERT = Developer ID Installer: Riigi Infosüsteemi Amet
-PROJ = xcodebuild -project chrome-token-signing.xcodeproj VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER) $(PARAMS)
 
-all: *.mm
-	$(PROJ)
+BUILD_NUMBER ?= 0
+include ../VERSION.mk
+
+SIGNER ?= ET847QJV9F # This is the default, Riigi Infosüsteemi Amet
+OPENSSL ?= $(PWD)/target
+TMPROOT = $(PWD)/tmp
+TARGET = $(TMPROOT)/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app
+PKG = chrome-token-signing.pkg
+
+PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER) OPENSSL=$(OPENSSL)
+
+$(TARGET): *.mm $(OPENSSL)
+	$(PROJ) install DSTROOT=$(TMPROOT)
+
+codesign: $(TARGET)
+	codesign -f --entitlements chrome-token-signing.entitlements -s $(SIGNER) "$(TARGET)"
 
 clean:
 	$(PROJ) clean
+	git clean -dfx
 
-pkg:
-	$(PROJ) DSTROOT=/tmp/chrome-token-signing.dst install
-	codesign -f -s "$(SIGNCERT)" "/tmp/chrome-token-signing.dst/$(NATIVE_PATH)/chrome-token-signing.app"
-	pkgbuild --root /tmp/chrome-token-signing.dst --sign "$(INSTCERT)" chrome-token-signing.pkg
-	productbuild --distribution chrome-token-signing.dist.xml --sign "$(INSTCERT)" \
-		--package-path . --resources . chrome-token-signing-dist_$(VERSIONEX).pkg
-	mv chrome-token-signing.pkg chrome-token-signing_$(VERSIONEX).pkg
-	pkgbuild --component build/Release/chrome-token-signing.app.dSYM --sign "$(INSTCERT)" \
-		--identifier "ee.ria.chrome-token-signing-dbg" --version "$(VERSION)" \
-		--install-location $(NATIVE_PATH)/chrome-token-signing.app/Contents/MacOS \
-		chrome-token-signing-dbg_$(VERSIONEX).pkg
+$(PKG): $(TARGET)
+	pkgbuild --version $(VERSION) \
+		--root $(TMPROOT) \
+		--identifier ee.ria.chrome-token-signing \
+                --install-location / \
+		$(PKG)
+
+pkg: $(PKG)
+
+signed: codesign
+	pkgbuild --version $(VERSION) \
+		--root $(TMPROOT) \
+		--identifier ee.ria.chrome-token-signing \
+                --install-location / \
+                --sign $(SIGNER) \
+		$(PKG)
+
+
+
+$(OPENSSL):
+	git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
+	(cd openssl \
+	&& KERNEL_BITS=64 ./config --prefix=$(OPENSSL) -mmacosx-version-min=10.9 no-shared no-ssl2 no-idea no-dtls no-psk no-srp no-apps \
+	&& make depend \
+	&& make \
+	&& make install_sw)
+
+# helpers
 
 install:
 	mkdir -p $(NATIVE_PATH)
@@ -57,4 +82,4 @@ uninstall:
 	rm -rf $(NATIVE_PATH)/chrome-token-signing.app
 
 test:
-	python ../host-test/stateless-test.py build/Release/chrome-token-signing.app/Contents/MacOS/chrome-token-signing
+	python ../host-test/stateless-test.py $(TARGET)/Contents/MacOS/chrome-token-signing
