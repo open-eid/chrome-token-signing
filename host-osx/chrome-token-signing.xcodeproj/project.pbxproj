@@ -15,9 +15,9 @@
 		4E532D0B1A96393D00D28E40 /* chrome-host.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D091A96393D00D28E40 /* chrome-host.mm */; };
 		4E532D0D1A96399600D28E40 /* CertificateSelection.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E532D0C1A96399600D28E40 /* CertificateSelection.xib */; };
 		4E532D0F1A9639E600D28E40 /* CertificateSelection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */; };
-		4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E532D1B1A96843700D28E40 /* libcrypto.dylib */; };
 		4E532D221A96848400D28E40 /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D201A96848400D28E40 /* Logger.cpp */; };
 		4E532D251A97941800D28E40 /* BinaryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E532D231A97941800D28E40 /* BinaryUtils.cpp */; };
+		5B0C569D1DAE2CCB00A022F5 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0C569C1DAE2CCB00A022F5 /* libcrypto.a */; };
 		9D2933101C0DFB8200A9DEC4 /* PKCS11Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D29330F1C0DFB8200A9DEC4 /* PKCS11Path.cpp */; };
 		9D8198A51C19AF7900707089 /* PCSC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D8198A41C19AF7900707089 /* PCSC.framework */; };
 		9D8198A81C1A062B00707089 /* AtrFetcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D8198A61C1A062B00707089 /* AtrFetcher.cpp */; };
@@ -54,6 +54,7 @@
 		4E7C88641AA9EAF8008758AA /* PKCS11CardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKCS11CardManager.h; sourceTree = "<group>"; };
 		4E894C171AA655F70059CB93 /* stateless-test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "stateless-test.py"; sourceTree = "<group>"; };
 		4EF5F11B1AB8AA330023D7A3 /* chrome-token-signing.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "chrome-token-signing.entitlements"; sourceTree = "<group>"; };
+		5B0C569C1DAE2CCB00A022F5 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../../target/lib/libcrypto.a; sourceTree = "<group>"; };
 		9D29330E1C0DFA5200A9DEC4 /* PKCS11Path.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PKCS11Path.h; sourceTree = "<group>"; };
 		9D29330F1C0DFB8200A9DEC4 /* PKCS11Path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PKCS11Path.cpp; sourceTree = "<group>"; };
 		9D8198A41C19AF7900707089 /* PCSC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PCSC.framework; path = System/Library/Frameworks/PCSC.framework; sourceTree = SDKROOT; };
@@ -66,9 +67,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B0C569D1DAE2CCB00A022F5 /* libcrypto.a in Frameworks */,
 				9D8198A51C19AF7900707089 /* PCSC.framework in Frameworks */,
 				4E20282D1AA74E0800AB9BDC /* Cocoa.framework in Frameworks */,
-				4E532D1C1A96843700D28E40 /* libcrypto.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,6 +103,7 @@
 				4E532CE21A96379500D28E40 /* Host-OSX */,
 				4E894C161AA655F70059CB93 /* host-test */,
 				4E532CE11A96379500D28E40 /* Products */,
+				5B0C569B1DAE2CCA00A022F5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -165,6 +167,14 @@
 			);
 			name = "host-test";
 			path = "../host-test";
+			sourceTree = "<group>";
+		};
+		5B0C569B1DAE2CCA00A022F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5B0C569C1DAE2CCB00A022F5 /* libcrypto.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -292,7 +302,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -337,7 +346,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -361,10 +369,12 @@
 		4E532CFE1A96379500D28E40 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "chrome-token-signing.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
+				LIBRARY_SEARCH_PATHS = "$(OPENSSL)/lib";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OPENSSL = ../target;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -372,10 +382,12 @@
 		4E532CFF1A96379500D28E40 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "chrome-token-signing.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = /Library/Google/Chrome/NativeMessagingHosts;
+				LIBRARY_SEARCH_PATHS = "$(OPENSSL)/lib";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OPENSSL = ../target;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
