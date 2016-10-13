@@ -22,7 +22,7 @@ NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
 BUILD_NUMBER ?= 0
 include ../VERSION.mk
 
-SIGNER ?= ET847QJV9F # This is the default, Riigi Infosüsteemi Amet
+SIGNER ?= Riigi Infosüsteemi Amet
 OPENSSL ?= $(PWD)/target
 TMPROOT = $(PWD)/tmp
 TARGET = $(TMPROOT)/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app
@@ -34,7 +34,7 @@ $(TARGET): *.mm $(OPENSSL)
 	$(PROJ) install DSTROOT=$(TMPROOT)
 
 codesign: $(TARGET)
-	codesign -f --entitlements chrome-token-signing.entitlements -s $(SIGNER) "$(TARGET)"
+	codesign -f --entitlements chrome-token-signing.entitlements -s "$(SIGNER)" "$(TARGET)"
 
 clean:
 	$(PROJ) clean
@@ -54,7 +54,7 @@ signed: codesign
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
                 --install-location / \
-                --sign $(SIGNER) \
+                --sign "$(SIGNER)" \
 		$(PKG)
 
 
