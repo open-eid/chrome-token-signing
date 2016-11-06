@@ -60,7 +60,7 @@ signed: codesign
 
 
 $(OPENSSL):
-	git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
+	test -e openssl || git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
 	(cd openssl \
 	&& KERNEL_BITS=64 ./config --prefix=$(OPENSSL) -mmacosx-version-min=10.9 no-shared no-ssl2 no-idea no-dtls no-psk no-srp no-apps \
 	&& make depend \
