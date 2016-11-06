@@ -40,7 +40,7 @@ console.log("Background page activated");
 
 // XXX: probe test, because connectNative() does not allow to check the presence
 // of native component for some reason
-chrome.runtime.onStartup.addListener(function() {
+typeof chrome.runtime.onStartup !== 'undefined' && chrome.runtime.onStartup.addListener(function() {
 	// Also probed for in onInstalled()
 	_testNativeComponent().then(function(result) {
 		if (result === "ok") {
@@ -89,7 +89,7 @@ function _testNativeComponent() {
 
 
 // When extension is installed, check for native component or direct to helping page
-chrome.runtime.onInstalled.addListener(function(details) {
+typeof chrome.runtime.onInstalled !== 'undefined' && chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason === "install" || details.reason === "update") {
 		_testNativeComponent().then(function(result) {
 				var url = null;
@@ -114,7 +114,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 
 // When message is received from page send it to native
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	if(sender.id !== chrome.runtime.id) {
+	if(sender.id !== chrome.runtime.id && sender.extensionId !== chrome.runtime.id) {
 		console.log('WARNING: Ignoring message not from our extension');
 		// Not our extension, do nothing
 		return;
@@ -129,11 +129,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			} 
 		} else {
 			request[K_TAB] = sender.tab.id;
-			if (missing)
-				return _fail_with(request, "no_implementation");
-			// TODO: Check if the URL is in allowed list or not
-			// Either way forward to native currently
-			_forward(request);
+			if (missing) {
+				_testNativeComponent().then(function(result) {
+					if (result === "ok") {
+						missing = false;
+						_forward(request);
+					} else {
+						return _fail_with(request, "no_implementation");
+					}
+				});
+			} else {
+				// TODO: Check if the URL is in allowed list or not
+				// Either way forward to native currently
+				_forward(request);
+			}
 		}
 	}
 });
@@ -141,7 +150,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 // Send the message back to the originating tab
 function _reply(tab, msg) {
 	msg[K_SRC] = "background.js";
-	msg[K_EXTENSION] = chrome.app.getDetails().version;
+	msg[K_EXTENSION] = chrome.runtime.getManifest().version;
 	chrome.tabs.sendMessage(tab, msg);
 }
 
