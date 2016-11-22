@@ -1,5 +1,5 @@
 {
-    "name": "Token signing",
+    "name": "Native Token WebExtension",
     "version": "0.0.22",
     "minimum_chrome_version": "50.0",
     "manifest_version": 2,
@@ -18,8 +18,12 @@
         "scripts": ["background.js"]
     },
     "options_ui": {
-        "page": "options.html",
-        "chrome_style": true
+        "page": "options.html"
     },
-    "permissions": ["nativeMessaging"]
+    "permissions": ["nativeMessaging"],
+    "applications": {
+        "gecko": {
+            "id": "{A8C21BB9-15D4-4AF0-9BF2-6E1B70FE8C3D}"
+        }
+    }
 }
