@@ -34,7 +34,7 @@ release:
 	test ! -f extension-$(RELEASE).zip
 	test -z "`git status -s extension`"
 	git clean -dfx extension
-	zip -r extension-$(RELEASE).zip extension
+	zip -r -j extension-$(RELEASE).zip extension
 
 test: detect
 	# wildcard will resolve to an empty string with a missing file
@@ -45,3 +45,6 @@ test: detect
 # FIXME: git describe vs $(RELEASE) ?
 dist:
 	git-archive-all chrome-token-signing-`git describe --tags --always`.tar.gz
+
+clean:
+	rm -f extension-$(RELEASE).zip
