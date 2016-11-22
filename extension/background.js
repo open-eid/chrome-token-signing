@@ -141,7 +141,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 // Send the message back to the originating tab
 function _reply(tab, msg) {
 	msg[K_SRC] = "background.js";
-	msg[K_EXTENSION] = chrome.app.getDetails().version;
+	msg[K_EXTENSION] = chrome.runtime.getManifest().version;
 	chrome.tabs.sendMessage(tab, msg);
 }
 
