@@ -42,6 +42,9 @@ console.log("Background page activated");
 _testNativeComponent().then(function(result) {
 	if (result === "ok") {
 		missing = false;
+	} else {
+		// Firefox has no install handlers, thus do it here.
+		chrome.tabs.create({url: NO_NATIVE_URL});
 	}
 });
 
@@ -188,10 +191,11 @@ typeof chrome.runtime.onInstalled !== 'undefined' && chrome.runtime.onInstalled.
 // When message is received from page send it to native
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	console.log(sender);
-	console.log(request);
-	if(sender.id !== chrome.runtime.id) {
+	// See https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime/MessageSender#Type
+	// for difference in FF
+	if(sender.id !== chrome.runtime.id && sender.extensionId !== chrome.runtime.id) {
+		console.log('WARNING: Ignoring message not from our extension:');
 		console.log(sender);
-		console.log('WARNING: Ignoring message not from our extension');
 		// Not our extension, do nothing
 		return;
 	}
