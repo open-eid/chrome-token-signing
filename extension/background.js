@@ -38,15 +38,11 @@ var missing = true;
 
 console.log("Background page activated");
 
-// XXX: probe test, because connectNative() does not allow to check the presence
-// of native component for some reason
-chrome.runtime.onStartup.addListener(function() {
-	// Also probed for in onInstalled()
-	_testNativeComponent().then(function(result) {
-		if (result === "ok") {
-			missing = false;
-		}
-	});
+// Probe for backend. This is run when the extension is (re-)loaded
+_testNativeComponent().then(function(result) {
+	if (result === "ok") {
+		missing = false;
+	}
 });
 
 // Force kill of native process
@@ -62,6 +58,7 @@ function _killPort(tab) {
 // Check if native implementation is OK resolves with "ok", "missing" or "forbidden"
 function _testNativeComponent() {
 	return new Promise(function(resolve, reject) {
+		// probe with an empty message
 		chrome.runtime.sendNativeMessage(NATIVE_HOST, {}, function(response) {
 			if (!response) {
 				console.log("TEST: ERROR " + JSON.stringify(chrome.runtime.lastError));
@@ -87,56 +84,6 @@ function _testNativeComponent() {
 	});
 }
 
-
-// When extension is installed, check for native component or direct to helping page
-chrome.runtime.onInstalled.addListener(function(details) {
-	if (details.reason === "install" || details.reason === "update") {
-		_testNativeComponent().then(function(result) {
-				var url = null;
-				if (result === "ok" && details.reason === "install") {
-					// Also set the flag, onStartup() shall be called only
-					// on next startup
-					missing = false;
-					// TODO: Add back HELLO page on install
-					// once there is a nice tutorial
-					// url = HELLO_URL;
-				} else if (result === "forbidden") {
-					url = DEVELOPER_URL;
-				} else if (result === "missing"){
-					url = NO_NATIVE_URL;
-				}
-				if (url) {
-					chrome.tabs.create({'url': url + "?" + details.reason});
-				}
-		});
-	}
-});
-
-// When message is received from page send it to native
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	if(sender.id !== chrome.runtime.id) {
-		console.log('WARNING: Ignoring message not from our extension');
-		// Not our extension, do nothing
-		return;
-	}
-	if (sender.tab) {
-		// Check if page is DONE and close the native component without doing anything else
-		if (request["type"] === "DONE") {
-			console.log("DONE " + sender.tab.id);
-			if (sender.tab.id in ports) {
-				// FIXME: would want to use Port.disconnect() here
-				_killPort(sender.tab.id);
-			} 
-		} else {
-			request[K_TAB] = sender.tab.id;
-			if (missing)
-				return _fail_with(request, "no_implementation");
-			// TODO: Check if the URL is in allowed list or not
-			// Either way forward to native currently
-			_forward(request);
-		}
-	}
-});
 
 // Send the message back to the originating tab
 function _reply(tab, msg) {
@@ -190,3 +137,80 @@ function _forward(message) {
 		ports[tabid].postMessage(message);
 	}
 }
+
+
+
+// XXX: probe test, because connectNative() does not allow to check the presence
+// of native component for some reason
+// TODO: if the user has the extension installed but
+// no native part, remind to install the native part.
+// XXX: FF does not have onStartup, thus the test
+typeof chrome.runtime.onStartup !== 'undefined' && chrome.runtime.onStartup.addListener(function() {
+        console.log('onStartup()');
+	// Also probed for in onInstalled()
+	_testNativeComponent().then(function(result) {
+		if (result === "ok") {
+			missing = false;
+		}
+	});
+});
+
+
+// When extension is installed (or reloaded, or updated)
+// check for native component or direct to helping page
+// XXX: FF does not have onInstalled, thus the test
+typeof chrome.runtime.onInstalled !== 'undefined' && chrome.runtime.onInstalled.addListener(function(details) {
+	console.log('onInstalled: ' + JSON.stringify(details));
+	if (details.reason === "install" || details.reason === "update") {
+		_testNativeComponent().then(function(result) {
+				var url = null;
+				if (result === "ok" ) {
+					// Also set the flag, onStartup() shall be called only
+					// on next startup
+					missing = false;
+					if (details.reason === "install") {
+						// TODO: Add back HELLO page on install
+						// once there is a nice tutorial
+						// url = HELLO_URL;
+					}
+				} else if (result === "forbidden") {
+					url = DEVELOPER_URL;
+				} else if (result === "missing"){
+					url = NO_NATIVE_URL;
+				}
+				if (url) {
+					chrome.tabs.create({'url': url + "?" + details.reason});
+				}
+		});
+	}
+});
+
+// When message is received from page send it to native
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+	console.log(sender);
+	console.log(request);
+	if(sender.id !== chrome.runtime.id) {
+		console.log(sender);
+		console.log('WARNING: Ignoring message not from our extension');
+		// Not our extension, do nothing
+		return;
+	}
+	if (sender.tab) {
+		// Check if page is DONE and close the native component without doing anything else
+		if (request["type"] === "DONE") {
+			console.log("DONE " + sender.tab.id);
+			if (sender.tab.id in ports) {
+				// FIXME: would want to use Port.disconnect() here
+				_killPort(sender.tab.id);
+			}
+		} else {
+			request[K_TAB] = sender.tab.id;
+			if (missing)
+				return _fail_with(request, "no_implementation");
+			// TODO: Check if the URL is in allowed list or not
+			// Either way forward to native currently
+			_forward(request);
+		}
+	}
+});
+
