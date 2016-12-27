@@ -1,0 +1,7 @@
+{
+    "name": "ee.ria.esteid",
+    "description": "Give signatures with your eID on the web",
+    "path": "/usr/bin/chrome-token-signing",
+    "type": "stdio",
+    "allowed_extensions": [ "{443830f0-1fff-4f9a-aa1e-444bafbc7319}" ]
+}

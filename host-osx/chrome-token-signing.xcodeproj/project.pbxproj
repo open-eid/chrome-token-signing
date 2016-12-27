@@ -28,6 +28,7 @@
 		4E2028291AA74A6A00AB9BDC /* Labels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Labels.cpp; sourceTree = "<group>"; };
 		4E20282A1AA74A6A00AB9BDC /* Labels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Labels.h; sourceTree = "<group>"; };
 		4E20282C1AA74E0800AB9BDC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		4E2EF6CB1DCE9F22000CD2CC /* ee.ria.esteid.firefox.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ee.ria.esteid.firefox.json; sourceTree = "<group>"; };
 		4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINDialog.xib; sourceTree = "<group>"; };
 		4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINPadDialog.xib; sourceTree = "<group>"; };
 		4E46FD251A97A07000D0F3C8 /* PINDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PINDialog.mm; sourceTree = "<group>"; };
@@ -119,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				4E490EC21A9DF45E00309C5B /* ee.ria.esteid.json */,
+				4E2EF6CB1DCE9F22000CD2CC /* ee.ria.esteid.firefox.json */,
 				4E532D101A963AEF00D28E40 /* CertificateSelection.h */,
 				4E532D0E1A9639E600D28E40 /* CertificateSelection.mm */,
 				4E532D0C1A96399600D28E40 /* CertificateSelection.xib */,
@@ -261,7 +263,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/";
+			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/ \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts/ \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}\ncp ${SRCROOT}/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/ee.ria.esteid.firefox.json ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts/ee.ria.esteid.json\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/../\{443830f0-1fff-4f9a-aa1e-444bafbc7319\}.xpi ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}";
 		};
 /* End PBXShellScriptBuildPhase section */
 
