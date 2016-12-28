@@ -36,7 +36,7 @@ $(TARGET): *.mm $(OPENSSL)
 	$(PROJ) install DSTROOT=$(TMPROOT)
 
 codesign: $(TARGET)
-	codesign -f --entitlements chrome-token-signing.entitlements -s "$(SIGNER)" "$(TARGET)"
+	codesign -f --entitlements chrome-token-signing.entitlements -s "Developer ID Application: $(SIGNER)" "$(TARGET)"
 
 clean:
 	$(PROJ) clean
@@ -56,7 +56,7 @@ signed: codesign
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
                 --install-location / \
-                --sign "$(SIGNER)" \
+                --sign "Developer ID Installer: $(SIGNER)" \
 		$(PKG)
 
 
