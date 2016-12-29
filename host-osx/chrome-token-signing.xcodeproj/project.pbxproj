@@ -327,7 +327,7 @@
 				OPENSSL = "${SRCROOT}/target";
 				PKCS11_MODULE = "/Library/EstonianIDCard/lib/esteid-pkcs11.so";
 				SDKROOT = macosx;
-				VERSION = 1.0.0;
+				VERSION = 1.0.4;
 			};
 			name = Debug;
 		};
@@ -366,7 +366,7 @@
 				OPENSSL = "${SRCROOT}/target";
 				PKCS11_MODULE = "/Library/EstonianIDCard/lib/esteid-pkcs11.so";
 				SDKROOT = macosx;
-				VERSION = 1.0.0;
+				VERSION = 1.0.4;
 			};
 			name = Release;
 		};
