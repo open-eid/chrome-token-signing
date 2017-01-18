@@ -1,3 +1,14 @@
+Chrome Token Signing [1.0.4](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.4) release notes
+--------------------------------------------
+Changes compared to ver 1.0.3
+
+- Firefox 50 support
+- Build improvements
+
+[Full Changelog](https://github.com/open-eid/chrome-token-signing/compare/v1.0.3...v1.0.4)
+
+
+
 Chrome Token Signing 1.0.3 release notes
 --------------------------------------------
 Changes compared to ver 1.0.2
