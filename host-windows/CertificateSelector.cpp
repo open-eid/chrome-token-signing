@@ -16,24 +16,15 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "CertificateSelectorFactory.h"
 #include "NativeCertificateSelector.h"
 #include "PKCS11CertificateSelector.h"
-#include "AtrFetcher.h"
-#include "PKCS11ModulePath.h"
-#include "Logger.h"
+#include "PKCS11Path.h"
 
-#include <string>
+CertificateSelector* CertificateSelector::createCertificateSelector() {
 
-CertificateSelector * CertificateSelectorFactory::createCertificateSelector(){
-
-	AtrFetcher * atrFetcher = new AtrFetcher();
-	std::vector<std::string> atrs = atrFetcher->fetchAtr();
-
-	for (int i = 0; i < atrs.size(); i++) {
-		if (PKCS11ModulePath::isKnownAtr(atrs[i])) {
-			return new PKCS11CertificateSelector(PKCS11ModulePath::getModulePath());
-		}
-	}
-	return new NativeCertificateSelector();
+	std::string pkcs11 = PKCS11Path::getPkcs11ModulePath();
+	if (!pkcs11.empty())
+		return new PKCS11CertificateSelector(pkcs11);
+	else
+		return new NativeCertificateSelector();
 }

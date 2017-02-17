@@ -11,7 +11,6 @@ SOURCES += \
     ../host-shared/Labels.cpp \
     ../host-shared/Logger.cpp \
     ../host-shared/BinaryUtils.cpp \
-    ../host-shared/AtrFetcher.cpp \
     ../host-shared/PKCS11Path.cpp \
     chrome-host.cpp
 HEADERS += *.h ../host-shared/*.h

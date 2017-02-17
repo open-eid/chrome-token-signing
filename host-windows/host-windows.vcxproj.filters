@@ -51,9 +51,6 @@
     <ClInclude Include="CngCapiSigner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SignerFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PinDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,16 +69,10 @@
     <ClInclude Include="NativeCertificateSelector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CertificateSelectorFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\host-shared\AtrFetcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PKCS11CertificateSelector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PKCS11ModulePath.h">
+    <ClInclude Include="..\host-shared\PKCS11Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -110,9 +101,6 @@
     <ClCompile Include="Pkcs11Signer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SignerFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CngCapiSigner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -125,13 +113,16 @@
     <ClCompile Include="NativeCertificateSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CertificateSelectorFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\host-shared\AtrFetcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PKCS11CertificateSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CertificateSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Signer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\host-shared\PKCS11Path.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

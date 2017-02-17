@@ -16,8 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <string>
+#pragma once
 
-namespace PKCS11Path {
-    std::string getPkcs11ModulePath();
+#include <string>
+#include <vector>
+
+class PKCS11Path {
+private:
+	static std::vector<std::string> atrList();
+public:
+	static std::string getPkcs11ModulePath();
 };
