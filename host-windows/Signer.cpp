@@ -16,19 +16,21 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma once
+#include "Signer.h"
+#include "CngCapiSigner.h"
+#include "Pkcs11Signer.h"
+#include "PKCS11Path.h"
 
-#include <string>
-
-// Very simple implementation to support Gieseke crypto token with pkcs11
-// TODO: change logic if multiple pkcs11 module support becomes necessary on windows
-class PKCS11ModulePath {
-
-public:
-	static std::string getModulePath() {
-		return "C:\\Windows\\System32\\aetpkss1.dll";
+Signer * Signer::createSigner(const jsonxx::Object &jsonRequest){
+	string hashFromStdIn = jsonRequest.get<string>("hash");
+	string cert = jsonRequest.get<string>("cert");
+	
+	std::string pkcs11 = PKCS11Path::getPkcs11ModulePath();
+	if (!pkcs11.empty()) {
+		Pkcs11Signer *signer = new Pkcs11Signer(hashFromStdIn, cert);
+		signer->setPkcs11ModulePath(pkcs11);
+		signer->initialize();
+		return signer;
 	}
-	static bool isKnownAtr(const std::string &atr) {
-		return "3BFD1800008031FE4553434536302D43443134352D46CD" == atr;
-	}
-};
+	return new CngCapiSigner(hashFromStdIn, cert);
+}

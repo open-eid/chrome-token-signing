@@ -63,8 +63,13 @@ extern "C" {
 
 }  // extern "C"
 
-
 class CertificateSelector {
 public:
+	static CertificateSelector* createCertificateSelector();
+
+	virtual ~CertificateSelector() = default;
 	virtual std::string getCert() throw(UserCancelledException, TechnicalException) = 0;
+
+protected:
+	CertificateSelector() = default;
 };

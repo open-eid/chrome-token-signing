@@ -98,13 +98,12 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\host-shared\AtrFetcher.h" />
     <ClInclude Include="..\host-shared\BinaryUtils.h" />
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
     <ClInclude Include="..\host-shared\PKCS11CardManager.h" />
+    <ClInclude Include="..\host-shared\PKCS11Path.h" />
     <ClInclude Include="..\host-shared\VersionInfo.h" />
-    <ClInclude Include="CertificateSelectorFactory.h" />
     <ClInclude Include="CertificateSelector.h" />
     <ClInclude Include="CngCapiSigner.h" />
     <ClInclude Include="ContextMaintainer.h" />
@@ -114,20 +113,18 @@
     <ClInclude Include="NativeCertificateSelector.h" />
     <ClInclude Include="PinDialog.h" />
     <ClInclude Include="PKCS11CertificateSelector.h" />
-    <ClInclude Include="PKCS11ModulePath.h" />
     <ClInclude Include="Pkcs11Signer.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Signer.h" />
-    <ClInclude Include="SignerFactory.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\host-shared\AtrFetcher.cpp" />
     <ClCompile Include="..\host-shared\BinaryUtils.cpp" />
     <ClCompile Include="..\host-shared\json\jsonxx.cc" />
     <ClCompile Include="..\host-shared\Logger.cpp" />
-    <ClCompile Include="CertificateSelectorFactory.cpp" />
+    <ClCompile Include="..\host-shared\PKCS11Path.cpp" />
+    <ClCompile Include="CertificateSelector.cpp" />
     <ClCompile Include="ContextMaintainer.cpp" />
     <ClCompile Include="chrome-token-signing.cpp" />
     <ClCompile Include="DialogManager.cpp" />
@@ -138,7 +135,7 @@
     <ClCompile Include="Pkcs11Signer.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="CngCapiSigner.cpp" />
-    <ClCompile Include="SignerFactory.cpp" />
+    <ClCompile Include="Signer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Makefile" />

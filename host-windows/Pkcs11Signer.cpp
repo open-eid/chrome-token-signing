@@ -37,7 +37,7 @@ unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
 		unique_ptr<PKCS11CardManager> manager;
 		for (auto &token : createCardManager()->getAvailableTokens()) {
 			manager.reset(createCardManager()->getManagerForReader(token));
-			if (manager->getSignCert() == BinaryUtils::hex2bin(*getCertInHex())) {
+			if (manager->getSignCert() == BinaryUtils::hex2bin(getCertInHex())) {
 				break;
 			}
 			manager.reset();
@@ -64,7 +64,7 @@ PKCS11CardManager* Pkcs11Signer::createCardManager() {
 
 string Pkcs11Signer::sign() {
 	_log("Signing using PKCS#11 module");
-	_log("Hash is %s and cert is %s", getHash()->c_str(), getCertInHex()->c_str());
+	_log("Hash is %s and cert is %s", getHash().c_str(), getCertInHex().c_str());
 	validateHashLength();
 	return askPinAndSignHash();
 }
@@ -73,7 +73,7 @@ string Pkcs11Signer::askPinAndSignHash() {
 	try {
 		validatePinNotBlocked();
 		char* signingPin = askPin();
-		vector<unsigned char> binaryHash = BinaryUtils::hex2bin(*getHash());
+		vector<unsigned char> binaryHash = BinaryUtils::hex2bin(getHash());
 		vector<unsigned char> result = cardManager->sign(binaryHash, signingPin);
 		string signature = BinaryUtils::bin2hex(result);
 		_log("Sign result: %s", signature.c_str());
@@ -102,9 +102,9 @@ char* Pkcs11Signer::askPin() {
 }
 
 void Pkcs11Signer::validateHashLength() {
-	int length = getHash()->length();
+	int length = getHash().length();
 	if (length != BINARY_SHA1_LENGTH * 2 && length != BINARY_SHA224_LENGTH * 2 && length != BINARY_SHA256_LENGTH * 2 && length != BINARY_SHA384_LENGTH * 2 && length != BINARY_SHA512_LENGTH * 2) {
-		_log("Hash length %i is invalid", getHash()->length());
+		_log("Hash length %i is invalid", getHash().length());
 		throw InvalidHashException();
 	}
 }
