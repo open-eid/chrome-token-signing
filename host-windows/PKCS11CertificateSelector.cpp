@@ -43,11 +43,11 @@ void PKCS11CertificateSelector::fetchAllSigningCertificates() {
 			try {
 				manager.reset(createCardManager()->getManagerForReader(token));
 			}
-			catch (PKCS11TokenNotRecognized &ex) {
+			catch (const PKCS11TokenNotRecognized &ex) {
 				_log("%s", ex.what());
 				continue;
 			}
-			catch (PKCS11TokenNotPresent &ex) {
+			catch (const PKCS11TokenNotPresent &ex) {
 				_log("%s", ex.what());
 				continue;
 			}

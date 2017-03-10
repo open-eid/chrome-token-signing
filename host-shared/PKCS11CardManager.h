@@ -80,7 +80,7 @@ public:
 
 class PKCS11TokenNotPresent: public std::runtime_error {
 public:
-	PKCS11TokenNotPresent() : std::runtime_error("Token not recognized.") {}
+	PKCS11TokenNotPresent() : std::runtime_error("Token not present.") {}
 };
 
 class PKCS11CardManager {
@@ -219,7 +219,7 @@ private:
             throw std::runtime_error("PKCS11 is not loaded");
         }
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
-		_log("initializing module");
+		_log("initializing module %s", module.c_str());
         C(Initialize, nullptr);
     }
     
