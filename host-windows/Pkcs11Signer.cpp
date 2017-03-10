@@ -36,9 +36,19 @@ unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
 	try {
 		unique_ptr<PKCS11CardManager> manager;
 		for (auto &token : createCardManager()->getAvailableTokens()) {
-			manager.reset(createCardManager()->getManagerForReader(token));
-			if (manager->getSignCert() == BinaryUtils::hex2bin(getCertInHex())) {
-				break;
+			try {
+				manager.reset(createCardManager()->getManagerForReader(token));
+				if (manager->getSignCert() == BinaryUtils::hex2bin(getCertInHex())) {
+					break;
+				}
+			}
+			catch (const PKCS11TokenNotRecognized &ex) {
+				_log("%s", ex.what());
+				continue;
+			}
+			catch (const PKCS11TokenNotPresent &ex) {
+				_log("%s", ex.what());
+				continue;
 			}
 			manager.reset();
 		}
