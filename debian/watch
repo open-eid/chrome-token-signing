@@ -1,0 +1,4 @@
+version=3
+opts="filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/chrome-token-signing-$1\.tar\.gz/,\
+  uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\d*)$/$1~$2/" \
+  https://github.com/open-eid/chrome-token-signing/tags .*/v(\d\S+)\.tar\.gz
