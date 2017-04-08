@@ -1,4 +1,9 @@
 #!/bin/bash
 set -e
+
 mkdir -p /etc/opt/chrome/native-messaging-hosts
-ln -sf /usr/share/chrome-token-signing/ee.ria.esteid.json /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
+
+ln -sf /usr/share/chrome-token-signing/ee.ria.esteid.json \
+	/etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
+
+#DEBHELPER#
