@@ -5,6 +5,8 @@
  * License: LGPL 2.1
  * &copy; Estonian Information System Authority
 
+Info: Firefox version 50 supports Chrome extensions wich is implemented in version 1.0.4.
+
 ## Building
 [![Build Status](https://travis-ci.org/open-eid/chrome-token-signing.svg?branch=master)](https://travis-ci.org/open-eid/chrome-token-signing)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2449/badge.svg)](https://scan.coverity.com/projects/2449)
