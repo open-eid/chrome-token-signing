@@ -22,6 +22,9 @@
 #include "CertificateSelector.h"
 #include "ContextMaintainer.h"
 #include "Signer.h"
+#include "BinaryUtils.h"
+
+#include <memory>
 
 using namespace std;
 
@@ -115,10 +118,32 @@ void RequestHandler::handleCertRequest() {
 
 void RequestHandler::handleSignRequest() {
 	validateSecureOrigin();
-	Signer * signer = Signer::createSigner(jsonRequest);
-	_log("signing hash: %s, with certId: %s", signer->getHash().c_str(), signer->getCertInHex().c_str());
+	string hash = jsonRequest.get<string>("hash");
+	vector<unsigned char> digest = BinaryUtils::hex2bin(hash);
+	switch (digest.size())
+	{
+	case BINARY_SHA1_LENGTH:
+	case BINARY_SHA224_LENGTH:
+	case BINARY_SHA256_LENGTH:
+	case BINARY_SHA384_LENGTH:
+	case BINARY_SHA512_LENGTH:
+		break;
+	default:
+		_log("Hash length %i is invalid", hash.size());
+		throw InvalidHashException();
+	}
+	unique_ptr<Signer> signer(Signer::createSigner(jsonRequest));
+	
+	if (jsonRequest.has<string>("info") &&
+		!jsonRequest.get<string>("info").empty() &&
+		!signer->showInfo(jsonRequest.get<string>("info")))
+		throw UserCancelledException();
+
+	_log("signing hash: %s, with certId: %s", hash.c_str(), signer->getCertInHex().c_str());
 	validateContext(signer->getCertInHex());
-	jsonResponse << "signature" << signer->sign();
+	string signature = BinaryUtils::bin2hex(signer->sign(digest));
+	_log("Sign result: %s", signature.c_str());
+	jsonResponse << "signature" << signature;
 }
 
 void RequestHandler::handleException(const BaseException &e) {

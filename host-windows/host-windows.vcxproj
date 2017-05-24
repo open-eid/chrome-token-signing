@@ -46,30 +46,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\OpenSSL-Win32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared</AdditionalIncludeDirectories>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib;</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
     <ResourceCompile>
       <PreprocessorDefinitions>MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
@@ -77,21 +70,19 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared;C:\OpenSSL-Win32\include</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib;libeay32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>

@@ -22,82 +22,59 @@
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
 #include "DialogManager.h"
-#include <future>
-#include <string>
 
 using namespace std;
 
-void Pkcs11Signer::initialize() {
-	cardManager = getCardManager();
-	pinTriesLeft = cardManager->getPIN2RetryCount();
+Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const string &certInHex)
+	: Signer(certInHex)
+{
+	// Init static card manager
+	pkcs11ModulePath.empty() ? PKCS11CardManager::instance() : PKCS11CardManager::instance(pkcs11ModulePath);
 }
 
 unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
 	try {
-		unique_ptr<PKCS11CardManager> manager;
-		for (auto &token : createCardManager()->getAvailableTokens()) {
+		for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
 			try {
-				manager.reset(createCardManager()->getManagerForReader(token));
-				if (manager->getSignCert() == BinaryUtils::hex2bin(getCertInHex())) {
-					break;
-				}
+				unique_ptr<PKCS11CardManager> manager(PKCS11CardManager::instance()->getManagerForReader(token));
+				if (manager->getSignCert() == BinaryUtils::hex2bin(getCertInHex()))
+					return manager;
 			}
 			catch (const PKCS11TokenNotRecognized &ex) {
 				_log("%s", ex.what());
-				continue;
 			}
 			catch (const PKCS11TokenNotPresent &ex) {
 				_log("%s", ex.what());
-				continue;
 			}
-			manager.reset();
 		}
-
-		if (!manager) {
-			_log("No card manager found for this certificate");
-			throw InvalidArgumentException("No card manager found for this certificate");
-		}
-		return manager;
 	}
-	catch (const std::runtime_error &a) {
+	catch (const runtime_error &a) {
 		_log("Technical error: %s",a.what());
 		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
+	_log("No card manager found for this certificate");
+	throw InvalidArgumentException("No card manager found for this certificate");
 }
 
-PKCS11CardManager* Pkcs11Signer::createCardManager() {
-	if (pkcs11ModulePath.empty()) {
-		return PKCS11CardManager::instance();
-	}
-	return PKCS11CardManager::instance(pkcs11ModulePath);
-}
-
-string Pkcs11Signer::sign() {
+vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 	_log("Signing using PKCS#11 module");
-	_log("Hash is %s and cert is %s", getHash().c_str(), getCertInHex().c_str());
-	validateHashLength();
-	return askPinAndSignHash();
-}
+	unique_ptr<PKCS11CardManager> manager = getCardManager();
+	pinTriesLeft = manager->getPIN2RetryCount();
 
-string Pkcs11Signer::askPinAndSignHash() {
 	try {
 		validatePinNotBlocked();
 		char* signingPin = askPin();
-		vector<unsigned char> binaryHash = BinaryUtils::hex2bin(getHash());
-		vector<unsigned char> result = cardManager->sign(binaryHash, signingPin);
-		string signature = BinaryUtils::bin2hex(result);
-		_log("Sign result: %s", signature.c_str());
-		return signature;
+		return manager->sign(digest, signingPin);
 	}
-	catch (AuthenticationError &e) {
+	catch (const AuthenticationError &) {
 		_log("Wrong pin");
 		handleWrongPinEntry();
-		return askPinAndSignHash();
+		return sign(digest);
 	}
-	catch (AuthenticationBadInput &e) {
+	catch (const AuthenticationBadInput &) {
 		_log("Bad pin input");
 		handleWrongPinEntry();
-		return askPinAndSignHash();
+		return sign(digest);
 	}
 }
 
@@ -109,14 +86,6 @@ char* Pkcs11Signer::askPin() {
 		return askPin();
 	}
 	return signingPin;
-}
-
-void Pkcs11Signer::validateHashLength() {
-	int length = getHash().length();
-	if (length != BINARY_SHA1_LENGTH * 2 && length != BINARY_SHA224_LENGTH * 2 && length != BINARY_SHA256_LENGTH * 2 && length != BINARY_SHA384_LENGTH * 2 && length != BINARY_SHA512_LENGTH * 2) {
-		_log("Hash length %i is invalid", getHash().length());
-		throw InvalidHashException();
-	}
 }
 
 void Pkcs11Signer::validatePinNotBlocked() {
@@ -131,8 +100,4 @@ void Pkcs11Signer::handleWrongPinEntry() {
 	pinTriesLeft--;
 	validatePinNotBlocked();
 	dialog.showWrongPinError(pinTriesLeft);
-}
-
-void Pkcs11Signer::setPkcs11ModulePath(string &path) {
-	pkcs11ModulePath = path;
 }

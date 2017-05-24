@@ -19,7 +19,6 @@
 #pragma once
 
 #include "jsonxx.h"
-#include "Logger.h"
 
 #define BINARY_SHA1_LENGTH 20
 #define BINARY_SHA224_LENGTH 28
@@ -27,25 +26,17 @@
 #define BINARY_SHA384_LENGTH 48
 #define BINARY_SHA512_LENGTH 64
 
-using namespace std;
-
 class Signer {
 public:
 	static Signer * createSigner(const jsonxx::Object &jsonRequest);
 
-	Signer(const string &_hash, const string &_certInHex) : hash(_hash), certInHex(_certInHex) {}
+	Signer(const std::string &_certInHex): certInHex(_certInHex) {}
 	virtual ~Signer() = default;
-	virtual string sign() = 0;
-	
-	string  getHash() const {
-		return hash;
-	}
+	bool showInfo(const std::string &msg);
+	virtual std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) = 0;
 
-	string getCertInHex() const {
-		return certInHex;
-	}
+	std::string getCertInHex() const { return certInHex; }
 
 private:
-	string hash;
-	string certInHex;
+	std::string certInHex;
 };

@@ -17,20 +17,29 @@
 */
 
 #include "Signer.h"
+#include "HostExceptions.h"
 #include "CngCapiSigner.h"
 #include "Pkcs11Signer.h"
 #include "PKCS11Path.h"
 
+using namespace std;
+
 Signer * Signer::createSigner(const jsonxx::Object &jsonRequest){
-	string hashFromStdIn = jsonRequest.get<string>("hash");
 	string cert = jsonRequest.get<string>("cert");
-	
 	std::string pkcs11 = PKCS11Path::getPkcs11ModulePath();
 	if (!pkcs11.empty()) {
-		Pkcs11Signer *signer = new Pkcs11Signer(hashFromStdIn, cert);
-		signer->setPkcs11ModulePath(pkcs11);
-		signer->initialize();
-		return signer;
+		return new Pkcs11Signer(pkcs11, cert);
 	}
-	return new CngCapiSigner(hashFromStdIn, cert);
+	return new CngCapiSigner(cert);
+}
+
+bool Signer::showInfo(const string &msg)
+{
+	int size = MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), msg.size(), nullptr, 0);
+	if (size > 500)
+		throw TechnicalException("Information message to long");
+	wstring wmsg(size, 0);
+	if (MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), msg.size(), &wmsg[0], wmsg.size()) != size)
+		throw TechnicalException("Failed to convert string to wide chars");
+	return MessageBox(nullptr, wmsg.c_str(), L"", MB_OKCANCEL | MB_ICONINFORMATION | MB_SYSTEMMODAL) == IDOK;
 }

@@ -68,6 +68,7 @@
     if (!params[@"hash"] || !params[@"cert"] || [params[@"hash"] length] % 2 == 1) {
         return @{@"result": @"invalid_argument"};
     }
+
     std::vector<unsigned char> hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
     switch (hash.size()) {
         case BINARY_SHA1_LENGTH:
@@ -77,6 +78,22 @@
         case BINARY_SHA512_LENGTH: break;
         default: return @{@"result": @"invalid_argument"};
     }
+
+    if (params[@"info"] && [params[@"info"] length] > 0) {
+        if ([params[@"info"] length] > 500) {
+            return @{@"result": @"technical_error"};
+        }
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"OK"];
+        [alert addButtonWithTitle:@"Cancel"];
+        alert.messageText = params[@"info"];
+        alert.alertStyle = NSInformationalAlertStyle;
+        alert.icon = [[NSImage alloc] initByReferencingFile:@"/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns"];
+        if ([alert runModal] != NSAlertFirstButtonReturn) {
+            return @{@"result": @"user_cancel"};
+        }
+    }
+
     std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
     std::unique_ptr<PKCS11CardManager> selected;
     try {

@@ -19,10 +19,9 @@
 #pragma once
 
 #include "Signer.h"
-#include "Logger.h"
 
 class CngCapiSigner : public Signer {
 public:
-	CngCapiSigner(const string &_hash, const string &_certInHex) : Signer(_hash, _certInHex){}
-	string sign();
+	CngCapiSigner(const std::string &certInHex) : Signer(certInHex){}
+	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 };
