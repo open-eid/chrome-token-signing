@@ -18,13 +18,12 @@
 
 #pragma once
 
-using namespace std;
+#include <string>
 
 class DialogManager
 {
 public:
 	DialogManager(){}
-	~DialogManager(){}
 	char* getPin();
 	void showWrongPinError(int triesLeft);
 	void showPinBlocked();

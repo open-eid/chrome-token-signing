@@ -258,7 +258,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/ \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts/ \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}\ncp ${SRCROOT}/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/ee.ria.esteid.firefox.json ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts/ee.ria.esteid.json\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/../\{443830f0-1fff-4f9a-aa1e-444bafbc7319\}.xpi ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}";
+			shellScript = "mkdir -p ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/ \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts/ \\\n    ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}\ncp ${SRCROOT}/ee.ria.esteid.json ${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts/\ncp ${SRCROOT}/ee.ria.esteid.firefox.json ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts/ee.ria.esteid.json\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json ${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions/\ncp ${SRCROOT}/../{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi ${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -325,7 +325,7 @@
 				OPENSSL = "${SRCROOT}/target";
 				PKCS11_MODULE = "/Library/EstonianIDCard/lib/esteid-pkcs11.so";
 				SDKROOT = macosx;
-				VERSION = 1.0.4;
+				VERSION = 1.0.5;
 			};
 			name = Debug;
 		};
@@ -367,7 +367,7 @@
 				OPENSSL = "${SRCROOT}/target";
 				PKCS11_MODULE = "/Library/EstonianIDCard/lib/esteid-pkcs11.so";
 				SDKROOT = macosx;
-				VERSION = 1.0.4;
+				VERSION = 1.0.5;
 			};
 			name = Release;
 		};

@@ -21,27 +21,18 @@
 #include "Signer.h"
 #include "PKCS11CardManager.h"
 #include "DialogManager.h"
-#include <future>
-#include <string>
 
-using namespace std;
+#include <memory>
 
 class Pkcs11Signer : public Signer {
 public:
-	Pkcs11Signer(const string &_hash, const string &_certInHex) : Signer(_hash, _certInHex){}
-	void initialize();
-	string sign();
-	void setPkcs11ModulePath(string &path);
+	Pkcs11Signer(const std::string &pkcs11ModulePath, const std::string &certInHex);
+	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 private:
-	string pkcs11ModulePath;
 	int pinTriesLeft;
 	DialogManager dialog;
-	unique_ptr<PKCS11CardManager> cardManager;
-	unique_ptr<PKCS11CardManager> getCardManager();
-	PKCS11CardManager* createCardManager();
-	void validateHashLength();
+	std::unique_ptr<PKCS11CardManager> getCardManager();
 	void validatePinNotBlocked();
-	string askPinAndSignHash();
 	char* askPin();
 	void handleWrongPinEntry();
 };

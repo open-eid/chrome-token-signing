@@ -27,14 +27,12 @@
 
 using namespace std;
 
-string CngCapiSigner::sign() {
-
+vector<unsigned char> CngCapiSigner::sign(const vector<unsigned char> &digest)
+{
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	DWORD obtainKeyStrategy = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
-	vector<unsigned char> digest = BinaryUtils::hex2bin(getHash());
 
-	ALG_ID alg = 0;
-	
+	ALG_ID alg = 0;	
 	switch (digest.size())
 	{
 	case BINARY_SHA1_LENGTH:
@@ -72,7 +70,7 @@ string CngCapiSigner::sign() {
 	
 	vector<unsigned char> certInBinary = BinaryUtils::hex2bin(getCertInHex());
 	
-	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, &certInBinary[0], certInBinary.size());
+	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, certInBinary.data(), certInBinary.size());
 	PCCERT_CONTEXT certInStore = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_EXISTING, certFromBinary, 0);
 	CertFreeCertificateContext(certFromBinary);
 
@@ -95,13 +93,15 @@ string CngCapiSigner::sign() {
 	{
 	case CERT_NCRYPT_KEY_SPEC:
 	{
-		err = NCryptSignHash(key, &padInfo, PBYTE(&digest[0]), DWORD(digest.size()),
-			&signature[0], DWORD(signature.size()), (DWORD*)&size, BCRYPT_PAD_PKCS1);
+		err = NCryptSignHash(key, &padInfo, PBYTE(digest.data()), DWORD(digest.size()),
+			signature.data(), DWORD(signature.size()), (DWORD*)&size, BCRYPT_PAD_PKCS1);
 		if (freeKeyHandle) {
 			NCryptFreeObject(key);
 		}
+		signature.resize(size);
 		break;
 	}
+	case AT_KEYEXCHANGE:
 	case AT_SIGNATURE:
 	{
 		HCRYPTHASH hash = 0;
@@ -120,7 +120,7 @@ string CngCapiSigner::sign() {
 			throw TechnicalException("SetHashParam failed");
 		}
 
-		INT retCode = CryptSignHashW(hash, AT_SIGNATURE, 0, 0, LPBYTE(signature.data()), &size);
+		INT retCode = CryptSignHashW(hash, spec, 0, 0, LPBYTE(signature.data()), &size);
 		err = retCode ? ERROR_SUCCESS : GetLastError();
 		_log("CryptSignHash() return code: %u (%s) %x", retCode, retCode ? "SUCCESS" : "FAILURE", err);
 		if (freeKeyHandle) {
@@ -138,8 +138,9 @@ string CngCapiSigner::sign() {
 	switch (err)
 	{
 	case ERROR_SUCCESS:
-		break;
-	case SCARD_W_CANCELLED_BY_USER: case ERROR_CANCELLED:
+		return signature;
+	case SCARD_W_CANCELLED_BY_USER:
+	case ERROR_CANCELLED:
 		throw UserCancelledException("Signing was cancelled");
 	case SCARD_W_CHV_BLOCKED:
 		throw PinBlockedException();
@@ -148,7 +149,5 @@ string CngCapiSigner::sign() {
 	default:
 		throw TechnicalException("Signing failed");
 	}
-	signature.resize(size);
-	return BinaryUtils::bin2hex(signature);
 }
 

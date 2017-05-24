@@ -113,7 +113,7 @@ function TokenSigning() { \n\
         return messagePromise(msg); \n\
     }; \n\
     this.sign = function(cert, hash, options) { \n\
-        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang}; \n\
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, info: options.info}; \n\
         console.log("sign()"); \n\
         return messagePromise(msg); \n\
     }; \n\
