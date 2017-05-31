@@ -29,32 +29,49 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSslCertificate>
+#include <QSslCertificateExtension>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
+#include <openssl/x509v3.h>
+
 class CertificateSelection: public QDialog {
 public:
-    static QVariantMap getCert()
+    static QVariantMap getCert(bool forSigning)
     {
         try {
             QList<QStringList> certs;
             PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
-            for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
-                PKCS11CardManager *manager = PKCS11CardManager::instance(p11.path)->getManagerForReader(token);
-                if (!manager -> hasSignCert()) {
-                   delete manager;
-                   continue;
-                }
-                QByteArray data((const char*)&manager->getSignCert()[0], manager->getSignCert().size());
+            for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+                QByteArray data = QByteArray::fromRawData((const char*)token.cert.data(), token.cert.size());
                 QSslCertificate cert(data, QSsl::Der);
+
+                bool isCA = false;
+                for(const QSslCertificateExtension &ex: cert.extensions())
+                {
+                    if(ex.name() == "basicConstraints")
+                        isCA = ex.value().toMap().value("ca").toBool();
+                }
+
+                if (isCA)
+                   continue;
+
+                ASN1_BIT_STRING *keyusage = (ASN1_BIT_STRING*)X509_get_ext_d2i((X509*)cert.handle(), NID_key_usage, 0, 0);
+                const int keyUsageNonRepudiation = 1;
+                const bool isNonRepudiation = ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation);
+                ASN1_BIT_STRING_free(keyusage);
+                if (!((forSigning && isNonRepudiation) || (!forSigning && !isNonRepudiation))) {
+                    _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
+                    continue;
+                }
+
                 if (QDateTime::currentDateTime() < cert.expiryDate() && !isDuplicate(certs, data.toHex())) {
                     certs << (QStringList()
-                        << manager->getCN().c_str()
-                        << manager->getType().c_str()
+                        << cert.subjectInfo(QSslCertificate::CommonName).join("")
+                        << cert.subjectInfo(QSslCertificate::Organization).join("")
                         << cert.expiryDate().toString("dd.MM.yyyy")
                         << data.toHex());
                 }
-                delete manager;
             }
             if (certs.empty())
                 return {{"result", "no_certificates"}};

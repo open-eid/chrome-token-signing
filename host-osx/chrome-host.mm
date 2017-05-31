@@ -112,7 +112,7 @@ int main(int argc, const char * argv[]) {
                     result = @{@"result": @"not_allowed"};
                 }
                 else if([dict[@"type"] isEqualToString:@"CERT"]) {
-                    result = [CertificateSelection show];
+                    result = [CertificateSelection show:![@"AUTH" isEqualToString:dict[@"filter"]]];
                     cert = (NSString*)result[@"cert"];
                 }
                 else if ([dict[@"type"] isEqualToString:@"SIGN"]) {

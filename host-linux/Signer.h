@@ -30,11 +30,14 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QRegExpValidator>
+#include <QSslCertificate>
 #include <QTimeLine>
 #include <QVBoxLayout>
 
 #include <future>
 #include <string>
+
+#include <openssl/x509v3.h>
 
 class Signer: public QDialog {
     enum {
@@ -55,26 +58,39 @@ public:
             return {{"result", "invalid_argument"}};
         }
 
-        std::unique_ptr<PKCS11CardManager> manager;
+        std::vector<unsigned char> data = fromHex(cert);
+        PKCS11CardManager::Token selected;
         PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
         try {
-            for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
-                manager.reset(PKCS11CardManager::instance(p11.path)->getManagerForReader(token));
-                if (manager->getSignCert() == fromHex(cert)) {
+            for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+                if (token.cert == data) {
+                    selected = token;
                     break;
                 }
-                manager.reset();
             }
-
-            if(!manager)
-                return {{"result", "invalid_argument"}};
         } catch (const std::runtime_error &a) {
             return {{"result", "technical_error"}};
         }
 
+        if(selected.cert.empty())
+            return {{"result", "invalid_argument"}};
+
+        QSslCertificate c(QByteArray::fromRawData((const char*)data.data(), data.size()), QSsl::Der);
+        ASN1_BIT_STRING *keyusage = (ASN1_BIT_STRING*)X509_get_ext_d2i((X509*)c.handle(), NID_key_usage, 0, 0);
+        const int keyUsageNonRepudiation = 1;
+        QString label;
+        if (ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation)) {
+            label = Labels::l10n.get(selected.pinpad ? "sign PIN pinpad" : "sign PIN").c_str();
+            label.replace("PIN", p11.signPINLabel.c_str());
+        }
+        else {
+            label = Labels::l10n.get(selected.pinpad ? "auth PIN pinpad" : "auth PIN").c_str();
+            label.replace("PIN", p11.authPINLabel.c_str());
+        }
+
         bool isInitialCheck = true;
-        for (int retriesLeft = manager->getPIN2RetryCount(); retriesLeft > 0; ) {
-            Signer dialog(p11.signPINLabel.c_str(), manager->isPinpad());
+        for (int retriesLeft = selected.retry; retriesLeft > 0; ) {
+            Signer dialog(label, selected.minPinLen, selected.pinpad);
             if (retriesLeft < 3) {
                 dialog.errorLabel->show();
                 dialog.errorLabel->setText(QString("<font color='red'><b>%1%2 %3</b></font>")
@@ -83,14 +99,14 @@ public:
                      .arg(retriesLeft));
             }
             isInitialCheck = false;
-            dialog.nameLabel->setText(manager->getCN().c_str());
+            dialog.nameLabel->setText(c.subjectInfo(QSslCertificate::CommonName).join(""));
             std::future< std::vector<unsigned char> > signature;
 
-            if (manager->isPinpad()) {
+            if (selected.pinpad) {
                 signature = std::async(std::launch::async, [&](){
                     std::vector<unsigned char> result;
                     try {
-                        result = manager->sign(fromHex(hash), nullptr);
+                        result = PKCS11CardManager::instance(p11.path)->sign(selected, fromHex(hash), nullptr);
                         dialog.accept();
                     } catch (const AuthenticationError &) {
                         --retriesLeft;
@@ -115,15 +131,15 @@ public:
             case TechnicalError:
                 return {{"result", "technical_error"}};
             default:
-                if (manager->isPinpad()) {
+                if (selected.pinpad) {
                     return {{"signature", toHex(signature.get())}};
                 }
             }
 
             try {
-                if (!manager->isPinpad()) {
-                    std::vector<unsigned char> result = manager->sign(fromHex(hash),
-                        dialog.pin->text().toUtf8().constData());
+                if (!selected.pinpad) {
+                    std::vector<unsigned char> result = PKCS11CardManager::instance(p11.path)->sign(
+                        selected, fromHex(hash), dialog.pin->text().toUtf8().constData());
                     return {{"signature", toHex(result)}};
                 }
             } catch (const AuthenticationBadInput &) {
@@ -141,16 +157,16 @@ public:
 private:
     static QByteArray toHex(const std::vector<unsigned char> &data)
     {
-        return QByteArray((const char*)data.data(), data.size()).toHex();
+        return QByteArray::fromRawData((const char*)data.data(), data.size()).toHex();
     }
 
     static std::vector<unsigned char> fromHex(const QString &data)
     {
         QByteArray bin = QByteArray::fromHex(data.toLatin1());
-        return std::vector<unsigned char>(bin.constData(), bin.constData() + bin.size());
+        return std::vector<unsigned char>(bin.cbegin(), bin.cend());
     }
 
-    Signer(const QString &label, bool isPinpad)
+    Signer(const QString &label, unsigned long minPinLen, bool isPinpad)
         : nameLabel(new QLabel(this))
         , pinLabel(new QLabel(this))
         , errorLabel(new QLabel(this))
@@ -162,9 +178,7 @@ private:
 
         setMinimumWidth(400);
         setWindowFlags(Qt::WindowStaysOnTopHint);
-        setWindowTitle(Labels::l10n.get("signing").c_str());
-        pinLabel->setText(Labels::l10n.get(isPinpad ? "sign PIN pinpad" : "sign PIN").c_str());
-        pinLabel->setText(pinLabel->text().replace("PIN", label));
+        pinLabel->setText(label);
         errorLabel->setTextFormat(Qt::RichText);
         errorLabel->hide();
 
@@ -193,10 +207,10 @@ private:
             pin = new QLineEdit(this);
             pin->setEchoMode(QLineEdit::Password);
             pin->setFocus();
-            pin->setValidator(new QRegExpValidator(QRegExp("\\d{5,12}"), pin));
+            pin->setValidator(new QRegExpValidator(QRegExp(QString("\\d{%1,12}").arg(minPinLen)), pin));
             pin->setMaxLength(12);
-            connect(pin, &QLineEdit::textEdited, [&](const QString &text){
-                ok->setEnabled(text.size() >= 5);
+            connect(pin, &QLineEdit::textEdited, [=](const QString &text){
+                ok->setEnabled(text.size() >= minPinLen);
             });
 
             layout->addWidget(pin);

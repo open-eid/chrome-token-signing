@@ -108,7 +108,7 @@ function TokenSigning() { \n\
         }); \n\
     } \n\
     this.getCertificate = function(options) { \n\
-        var msg = {type: "CERT", lang: options.lang}; \n\
+        var msg = {type: "CERT", lang: options.lang, filter: options.filter}; \n\
         console.log("getCertificate()"); \n\
         return messagePromise(msg); \n\
     }; \n\

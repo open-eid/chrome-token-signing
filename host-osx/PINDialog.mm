@@ -36,6 +36,7 @@
     IBOutlet NSSecureTextField *pinField;
     IBOutlet NSTextField *pinFieldLabel;
     IBOutlet NSProgressIndicator *progressBar;
+    unsigned long minPinLen;
 }
 
 @end
@@ -57,8 +58,7 @@
             okButton.title = _L("sign");
             cancelButton.title = _L("cancel");
         }
-        pinFieldLabel.stringValue = [_L(pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"PIN" withString:label];
-        window.title =_L("signing");
+        pinFieldLabel.stringValue = label;
     }
     return self;
 }
@@ -95,40 +95,63 @@
     }
 
     PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
-    std::unique_ptr<PKCS11CardManager> selected;
+    PKCS11CardManager::Token selected;
     try {
-        for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
-            selected.reset(PKCS11CardManager::instance(p11.path)->getManagerForReader(token));
-            if (BinaryUtils::hex2bin(cert.UTF8String) == selected->getSignCert()) {
+        for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+            if (BinaryUtils::hex2bin(cert.UTF8String) == token.cert) {
+                selected = token;
                 break;
             }
-            selected.reset();
         }
     }
     catch(const std::runtime_error &) {
         return @{@"result": @"technical_error"};
     }
 
-    if (!selected) {
+    if (selected.cert.empty()) {
         return @{@"result": @"invalid_argument"};
     }
 
     bool isInitialCheck = true;
-    for (int retriesLeft = selected->getPIN2RetryCount(); retriesLeft > 0; ) {
-        PINPanel *dialog = [[PINPanel alloc] init:[NSString stringWithUTF8String:p11.signPINLabel.c_str()] pinpad:selected->isPinpad()];
+    for (int retriesLeft = selected.retry; retriesLeft > 0; ) {
+
+        CFDataRef data = CFDataCreateWithBytesNoCopy(nil, selected.cert.data(), selected.cert.size(), kCFAllocatorNull);
+        SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
+        CFRelease(data);
+        NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, nil, nil));
+        CFRelease(cert);
+
+        NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
+        NSString *cn = [NSString string];
+        for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
+            if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDCommonName]) {
+                cn = item[(__bridge NSString*)kSecPropertyKeyValue];
+            }
+        }
+
+        NSString *label = [NSString string];
+        if (ku.unsignedIntValue & kSecKeyUsageNonRepudiation) {
+            label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"PIN" withString:@(p11.signPINLabel.c_str())];
+        }
+        else {
+            label = [_L(selected.pinpad ? "auth PIN pinpad" : "auth PIN") stringByReplacingOccurrencesOfString:@"PIN" withString:@(p11.authPINLabel.c_str())];
+        }
+        PINPanel *dialog = [[PINPanel alloc] init:label pinpad:selected.pinpad];
         if (!dialog) {
             return @{@"result": @"technical_error"};
         }
+        dialog->minPinLen = selected.minPinLen;
+        dialog->nameLabel.stringValue = cn;
 
         NSDictionary *pinpadresult;
         std::future<void> future;
         NSTimer *timer;
-        if (selected->isPinpad()) {
+        if (selected.pinpad) {
             timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
             [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
             future = std::async(std::launch::async, [&]() {
                 try {
-                    std::vector<unsigned char> signature = selected->sign(hash, nullptr);
+                    std::vector<unsigned char> signature = PKCS11CardManager::instance(p11.path)->sign(selected, hash, nullptr);
                     pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
                     [NSApp stopModal];
                 }
@@ -149,7 +172,6 @@
             });
         }
 
-        dialog->nameLabel.stringValue = @(selected->getCN().c_str());
         if (retriesLeft < 3) {
             dialog->messageField.stringValue = [NSString stringWithFormat:@"%@%@ %u",
                                                 (isInitialCheck ? @"" : _L("incorrect PIN2")),
@@ -171,7 +193,7 @@
             return @{@"result": @"user_cancel"};
         }
 
-        if (selected->isPinpad()) {
+        if (selected.pinpad) {
             future.wait();
             if (pinpadresult) {
                 return pinpadresult;
@@ -179,7 +201,7 @@
         }
         else {
             try {
-                std::vector<unsigned char> signature = selected->sign(hash, dialog->pinField.stringValue.UTF8String);
+                std::vector<unsigned char> signature = PKCS11CardManager::instance(p11.path)->sign(selected, hash, dialog->pinField.stringValue.UTF8String);
                 return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
             }
             catch(const AuthenticationBadInput &) {
@@ -211,7 +233,7 @@
     pinField.stringValue = [[pinField.stringValue componentsSeparatedByCharactersInSet:
                              NSCharacterSet.decimalDigitCharacterSet.invertedSet]
                             componentsJoinedByString:@""];
-    okButton.enabled = pinField.stringValue.length >= 5;
+    okButton.enabled = pinField.stringValue.length >= minPinLen;
 }
 
 - (void)handleTimerTick:(NSTimer*)timer

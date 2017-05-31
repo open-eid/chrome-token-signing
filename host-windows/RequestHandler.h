@@ -32,7 +32,7 @@ private:
 	jsonxx::Object jsonResponse;
 
 	void handleVersionRequest();
-	void handleCertRequest();
+	void handleCertRequest(bool forSigning);
 	void handleSignRequest();
 	void handleException(const BaseException &e);
 	jsonxx::Object notAllowed();

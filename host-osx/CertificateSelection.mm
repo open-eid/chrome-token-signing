@@ -26,6 +26,7 @@
 
 #import <SecurityInterface/SFCertificatePanel.h>
 #import <SecurityInterface/SFCertificateView.h>
+#include <Security/Security.h>
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
@@ -50,35 +51,57 @@
     return false;
 }
 
-- (instancetype)init
+- (instancetype)init:(bool)forSigning
 {
     if (self = [super init]) {
         certificates = [[NSMutableArray alloc] init];
         try {
             NSDateFormatter *df = [[NSDateFormatter alloc] init];
             df.dateFormat = @"dd.MM.YYYY";
-            NSDateFormatter *asn1 = [[NSDateFormatter alloc] init];
-            asn1.dateFormat = @"yyyyMMddHHmmss'Z'";
-            asn1.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
             PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
-            for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
-                PKCS11CardManager *local = PKCS11CardManager::instance(p11.path)->getManagerForReader(token);
-                if (!local -> hasSignCert()) {
-                    _log("no signing certificate, moving on to next token...");
-                    delete local;
+            for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+                CFDataRef data = CFDataCreateWithBytesNoCopy(nil, token.cert.data(), token.cert.size(), kCFAllocatorNull);
+                SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
+                CFRelease(data);
+                NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, nil, nil));
+                CFRelease(cert);
+
+                NSDictionary *bc = dict[(__bridge NSString*)kSecOIDBasicConstraints][(__bridge NSString*)kSecPropertyKeyValue][1];
+                if ([@"YES" isEqualToString:bc[(__bridge NSString*)kSecPropertyKeyValue]]) {
+                    _log("Cert is CA");
                     continue;
                 }
-                NSDate *date = [asn1 dateFromString:@(local->getValidTo().c_str())];
-                if ([date compare:NSDate.date] > 0 && ![self isDuplicate:@(BinaryUtils::bin2hex(local->getSignCert()).c_str())]) {
-                    _log("token has valid signing certificate, adding it to selection");
-                    [certificates addObject: @{
-                        @"cert": @(BinaryUtils::bin2hex(local->getSignCert()).c_str()),
-                        @"validTo": [df stringFromDate:date],
-                        @"CN": @(local->getCN().c_str()),
-                        @"type": @(local->getType().c_str()),
-                    }];
+
+                NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
+                const bool isNonRepudiation = ku.unsignedIntValue & kSecKeyUsageNonRepudiation;
+                if (!((forSigning && isNonRepudiation) || (!forSigning && !isNonRepudiation))) {
+                    _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
+                    continue;
                 }
-                delete local;
+
+                NSDateComponents *components = [[NSDateComponents alloc] init];
+                components.year = 2001;
+                NSNumber *na = dict[(__bridge NSString*)kSecOIDX509V1ValidityNotAfter][(__bridge NSString*)kSecPropertyKeyValue];
+                NSDate *date = [NSDate dateWithTimeInterval:na.intValue sinceDate:[NSCalendar.currentCalendar dateFromComponents:components]];
+                NSString *hex = @(BinaryUtils::bin2hex(token.cert).c_str());
+                if ([date compare:NSDate.date] <= 0 || [self isDuplicate:hex]) {
+                    _log("token has expired or is duplicate");
+                    continue;
+                }
+
+                _log("token has valid signing certificate, adding it to selection");
+                NSString *cn = [NSString string];
+                NSString *type = [NSString string];
+                for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
+                    if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDCommonName]) {
+                        cn = item[(__bridge NSString*)kSecPropertyKeyValue];
+                    }
+                    if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDOrganizationName]) {
+                        type = item[(__bridge NSString*)kSecPropertyKeyValue];
+                    }
+                }
+
+                [certificates addObject: @{@"cert": hex, @"validTo": [df stringFromDate:date], @"CN": cn, @"type": type}];
             }
         } catch (const std::runtime_error &e) {
             self = nil;
@@ -106,9 +129,9 @@
     return self;
 }
 
-+ (NSDictionary *)show
++ (NSDictionary *)show:(bool)forSigning
 {
-    CertificateSelection *dialog = [[CertificateSelection alloc] init];
+    CertificateSelection *dialog = [[CertificateSelection alloc] init:forSigning];
     if (!dialog) {
         return @{@"result": @"technical_error"};
     }

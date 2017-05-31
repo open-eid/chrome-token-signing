@@ -18,86 +18,112 @@
 
 #include "Pkcs11Signer.h"
 #include "PKCS11CardManager.h"
+#include "Labels.h"
 #include "Logger.h"
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
-#include "DialogManager.h"
+#include "PinDialog.h"
+
+#include <WinCrypt.h>
 
 using namespace std;
 
 Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const string &certInHex)
 	: Signer(certInHex)
 {
+	HMODULE hModule = ::GetModuleHandle(NULL);
+	if (hModule == NULL) {
+		_log("MFC initialization failed. Module handle is null");
+		throw TechnicalException("MFC initialization failed. Module handle is null");
+	}
+	// initialize MFC
+	if (!AfxWinInit(hModule, NULL, ::GetCommandLine(), 0)) {
+		_log("MFC initialization failed");
+		throw TechnicalException("MFC initialization failed");
+	}
 	// Init static card manager
 	pkcs11ModulePath.empty() ? PKCS11CardManager::instance() : PKCS11CardManager::instance(pkcs11ModulePath);
 }
 
-unique_ptr<PKCS11CardManager> Pkcs11Signer::getCardManager() {
+vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
+	_log("Signing using PKCS#11 module");
+
+	PKCS11CardManager::Token selected;
 	try {
-		for (auto &token : PKCS11CardManager::instance()->getAvailableTokens()) {
-			try {
-				unique_ptr<PKCS11CardManager> manager(PKCS11CardManager::instance()->getManagerForReader(token));
-				if (manager->getSignCert() == BinaryUtils::hex2bin(getCertInHex()))
-					return manager;
-			}
-			catch (const PKCS11TokenNotRecognized &ex) {
-				_log("%s", ex.what());
-			}
-			catch (const PKCS11TokenNotPresent &ex) {
-				_log("%s", ex.what());
+		for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance()->tokens()) {
+			if (token.cert == BinaryUtils::hex2bin(getCertInHex())) {
+				selected = token;
+				break;
 			}
 		}
 	}
 	catch (const runtime_error &a) {
-		_log("Technical error: %s",a.what());
+		_log("Technical error: %s", a.what());
 		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
-	_log("No card manager found for this certificate");
-	throw InvalidArgumentException("No card manager found for this certificate");
-}
 
-vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
-	_log("Signing using PKCS#11 module");
-	unique_ptr<PKCS11CardManager> manager = getCardManager();
-	pinTriesLeft = manager->getPIN2RetryCount();
+	if (selected.cert.empty()) {
+		_log("No card manager found for this certificate");
+		throw InvalidArgumentException("No card manager found for this certificate");
+	}
+
+	pinTriesLeft = selected.retry;
 
 	try {
 		validatePinNotBlocked();
-		char* signingPin = askPin();
-		return manager->sign(digest, signingPin);
+		return PKCS11CardManager::instance()->sign(selected, digest, askPin());
 	}
 	catch (const AuthenticationError &) {
 		_log("Wrong pin");
+		pinTriesLeft--;
 		handleWrongPinEntry();
 		return sign(digest);
 	}
 	catch (const AuthenticationBadInput &) {
 		_log("Bad pin input");
+		pinTriesLeft--;
 		handleWrongPinEntry();
 		return sign(digest);
 	}
 }
 
 char* Pkcs11Signer::askPin() {
-	char* signingPin = dialog.getPin();
-	if (strlen(signingPin) < 4) {
+	_log("Showing pin entry dialog");
+	wstring label = Labels::l10n.get("sign PIN");
+	vector<unsigned char> data = BinaryUtils::hex2bin(getCertInHex());
+	PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, data.data(), data.size());
+	if (cert) {
+		BYTE keyUsage = 0;
+		CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
+		if (!(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE))
+			label = Labels::l10n.get("auth PIN");
+		CertFreeCertificateContext(cert);
+	}
+
+	PinDialog dialog(label);
+	if (dialog.DoModal() != IDOK) {
+		_log("User cancelled");
+		throw UserCancelledException();
+	}
+	if (strlen(dialog.getPin()) < 4) {
 		_log("Pin is too short");
-		dialog.showWrongPinError(pinTriesLeft);
+		handleWrongPinEntry();
 		return askPin();
 	}
-	return signingPin;
+	return dialog.getPin();
 }
 
 void Pkcs11Signer::validatePinNotBlocked() {
 	if (pinTriesLeft <= 0) {
 		_log("PIN2 retry count is zero");
-		dialog.showPinBlocked();
+		MessageBox(NULL, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
 		throw PinBlockedException();
 	}
 }
 
 void Pkcs11Signer::handleWrongPinEntry() {
-	pinTriesLeft--;
 	validatePinNotBlocked();
-	dialog.showWrongPinError(pinTriesLeft);
+	_log("Showing incorrect pin error dialog, %i tries left", pinTriesLeft);
+	wstring msg = Labels::l10n.get("tries left") + L" " + to_wstring(pinTriesLeft);
+	MessageBox(NULL, msg.c_str(), Labels::l10n.get("incorrect PIN2").c_str(), MB_OK | MB_ICONERROR);
 }

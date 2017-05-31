@@ -19,74 +19,55 @@
 #include "PKCS11CertificateSelector.h"
 #include "PKCS11CardManager.h"
 #include "Logger.h"
-#include "BinaryUtils.h"
 #include "HostExceptions.h"
 
 #include <memory>
 
 using namespace std;
 
-void PKCS11CertificateSelector::initialize() {
-	if (hMemoryStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, NULL)) {
+PKCS11CertificateSelector::PKCS11CertificateSelector(const string &_driverPath)
+	: CertificateSelector()
+	, driverPath(_driverPath)
+{}
+
+vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {	
+	HCERTSTORE  hMemoryStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, NULL);
+	if (hMemoryStore) {
 		_log("Opened a memory store.");
-	} else {	
+	}
+	else {
 		_log("Error opening a memory store.");
 		throw TechnicalException("Error opening a memory store.");
 	}
-	fetchAllSigningCertificates();
-}
 
-void PKCS11CertificateSelector::fetchAllSigningCertificates() {
 	try {
-		unique_ptr<PKCS11CardManager> manager;
-		bool certificateAddedToMemoryStore = false;
-		vector<CK_SLOT_ID> foundTokens = createCardManager()->getAvailableTokens();
-		for (auto &token : foundTokens) {
-			try {
-				manager.reset(createCardManager()->getManagerForReader(token));
-			}
-			catch (const PKCS11TokenNotRecognized &ex) {
-				_log("%s", ex.what());
+		for (const auto &token : PKCS11CardManager::instance(driverPath)->tokens()) {
+			PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, token.cert.data(), token.cert.size());
+			if (!cert)
+				continue;
+			_log("new certificate handle created.");
+
+			BYTE keyUsage = 0;
+			CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
+			if (CertVerifyTimeValidity(NULL, cert->pCertInfo) != 0 ||
+				(forSigning && !(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE)) ||
+				(!forSigning && keyUsage & CERT_NON_REPUDIATION_KEY_USAGE)) {
+				CertFreeCertificateContext(cert);
 				continue;
 			}
-			catch (const PKCS11TokenNotPresent &ex) {
-				_log("%s", ex.what());
-				continue;
+			if (CertAddCertificateContextToStore(hMemoryStore, cert, CERT_STORE_ADD_USE_EXISTING, NULL)) {
+				_log("Certificate added to the memory store.");
 			}
-			if (manager -> hasSignCert()) {
-				addCertificateToMemoryStore(manager->getSignCert());
-				certificateAddedToMemoryStore = true;
-			}			
-		}
-		if (foundTokens.size() > 0 && !certificateAddedToMemoryStore) {
-			throw PKCS11TokenNotRecognized();
+			else {
+				_log("Could not add the certificate to the memory store.");
+			}
 		}
 	}
 	catch (const std::runtime_error &a) {
 		_log("Technical error: %s", a.what());
+		CertCloseStore(hMemoryStore, 0);
 		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
-}
 
-PKCS11CardManager* PKCS11CertificateSelector::createCardManager() {
-	if (driverPath.empty()) {
-		return PKCS11CardManager::instance();
-	}
-	return PKCS11CardManager::instance(driverPath);
-}
-
-void PKCS11CertificateSelector::addCertificateToMemoryStore(std::vector<unsigned char> signCert) {
-	PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, signCert.data(), signCert.size());
-	if (CertAddCertificateContextToStore(hMemoryStore, cert, CERT_STORE_ADD_USE_EXISTING, NULL)) {
-		_log("Certificate added to the memory store.");
-	}
-	else {
-		_log("Could not add the certificate to the memory store.");
-		throw TechnicalException("Could not add certificate to the memory store.");
-	}
-}
-
-vector<unsigned char> PKCS11CertificateSelector::getCert()
-{
 	return showDialog(hMemoryStore, nullptr);
 }

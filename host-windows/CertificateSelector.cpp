@@ -71,7 +71,7 @@ CertificateSelector* CertificateSelector::createCertificateSelector()
 		return new NativeCertificateSelector();
 }
 
-std::vector<unsigned char> CertificateSelector::showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc)
+std::vector<unsigned char> CertificateSelector::showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc) const
 {
 	std::wstring title = Labels::l10n.get("select certificate");
 	std::wstring text = Labels::l10n.get("cert info");

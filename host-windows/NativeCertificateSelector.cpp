@@ -17,51 +17,49 @@
 */
 
 #include "NativeCertificateSelector.h"
-#include "BinaryUtils.h"
 #include "HostExceptions.h"
 
 using namespace std;
 
-
-BOOL isCardInReader(PCCERT_CONTEXT certContext) {
+static bool isValid(PCCERT_CONTEXT certContext, bool forSigning) {
 	DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG;
 	NCRYPT_KEY_HANDLE key = 0;
 	DWORD spec = 0;
-	BOOL ncrypt = FALSE;
-	CryptAcquireCertificatePrivateKey(certContext, flags, 0, &key, &spec, &ncrypt);
+	BOOL freeKey = FALSE;
+	CryptAcquireCertificatePrivateKey(certContext, flags, 0, &key, &spec, &freeKey);
 	if (!key) {
 		return FALSE;
 	}
-	if (ncrypt) {
-		NCryptFreeObject(key);
-	}
-	return TRUE;
-}
-
-BOOL WINAPI isValidForSigning(PCCERT_CONTEXT certContext) {
-	BYTE keyUsage;
-	CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certContext->pCertInfo, &keyUsage, 1);
-	if (!(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE)) {
-		return FALSE;
-	}
-	if (CertVerifyTimeValidity(NULL, certContext->pCertInfo) != 0) {
-		return FALSE;
-	}
-
-	return isCardInReader(certContext);
-}
-
-vector<unsigned char> NativeCertificateSelector::getCert() {
-	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
-	if (!store)
+	switch (spec)
 	{
+	case CERT_NCRYPT_KEY_SPEC:
+		if (freeKey)
+			NCryptFreeObject(key);
+		break;
+	case AT_KEYEXCHANGE:
+	case AT_SIGNATURE:
+	default:
+		if (freeKey)
+			CryptReleaseContext(key, 0);
+		break;
+	}
+	BYTE keyUsage = 0;
+	CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certContext->pCertInfo, &keyUsage, 1);
+	return CertVerifyTimeValidity(NULL, certContext->pCertInfo) == 0 && (
+		(forSigning && keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) ||
+		(!forSigning && keyUsage & CERT_DIGITAL_SIGNATURE_KEY_USAGE));
+}
+
+vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const {
+	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
+	if (!store) {
 		throw TechnicalException("Failed to open Cert Store");
 	}
 
 	PCCERT_CONTEXT pCertContextForEnumeration = nullptr;
 	int certificatesCount = 0;
 	while (pCertContextForEnumeration = CertEnumCertificatesInStore(store, pCertContextForEnumeration)) {
-		if (isValidForSigning(pCertContextForEnumeration)) {
+		if (isValid(pCertContextForEnumeration, forSigning)) {
 			certificatesCount++;
 		}
 	}
@@ -73,7 +71,14 @@ vector<unsigned char> NativeCertificateSelector::getCert() {
 		throw NoCertificatesException();
 	}
 
-	return showDialog(store, [](PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) -> BOOL {
-		return isValidForSigning(certContext);
-	});
+	if (forSigning) {
+		return showDialog(store, [](PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) -> BOOL {
+			return isValid(certContext, true);
+		});
+	}
+	else {
+		return showDialog(store, [](PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) -> BOOL {
+			return isValid(certContext, false);
+		});
+	}
 }
