@@ -21,13 +21,14 @@
 #include "resource.h"
 
 #include <afxcmn.h>
+#include <string>
 
 class PinDialog : public CDialog
 {
 	DECLARE_DYNAMIC(PinDialog)
 
 public:
-	PinDialog(CWnd* pParent = NULL) : CDialog(PinDialog::IDD, pParent) {}
+	PinDialog(const std::wstring &_label, CWnd* pParent = NULL) : CDialog(PinDialog::IDD, pParent), label(_label) {}
 	char* getPin();
 	afx_msg void OnBnClickedOk();
 
@@ -40,4 +41,5 @@ protected:
 
 private:
 	char* pin;
+	std::wstring label;
 };

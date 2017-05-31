@@ -54,9 +54,6 @@
     <ClInclude Include="PinDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DialogManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -108,9 +105,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PinDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DialogManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NativeCertificateSelector.cpp">

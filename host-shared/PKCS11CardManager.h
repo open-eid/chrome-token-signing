@@ -18,8 +18,6 @@
 
 #pragma once
 
-//TODO: use polymorphism for Windows/Linux/OSX specifics. This is such an ifndef mess
-
 #include "pkcs11.h"
 #include "Logger.h"
 
@@ -31,16 +29,9 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
-#include "ContextMaintainer.h"
-#include "BinaryUtils.h"
 #include <afx.h> //Using afx.h instead of windows.h because of MFC
-#include <WinCrypt.h>
-#elif defined(__APPLE__)
-#include <dlfcn.h>
-#include <Security/Security.h>
 #else
 #include <dlfcn.h>
-#include <openssl/x509v3.h>
 #endif
 
 #define BINARY_SHA1_LENGTH 20
@@ -90,19 +81,10 @@ class PKCS11CardManager {
 private:
 #ifdef _WIN32
     HINSTANCE library = 0;
-    PCCERT_CONTEXT cert = NULL;
-#elif defined(__APPLE__)
-    void *library = nullptr;
-    SecCertificateRef cert = nullptr;
 #else
     void *library = nullptr;
-    X509 *cert = nullptr;
 #endif
     CK_FUNCTION_LIST_PTR fl = nullptr;
-    CK_TOKEN_INFO tokenInfo;
-    CK_SESSION_HANDLE session = 0;
-    std::vector<unsigned char> signCert;
-    size_t certIndex = 0;
 
     template <typename Func, typename... Args>
     void Call(const char *file, int line, const char *function, Func func, Args... args) const
@@ -127,7 +109,7 @@ private:
         }
     }
 
-    std::vector<CK_OBJECT_HANDLE> findObject(CK_OBJECT_CLASS objectClass, CK_ULONG max = 2) const {
+    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, CK_ULONG max = 2) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
@@ -141,95 +123,12 @@ private:
         return objectHandle;
     }
 
-    bool isSignCertificate(const std::vector<unsigned char> &certificateCandidate) {
-#ifdef _WIN32
-        if (ContextMaintainer::isSelectedCertificate(BinaryUtils::bin2hex(certificateCandidate))) {
-            //Can only be true when certificate has already been chosen
-            return true;
-        }
-        bool validForSigning = false;
-        if (cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificateCandidate.data(), certificateCandidate.size())) {
-            _log("new certificate handle created.");
-            BYTE keyUsage;
-            CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
-            if ((keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) && (CertVerifyTimeValidity(NULL, cert->pCertInfo) == 0)) {
-                validForSigning = true;
-            }
-        }
-        return validForSigning;
-#elif defined(__APPLE__)
-        CFDataRef data = CFDataCreateWithBytesNoCopy(nil, certificateCandidate.data(), certificateCandidate.size(), kCFAllocatorNull);
-        SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
-        CFRelease(data);
-        NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, nil, nil));
-        CFRelease(cert);
-        NSDictionary *bc = dict[(__bridge NSString*)kSecOIDBasicConstraints][(__bridge NSString*)kSecPropertyKeyValue][1];
-        NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
-        const bool isCa = [@"YES" isEqualToString:bc[(__bridge NSString*)kSecPropertyKeyValue]];
-        const bool isNonRepudiation = ku.unsignedIntValue & kSecKeyUsageNonRepudiation;
-        _log("non repudiation && not ca: %s", isNonRepudiation && !isCa ? "true" : "false");
-        return isNonRepudiation && !isCa;
-#else
-        const unsigned char *p = certificateCandidate.data();
-        X509 *cert = d2i_X509(NULL, &p, certificateCandidate.size());
-        ASN1_BIT_STRING *keyusage = (ASN1_BIT_STRING*)X509_get_ext_d2i(cert, NID_key_usage, 0, 0);
-        BASIC_CONSTRAINTS * cons = (BASIC_CONSTRAINTS*)X509_get_ext_d2i(cert, NID_basic_constraints, 0, 0);
-        const int keyUsageNonRepudiation = 1;
-        const bool isNonRepudiation = ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation);
-        const bool isCa = cons && cons->ca > 0;
-        ASN1_BIT_STRING_free(keyusage);
-        BASIC_CONSTRAINTS_free(cons);
-        X509_free(cert);
-        _log("non repudiation && not ca: %s", isNonRepudiation && !isCa ? "true" : "false");
-        return isNonRepudiation && !isCa;
-#endif
-    }
-
-    void findSigningCertificate() {
-        std::vector<CK_OBJECT_HANDLE> certificateObjectHandle = findObject(CKO_CERTIFICATE);
-        size_t certificateCount = certificateObjectHandle.size();
-        _log("certificate count: %i", certificateCount);
-        if (certificateObjectHandle.empty()) {
-            throw std::runtime_error("Could not read cert");
-        }
-
-        for (size_t i = 0; i < certificateCount; i++) {
-            _log("check cert %i", i);
-            std::vector<unsigned char> certCandidate;
-            CK_ATTRIBUTE attribute = {CKA_VALUE, nullptr, 0};
-            C(GetAttributeValue, session, certificateObjectHandle[i], &attribute, 1);
-            certCandidate.resize(attribute.ulValueLen, 0);
-            attribute.pValue = certCandidate.data();
-            C(GetAttributeValue, session, certificateObjectHandle[i], &attribute, 1);
-            if (isSignCertificate(certCandidate)) {
-                signCert = certCandidate;
-                certIndex = i;
-#ifdef __APPLE__
-                CFDataRef data = CFDataCreateWithBytesNoCopy(nil, signCert.data(), signCert.size(), kCFAllocatorNull);
-                cert = SecCertificateCreateWithData(nil, data);
-                CFRelease(data);
-#elif !defined(_WIN32)
-                const unsigned char *p = signCert.data();
-                cert = d2i_X509(NULL, &p, signCert.size());
-#endif
-                break;
-            }
-        }
-    }
-
-    PKCS11CardManager(CK_SLOT_ID slotID, CK_FUNCTION_LIST_PTR fl) : fl(fl) {
-        C(GetTokenInfo, slotID, &tokenInfo);
-        C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
-        findSigningCertificate();
-    }
-
     PKCS11CardManager(const std::string &module) {
         CK_C_GetFunctionList C_GetFunctionList = nullptr;
 #ifdef _WIN32
         library = LoadLibraryA(module.c_str());
         if (library)
-            _log("library loaded");
-        C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
+            C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
@@ -237,7 +136,7 @@ private:
 #endif
 
         if (!C_GetFunctionList) {
-            _log("Function List not loaded");
+            _log("Function List not loaded %s", module.c_str());
             throw std::runtime_error("PKCS11 is not loaded");
         }
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
@@ -253,18 +152,6 @@ public:
     }
 
     ~PKCS11CardManager() {
-        if (session)
-            C(CloseSession, session);
-#ifdef _WIN32
-        if (cert)
-            CertFreeCertificateContext(cert);
-#elif defined(__APPLE__)
-        if (cert)
-            CFRelease(cert);
-#else
-        if (cert)
-            X509_free(cert);
-#endif
         if (!library)
             return;
         C(Finalize, nullptr);
@@ -275,7 +162,17 @@ public:
 #endif
     }
 
-    std::vector<CK_SLOT_ID> getAvailableTokens() const {
+    struct Token {
+        std::string label;
+        CK_SLOT_ID slotID;
+        std::vector<unsigned char> cert;
+        size_t index;
+        int retry;
+        bool pinpad;
+        unsigned long minPinLen, maxPinLen;
+    };
+
+    std::vector<Token> tokens() const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
@@ -285,29 +182,54 @@ public:
         std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
         C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
         std::reverse(slotIDs.begin(), slotIDs.end());
-        return slotIDs;
+
+        std::vector<Token> result;
+        for (CK_SLOT_ID slotID : slotIDs)
+        {
+            CK_TOKEN_INFO tokenInfo;
+            C(GetTokenInfo, slotID, &tokenInfo);
+            CK_SESSION_HANDLE session = 0;
+            C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
+
+            std::vector<CK_OBJECT_HANDLE> objs = findObject(session, CKO_CERTIFICATE);
+            for (size_t i = 0; i < objs.size(); ++i) {
+                CK_ATTRIBUTE attribute = { CKA_VALUE, nullptr, 0 };
+                C(GetAttributeValue, session, objs[i], &attribute, 1);
+                std::vector<unsigned char> cert(attribute.ulValueLen, 0);
+                attribute.pValue = cert.data();
+                C(GetAttributeValue, session, objs[i], &attribute, 1);
+                result.push_back({ std::string((const char*)tokenInfo.label, sizeof(tokenInfo.label)), slotID, cert, i,
+                    [&] {
+                        if (tokenInfo.flags & CKF_USER_PIN_LOCKED) return 0;
+                        if (tokenInfo.flags & CKF_USER_PIN_FINAL_TRY) return 1;
+                        if (tokenInfo.flags & CKF_USER_PIN_COUNT_LOW) return 2;
+                        return 3;
+                    }(),
+                    bool(tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH),
+                    tokenInfo.ulMinPinLen,
+                    tokenInfo.ulMaxPinLen,
+                });
+            }
+
+            C(CloseSession, session);
+        }
+        return result;
     }
 
-    PKCS11CardManager *getManagerForReader(CK_SLOT_ID slotId) {
-        if (!fl) {
-            _log("PKCS11 is not loaded");
-            throw std::runtime_error("PKCS11 is not loaded");
-        }
-        return new PKCS11CardManager(slotId, fl);
-    }
-
-    std::vector<unsigned char> sign(const std::vector<unsigned char> &hash, const char *pin) const {
+    std::vector<unsigned char> sign(const Token &token, const std::vector<unsigned char> &hash, const char *pin) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
+        CK_SESSION_HANDLE session = 0;
+        C(OpenSession, token.slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
         C(Login, session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
-        std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(CKO_PRIVATE_KEY);
+        std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(session, CKO_PRIVATE_KEY);
         if (privateKeyHandle.empty()) {
             throw std::runtime_error("Could not read private key");
         }
         CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
-        _log("found %i private keys in slot, using key in position %i", privateKeyHandle.size(), certIndex);
-        C(SignInit, session, &mechanism, privateKeyHandle[certIndex]);
+        _log("found %i private keys in slot, using key in position %i", privateKeyHandle.size(), token.index);
+        C(SignInit, session, &mechanism, privateKeyHandle[token.index]);
         std::vector<unsigned char> hashWithPadding;
         switch (hash.size()) {
             case BINARY_SHA1_LENGTH:
@@ -334,116 +256,8 @@ public:
         std::vector<unsigned char> signature(signatureLength, 0);
         C(Sign, session, hashWithPadding.data(), hashWithPadding.size(), signature.data(), &signatureLength);
         C(Logout, session);
+        C(CloseSession, session);
 
         return signature;
     }
-
-    bool isPinpad() const {
-        return tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
-    }
-
-    int getPIN2RetryCount() const {
-        if (tokenInfo.flags & CKF_USER_PIN_LOCKED) return 0;
-        if (tokenInfo.flags & CKF_USER_PIN_FINAL_TRY) return 1;
-        if (tokenInfo.flags & CKF_USER_PIN_COUNT_LOW) return 2;
-        return 3;
-    }
-
-    std::vector<unsigned char> getSignCert() const {
-        return signCert;
-    }
-
-    bool hasSignCert() {
-        return !signCert.empty();
-    }
-
-#ifdef __APPLE__
-    std::string getCN() const {
-        if (!cert) {
-            throw std::runtime_error("Could not parse cert");
-        }
-        std::string result;
-        CFStringRef commonName = nil;
-        if (SecCertificateCopyCommonName(cert, &commonName))
-            return result;
-        NSString *cn = CFBridgingRelease(commonName);
-        result = cn.UTF8String;
-        return result;
-    }
-
-    std::string getType() const {
-        if (!cert) {
-            throw std::runtime_error("Could not parse cert");
-        }
-
-        NSArray *keys = @[(__bridge NSString*)kSecOIDX509V1SubjectName];
-        NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, (__bridge CFArrayRef)keys, nil));
-        if (!dict) {
-            throw std::runtime_error("Could not parse cert");
-        }
-
-        std::string result;
-        for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
-            if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDOrganizationName]) {
-                NSString *value = item[(__bridge NSString*)kSecPropertyKeyValue];
-                result = value.UTF8String;
-                return result;
-            }
-        }
-        return result;
-    }
-
-    std::string getValidTo() const {
-        if (!cert) {
-            throw std::runtime_error("Could not parse cert");
-        }
-
-        NSArray *keys = @[(__bridge NSString*)kSecOIDX509V1ValidityNotAfter];
-        NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, (__bridge CFArrayRef)keys, nil));
-        if (!dict) {
-            throw std::runtime_error("Could not parse cert");
-        }
-
-        NSDateComponents *components = [[NSDateComponents alloc] init];
-        components.year = 2001;
-        NSDateFormatter *asn1 = [[NSDateFormatter alloc] init];
-        asn1.dateFormat = @"yyyyMMddHHmmss'Z'";
-        asn1.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
-
-        NSNumber *na = dict[(__bridge NSString*)kSecOIDX509V1ValidityNotAfter][(__bridge NSString*)kSecPropertyKeyValue];
-        NSDate *date = [NSDate dateWithTimeInterval:na.intValue sinceDate:[NSCalendar.currentCalendar dateFromComponents:components]];
-        std::string result;
-        result = [asn1 stringFromDate:date].UTF8String;
-        return result;
-    }
-#elif !defined(_WIN32)
-    std::string getSubjectX509Name(const std::string &object) const {
-        if (!cert) {
-            throw std::runtime_error("Could not parse cert");
-        }
-        std::string X509Value(1024, 0);
-        int length = X509_NAME_get_text_by_NID(X509_get_subject_name(cert), OBJ_txt2nid(object.c_str()), &X509Value[0], int(X509Value.size()));
-        X509Value.resize(std::max(0, length));
-        _log("%s length is %i, %s", object.c_str(), length, X509Value.c_str());
-        return X509Value;
-    }
-
-    std::string getCN() const {
-        return getSubjectX509Name("commonName");
-    }
-
-    std::string getType() const {
-        return getSubjectX509Name("organizationName");
-    }
-
-    std::string getValidTo() const {
-        if (!cert) {
-            throw std::runtime_error("Could not parse cert");
-        }
-        ASN1_GENERALIZEDTIME *gt = ASN1_TIME_to_generalizedtime(X509_get_notAfter(cert), nullptr);
-        std::string timeAsString((const char *) gt->data, gt->length);
-        ASN1_GENERALIZEDTIME_free(gt);
-        return timeAsString;
-    }
-#endif
 };

@@ -28,9 +28,9 @@ public:
 	static CertificateSelector* createCertificateSelector();
 
 	virtual ~CertificateSelector() = default;
-	virtual std::vector<unsigned char> getCert() throw(UserCancelledException, TechnicalException) = 0;
+	virtual std::vector<unsigned char> getCert(bool forSigning) const throw(UserCancelledException, TechnicalException) = 0;
 
 protected:
 	CertificateSelector() = default;
-	std::vector<unsigned char> showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc);
+	std::vector<unsigned char> showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc) const;
 };

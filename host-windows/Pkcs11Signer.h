@@ -20,9 +20,6 @@
 
 #include "Signer.h"
 #include "PKCS11CardManager.h"
-#include "DialogManager.h"
-
-#include <memory>
 
 class Pkcs11Signer : public Signer {
 public:
@@ -30,8 +27,6 @@ public:
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 private:
 	int pinTriesLeft;
-	DialogManager dialog;
-	std::unique_ptr<PKCS11CardManager> getCardManager();
 	void validatePinNotBlocked();
 	char* askPin();
 	void handleWrongPinEntry();

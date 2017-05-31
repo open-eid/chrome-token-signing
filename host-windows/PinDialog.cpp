@@ -39,7 +39,7 @@ void PinDialog::OnBnClickedOk() {
 BOOL PinDialog::OnInitDialog()
 {
 	BOOL result = CDialog::OnInitDialog();
-	GetDlgItem(IDC_PIN_MESSAGE)->SetWindowText(_L("sign PIN"));
+	GetDlgItem(IDC_PIN_MESSAGE)->SetWindowText(label.c_str());
 	GetDlgItem(IDOK)->SetWindowText(_L("sign"));
 	GetDlgItem(IDCANCEL)->SetWindowText(_L("cancel"));
 	return result;

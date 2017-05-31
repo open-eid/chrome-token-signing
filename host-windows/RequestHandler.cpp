@@ -41,7 +41,7 @@ jsonxx::Object RequestHandler::handleRequest() {
 				handleVersionRequest();
 			}
 			else if (type == "CERT") {
-				handleCertRequest();
+				handleCertRequest(!jsonRequest.has<string>("filter") || jsonRequest.get<string>("filter") != "AUTH");
 			}
 			else if (type == "SIGN" && hasSignRequestArguments()) {
 				handleSignRequest();
@@ -112,10 +112,10 @@ void RequestHandler::handleVersionRequest() {
 	jsonResponse << "version" << VERSION;
 }
 
-void RequestHandler::handleCertRequest() {
+void RequestHandler::handleCertRequest(bool forSigning) {
 	validateSecureOrigin();
-	CertificateSelector * certificateSelector = CertificateSelector::createCertificateSelector();
-	string selectedCert = BinaryUtils::bin2hex(certificateSelector->getCert());
+	CertificateSelector *certificateSelector = CertificateSelector::createCertificateSelector();
+	string selectedCert = BinaryUtils::bin2hex(certificateSelector->getCert(forSigning));
 	ContextMaintainer::saveCertificate(selectedCert);
 	jsonResponse << "cert" << selectedCert;
 }
