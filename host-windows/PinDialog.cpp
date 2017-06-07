@@ -17,7 +17,11 @@
 */
 
 #include "PinDialog.h"
-#include "afxdialogex.h"
+#include <afxdialogex.h>
+
+#include "Labels.h"
+
+#define _L(KEY) Labels::l10n.get(KEY).c_str()
 
 IMPLEMENT_DYNAMIC(PinDialog, CDialog)
 
@@ -30,6 +34,15 @@ void PinDialog::OnBnClickedOk() {
 	GetDlgItem(IDC_PIN_FIELD)->GetWindowText(rawPin);
 	pin = _strdup(ATL::CT2CA(rawPin));
 	CDialog::OnOK();
+}
+
+BOOL PinDialog::OnInitDialog()
+{
+	BOOL result = CDialog::OnInitDialog();
+	GetDlgItem(IDC_PIN_MESSAGE)->SetWindowText(_L("sign PIN"));
+	GetDlgItem(IDOK)->SetWindowText(_L("sign"));
+	GetDlgItem(IDCANCEL)->SetWindowText(_L("cancel"));
+	return result;
 }
 
 char* PinDialog::getPin() {

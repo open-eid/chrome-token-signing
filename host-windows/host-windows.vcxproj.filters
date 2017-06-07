@@ -75,6 +75,9 @@
     <ClInclude Include="..\host-shared\PKCS11Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\host-shared\Labels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp">
@@ -123,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\host-shared\PKCS11Path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\host-shared\Labels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

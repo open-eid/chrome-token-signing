@@ -56,10 +56,10 @@ public:
         }
 
         std::unique_ptr<PKCS11CardManager> manager;
-        std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
+        PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
         try {
-            for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
-                manager.reset(PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token));
+            for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
+                manager.reset(PKCS11CardManager::instance(p11.path)->getManagerForReader(token));
                 if (manager->getSignCert() == fromHex(cert)) {
                     break;
                 }
@@ -74,7 +74,7 @@ public:
 
         bool isInitialCheck = true;
         for (int retriesLeft = manager->getPIN2RetryCount(); retriesLeft > 0; ) {
-            Signer dialog(manager->isPinpad());
+            Signer dialog(p11.signPINLabel.c_str(), manager->isPinpad());
             if (retriesLeft < 3) {
                 dialog.errorLabel->show();
                 dialog.errorLabel->setText(QString("<font color='red'><b>%1%2 %3</b></font>")
@@ -150,7 +150,7 @@ private:
         return std::vector<unsigned char>(bin.constData(), bin.constData() + bin.size());
     }
 
-    Signer(bool isPinpad)
+    Signer(const QString &label, bool isPinpad)
         : nameLabel(new QLabel(this))
         , pinLabel(new QLabel(this))
         , errorLabel(new QLabel(this))
@@ -163,7 +163,8 @@ private:
         setMinimumWidth(400);
         setWindowFlags(Qt::WindowStaysOnTopHint);
         setWindowTitle(Labels::l10n.get("signing").c_str());
-        pinLabel->setText(Labels::l10n.get(isPinpad ? "enter PIN2 pinpad" : "enter PIN2").c_str());
+        pinLabel->setText(Labels::l10n.get(isPinpad ? "sign PIN pinpad" : "sign PIN").c_str());
+        pinLabel->setText(pinLabel->text().replace("PIN", label));
         errorLabel->setTextFormat(Qt::RichText);
         errorLabel->hide();
 

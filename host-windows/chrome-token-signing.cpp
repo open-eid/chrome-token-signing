@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 		catch (const std::runtime_error &e)
 		{
 			Object json;
-			json << "result" << "technical_error" << "message" << string(e.what());
+			json << "result" << "technical_error" << "message" << e.what();
 			string response = json.json();
 			ioCommunicator.sendMessage(response);
 			return EXIT_FAILURE;
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 void handleException(const BaseException &e, IOCommunicator &ioCommunicator) {
 	_log("Handling exception: %s", e.getErrorCode());
 	Object json;
-	json << "result" << e.getErrorCode() << "message" << e.getErrorMessage();
+	json << "result" << e.getErrorCode() << "message" << e.what();
 	string response = json.json();
 	ioCommunicator.sendMessage(response);
 }

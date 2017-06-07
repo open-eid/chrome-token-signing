@@ -38,9 +38,9 @@ public:
     {
         try {
             QList<QStringList> certs;
-            std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
-            for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
-                PKCS11CardManager *manager = PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token);
+            PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
+            for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
+                PKCS11CardManager *manager = PKCS11CardManager::instance(p11.path)->getManagerForReader(token);
                 if (!manager -> hasSignCert()) {
                    delete manager;
                    continue;

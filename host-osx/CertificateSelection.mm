@@ -56,9 +56,9 @@
             NSDateFormatter *asn1 = [[NSDateFormatter alloc] init];
             asn1.dateFormat = @"yyyyMMddHHmmss'Z'";
             asn1.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
-            std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
-            for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
-                PKCS11CardManager *local = PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token);
+            PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
+            for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
+                PKCS11CardManager *local = PKCS11CardManager::instance(p11.path)->getManagerForReader(token);
                 if (!local -> hasSignCert()) {
                     _log("no signing certificate, moving on to next token...");
                     delete local;

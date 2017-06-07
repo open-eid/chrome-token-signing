@@ -42,7 +42,7 @@
 
 @implementation PINPanel
 
-- (instancetype)init:(BOOL)pinpad
+- (instancetype)init:(NSString*)label pinpad:(BOOL)pinpad
 {
     if (self = [super init]) {
         if (![NSBundle loadNibNamed:pinpad ? @"PINPadDialog" : @"PINDialog" owner:self]) {
@@ -57,7 +57,7 @@
             okButton.title = _L("sign");
             cancelButton.title = _L("cancel");
         }
-        pinFieldLabel.stringValue = _L(pinpad ? "enter PIN2 pinpad" : "enter PIN2");
+        pinFieldLabel.stringValue = [_L(pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"PIN" withString:label];
         window.title =_L("signing");
     }
     return self;
@@ -94,11 +94,11 @@
         }
     }
 
-    std::string pkcs11ModulePath(PKCS11Path::getPkcs11ModulePath());
+    PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
     std::unique_ptr<PKCS11CardManager> selected;
     try {
-        for (auto &token : PKCS11CardManager::instance(pkcs11ModulePath)->getAvailableTokens()) {
-            selected.reset(PKCS11CardManager::instance(pkcs11ModulePath)->getManagerForReader(token));
+        for (auto &token : PKCS11CardManager::instance(p11.path)->getAvailableTokens()) {
+            selected.reset(PKCS11CardManager::instance(p11.path)->getManagerForReader(token));
             if (BinaryUtils::hex2bin(cert.UTF8String) == selected->getSignCert()) {
                 break;
             }
@@ -115,7 +115,7 @@
 
     bool isInitialCheck = true;
     for (int retriesLeft = selected->getPIN2RetryCount(); retriesLeft > 0; ) {
-        PINPanel *dialog = [[PINPanel alloc] init:selected->isPinpad()];
+        PINPanel *dialog = [[PINPanel alloc] init:[NSString stringWithUTF8String:p11.signPINLabel.c_str()] pinpad:selected->isPinpad()];
         if (!dialog) {
             return @{@"result": @"technical_error"};
         }

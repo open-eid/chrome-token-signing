@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Chrome Token Signing Native Host
  *
  * This library is free software; you can redistribute it and/or
@@ -21,7 +21,12 @@
 #include <map>
 #include <vector>
 
-using namespace std;
+#ifdef _WIN32
+#define _T(X) L##X
+#define T(X) _T(X)
+#else
+#define T(X) X
+#endif
 
 Labels Labels::l10n = Labels();
 
@@ -29,46 +34,122 @@ Labels::Labels() {
     setLanguage("en");
 }
 
-void Labels::setLanguage(const string &language) {
-    static std::map<std::string, int> languages = {{"et",0}, {"en",1}, {"ru",2}, {"est",0}, {"eng",1}, {"rus",2}};
+void Labels::setLanguage(const std::string &language) {
+    static std::map<std::string, int> languages = {
+        { "et", 0 }, { "en", 1 }, { "ru", 2 }, { "lt", 3 }, { "lv", 4 },
+        { "est", 0 }, { "eng", 1 }, { "rus", 2 }, { "lit", 3 }, { "lat", 4 }
+    };
     auto pos = languages.find(language);
     selectedLanguage = pos == languages.end() ? 1 : pos->second;
 }
 
-string Labels::get(const string &labelKey) const {
-    static std::map<std::string,std::vector<std::string> > labels = {
-        {"enter PIN2",{
-            "Allkirjastamiseks sisesta PIN2:",
-            "For signing enter PIN2:",
-            "Для подписания введите PIN2:"
-        }},
-        {"enter PIN2 pinpad", {
-            "Allkirjastamiseks sisesta PIN2 kaardilugeja sõrmistikult",
-            "For signing enter PIN2 from PIN pad",
-            "Для подписания введите PIN2 с PIN-клавиатуры"
-        }},
-        {"tries left",{"Katseid jäänud:", "Tries left:", "Возможных попыток:"}},
-        {"incorrect PIN2",{"Vale PIN2! ", "Incorrect PIN2! ", "Неправильный PIN2! "}},
-        {"signing",{"Allkirjastamine", "Signing", "Подписание"}},
-        {"PIN2 blocked",{
-            "PIN2 blokeeritud, ei saa allkirjastada!",
-            "PIN2 blocked, cannot sign!",
-            "PIN2 блокирован, невозможно подписать!"
-        }},
-        {"error", {"Viga", "Error", "Ошибка"}},
-        {"cancel", {"Katkesta", "Cancel", "Отменить"}},
-        {"sign", {"Allkirjasta", "Sign", "Подписать"}},
-
-        {"select certificate", {"Sertifikaadi valik", "Select certificate", "Выбор сертификата"}},
-        {"select", {"Vali", "Select", "Выбрать"}},
-        {"certificate", {"Sertifikaat", "Certificate", "Сертификат"}},
-        {"type", {"Tüüp", "Type", "Тип"}},
-        {"valid to", {"Kehtiv kuni" ,"Valid to", "Действительный до"}},
-        {"cert info", {
-            "Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.",
-            "By selecting a certificate I accept that my name and personal ID code will be sent to service provider.",
-            "Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."
-        }}
+Labels::lstring Labels::get(const std::string &labelKey) const {
+    static const std::map<std::string,std::vector<lstring> > labels = {
+    { "sign PIN", {
+        T("Allkirjastamiseks sisesta PIN:"),
+        T("For signing enter PIN:"),
+        T("Для подписания введите PIN:"),
+        T("Norėdami pasirašyti, įveskite PIN kodą:"),
+        T("Lai parakstītu, ievadi PIN:"),
+    } },
+    { "sign PIN pinpad", {
+        T("Allkirjastamiseks sisesta PIN kaardilugeja sõrmistikult"),
+        T("For signing enter PIN from PIN pad"),
+        T("Для подписания введите PIN с PIN-клавиатуры"),
+        T("Norėdami pasirašyti, įveskite PIN kodą PIN klaviatūros pagalba"),
+        T("Lai parakstītu, ievadi PIN paredzētajā PIN ievades ierīcē"),
+    } },
+    { "tries left", {
+        T("Katseid jäänud:"),
+        T("Tries left:"),
+        T("Возможных попыток:"),
+        T("Liko bandymų:"),
+        T("Atlikuši mēģinājumi:"),
+    } },
+    { "incorrect PIN2", {
+        T("Vale PIN! "),
+        T("Incorrect PIN! "),
+        T("Неправильный PIN! "),
+        T("Neteisingas PIN! "),
+        T("Nepareizs PIN! "),
+    } },
+    { "signing", {
+        T("Allkirjastamine"),
+        T("Signing"),
+        T("Подписание"),
+        T("Pasirašymas"),
+        T("Parakstīšana"),
+    } },
+    { "PIN2 blocked", {
+        T("PIN2 blokeeritud, ei saa allkirjastada!"),
+        T("PIN2 blocked, cannot sign!"),
+        T("PIN2 блокирован, невозможно подписать!"),
+        T("PIN2 užblokuotas, pasirašymas negalimas!"),
+        T("PIN2 bloķēts, nav iespējams parakstīt!"),
+    } },
+    { "error", {
+        T("Viga"),
+        T("Error"),
+        T("Ошибка"),
+        T("Klaida"),
+        T("Kļūda"),
+    } },
+    { "cancel", {
+        T("Katkesta"),
+        T("Cancel"),
+        T("Отменить"),
+        T("Atšaukti"),
+        T("Atcelt"),
+    } },
+    { "sign", {
+        T("Allkirjasta"),
+        T("Sign"),
+        T("Подписать"),
+        T("Pasirašyti"),
+        T("Parakstīt"),
+    } },
+    { "select certificate", {
+        T("Sertifikaadi valik"),
+        T("Select certificate"),
+        T("Выбор сертификата"),
+        T("Pasirinkite sertifikatą"),
+        T("Izvēlēties sertifikātu"),
+    } },
+    { "select", {
+        T("Vali"),
+        T("Select"),
+        T("Выбрать"),
+        T("Pasirinkti"),
+        T("Izvēlēties"),
+    } },
+    { "certificate", {
+        T("Sertifikaat"),
+        T("Certificate"),
+        T("Сертификат"),
+        T("Sertifikatas"),
+        T("Sertifikāts"),
+    } },
+    { "type", {
+        T("Tüüp"),
+        T("Type"),
+        T("Тип"),
+        T("Tipas"),
+        T("Tips"),
+    } },
+    { "valid to", {
+        T("Kehtiv kuni"),
+        T("Valid to"),
+        T("Действительный до"),
+        T("Galioja iki"),
+        T("Derīgs līdz"),
+    } },
+    { "cert info", {
+        T("Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale."),
+        T("By selecting a certificate I accept that my name and personal ID code will be sent to service provider."),
+        T("Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."),
+        T("Pasirinkdama(s) sertifikatą, aš sutinku, kad mano vardas, pavardė ir asmens kodas būtų perduoti e. paslaugos teikėjui."),
+        T("Izvēloties sertifikātu, es apstiprinu, ka mans vārds un personas kods tiks nosūtīts pakalpojuma sniedzējam."),
+    } }
     };
-    return labels.at(labelKey)[selectedLanguage];
+    return labels.at(labelKey).at(selectedLanguage);
 }

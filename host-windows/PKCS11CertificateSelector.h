@@ -20,19 +20,15 @@
 
 #include "CertificateSelector.h"
 #include "PKCS11CardManager.h"
-#include "DialogManager.h"
-#include <future>
-#include <string>
 #include <vector>
-#include "Logger.h"
 
 class PKCS11CertificateSelector : public CertificateSelector {
 public:
-	PKCS11CertificateSelector(const string &_driverPath) : CertificateSelector(){
+	PKCS11CertificateSelector(const std::string &_driverPath) : CertificateSelector(){
 		driverPath = _driverPath;
 		initialize();
 	}
-	std::string getCert();
+	std::vector<unsigned char> getCert() override;
 
 private:
 	void initialize();

@@ -57,6 +57,7 @@
       <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4290;4800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -76,6 +77,7 @@
       <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\host-shared\json;..\host-shared</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4290;4800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +93,7 @@
   <ItemGroup>
     <ClInclude Include="..\host-shared\BinaryUtils.h" />
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
+    <ClInclude Include="..\host-shared\Labels.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
     <ClInclude Include="..\host-shared\PKCS11CardManager.h" />
     <ClInclude Include="..\host-shared\PKCS11Path.h" />
@@ -113,6 +116,7 @@
   <ItemGroup>
     <ClCompile Include="..\host-shared\BinaryUtils.cpp" />
     <ClCompile Include="..\host-shared\json\jsonxx.cc" />
+    <ClCompile Include="..\host-shared\Labels.cpp" />
     <ClCompile Include="..\host-shared\Logger.cpp" />
     <ClCompile Include="..\host-shared\PKCS11Path.cpp" />
     <ClCompile Include="CertificateSelector.cpp" />

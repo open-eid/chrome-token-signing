@@ -97,63 +97,64 @@ std::vector<std::string> PKCS11Path::atrList() {
 	return result;
 }
 
-std::string PKCS11Path::getPkcs11ModulePath() {
+PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #ifdef __APPLE__
-    const std::string estPath("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
-    const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
-    const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
-    const std::string litPath("/System/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    static const std::string estPath("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
+    static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
+    static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
+    static const std::string litPath("/System/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
 #elif defined _WIN32
-    wchar_t *programFilesX86 = 0;
-    SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, 0, NULL, &programFilesX86);
-    int size = WideCharToMultiByte(CP_UTF8, 0, programFilesX86, wcslen(programFilesX86), NULL, 0, NULL, NULL);
-    std::string path(size, 0);
-    WideCharToMultiByte(CP_UTF8, 0, programFilesX86, wcslen(programFilesX86), &path[0], size, NULL, NULL);
-    CoTaskMemFree(programFilesX86);
-    const std::string litPath = path + "\\CryptoTech\\CryptoCard\\CCPkiP11.dll";
+    // Use PKCS11 driver on windows to avoid PIN buffering
+    static const std::string litPath = [] {
+        wchar_t *programFilesX86 = 0;
+        SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, 0, NULL, &programFilesX86);
+        int size = WideCharToMultiByte(CP_UTF8, 0, programFilesX86, wcslen(programFilesX86), NULL, 0, NULL, NULL);
+        std::string path(size, 0);
+        WideCharToMultiByte(CP_UTF8, 0, programFilesX86, wcslen(programFilesX86), &path[0], size, NULL, NULL);
+        CoTaskMemFree(programFilesX86);
+        return path + "\\CryptoTech\\CryptoCard\\CCPkiP11.dll";
+    }();
 #else
-    const std::string estPath("opensc-pkcs11.so");
-    const std::string latPath("otlv-pkcs11.so");
-    const std::string finPath("opensc-pkcs11.so");
-    const std::string litPath("/usr/lib/ccs/libccpkip11.so");
+    static const std::string estPath("opensc-pkcs11.so");
+    static const std::string latPath("otlv-pkcs11.so");
+    static const std::string finPath("opensc-pkcs11.so");
+    static const std::string litPath("/usr/lib/ccs/libccpkip11.so");
 #endif
-    static std::map<std::string, std::string> m = {
-#ifndef _WIN32
-        {"3BFE9400FF80B1FA451F034573744549442076657220312E3043", estPath},
-        {"3B6E00FF4573744549442076657220312E30", estPath},
-        {"3BDE18FFC080B1FE451F034573744549442076657220312E302B", estPath},
-        {"3B5E11FF4573744549442076657220312E30", estPath},
-        {"3B6E00004573744549442076657220312E30", estPath},
+    static const std::map<std::string, Params> m = {
+#ifdef _WIN32
+        {"3BFD1800008031FE4553434536302D43443134352D46CD", {"C:\\Windows\\System32\\aetpkss1.dll", "PIN"}},
+#else
+        {"3BFE9400FF80B1FA451F034573744549442076657220312E3043", {estPath, "PIN2"}},
+        {"3B6E00FF4573744549442076657220312E30", {estPath, "PIN2"}},
+        {"3BDE18FFC080B1FE451F034573744549442076657220312E302B", {estPath, "PIN2"}},
+        {"3B5E11FF4573744549442076657220312E30", {estPath, "PIN2"}},
+        {"3B6E00004573744549442076657220312E30", {estPath, "PIN2"}},
 
-        {"3BFE1800008031FE454573744549442076657220312E30A8", estPath},
-        {"3BFE1800008031FE45803180664090A4561B168301900086", estPath},
-        {"3BFE1800008031FE45803180664090A4162A0083019000E1", estPath},
-        {"3BFE1800008031FE45803180664090A4162A00830F9000EF", estPath},
+        {"3BFE1800008031FE454573744549442076657220312E30A8", {estPath, "PIN2"}},
+        {"3BFE1800008031FE45803180664090A4561B168301900086", {estPath, "PIN2"}},
+        {"3BFE1800008031FE45803180664090A4162A0083019000E1", {estPath, "PIN2"}},
+        {"3BFE1800008031FE45803180664090A4162A00830F9000EF", {estPath, "PIN2"}},
 
-        {"3BF9180000C00A31FE4553462D3443432D303181", estPath},
-        {"3BF81300008131FE454A434F5076323431B7", estPath},
-        {"3BFA1800008031FE45FE654944202F20504B4903", estPath},
-        {"3BFE1800008031FE45803180664090A4162A00830F9000EF", estPath},
+        {"3BF9180000C00A31FE4553462D3443432D303181", {estPath, "PIN2"}},
+        {"3BF81300008131FE454A434F5076323431B7", {estPath, "PIN2"}},
+        {"3BFA1800008031FE45FE654944202F20504B4903", {estPath, "PIN2"}},
+        {"3BFE1800008031FE45803180664090A4162A00830F9000EF", {estPath, "PIN2"}},
 
-        {"3BDD18008131FE45904C41545649412D65494490008C", latPath},
+        {"3BDD18008131FE45904C41545649412D65494490008C", {latPath, "PIN2"}},
 
-        {"3B7B940000806212515646696E454944", finPath},
+        {"3B7B940000806212515646696E454944", {finPath, "PIN2"}},
 #endif
-        {"3BF81300008131FE45536D617274417070F8", litPath},
-        {"3B7D94000080318065B08311C0A983009000", litPath},
-        {"3B7D94000080318065B0831100C883009000", litPath},
-        {"3B9F9681B1FE451F070064051EB20031B0739621DB00900050", litPath},
-        {"3B9F90801FC30068104405014649534531C800000000", litPath},
+        {"3BF81300008131FE45536D617274417070F8", {litPath, "PIN"}},
+        {"3B7D94000080318065B08311C0A983009000", {litPath, "PIN"}},
+        {"3B7D94000080318065B0831100C883009000", {litPath, "PIN"}},
+        {"3B9F9681B1FE451F070064051EB20031B0739621DB00900050", {litPath, "PIN"}},
+        {"3B9F90801FC30068104405014649534531C800000000", {litPath, "PIN"}},
     };
 
     for (const std::string &atr : atrList()) {
-#ifdef _WIN32
-		if ("3BFD1800008031FE4553434536302D43443134352D46CD" == atr)
-			return "C:\\Windows\\System32\\aetpkss1.dll";
-#endif
         auto it = m.find(atr);
         if (it != m.end())
-            return it -> second;
+            return it->second;
 	}
-	return std::string();
+	return Params();
 }
