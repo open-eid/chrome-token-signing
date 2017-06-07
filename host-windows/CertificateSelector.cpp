@@ -19,12 +19,74 @@
 #include "NativeCertificateSelector.h"
 #include "PKCS11CertificateSelector.h"
 #include "PKCS11Path.h"
+#include "Labels.h"
 
-CertificateSelector* CertificateSelector::createCertificateSelector() {
+#include <cryptuiapi.h>
+#include <vector>
 
-	std::string pkcs11 = PKCS11Path::getPkcs11ModulePath();
-	if (!pkcs11.empty())
-		return new PKCS11CertificateSelector(pkcs11);
+extern "C" {
+
+	typedef BOOL(WINAPI * PFNCCERTDISPLAYPROC)(
+		__in  PCCERT_CONTEXT pCertContext,
+		__in  HWND hWndSelCertDlg,
+		__in  void *pvCallbackData
+		);
+
+	typedef struct _CRYPTUI_SELECTCERTIFICATE_STRUCT {
+		DWORD               dwSize;
+		HWND                hwndParent;
+		DWORD               dwFlags;
+		LPCWSTR             szTitle;
+		DWORD               dwDontUseColumn;
+		LPCWSTR             szDisplayString;
+		PFNCFILTERPROC      pFilterCallback;
+		PFNCCERTDISPLAYPROC pDisplayCallback;
+		void *              pvCallbackData;
+		DWORD               cDisplayStores;
+		HCERTSTORE *        rghDisplayStores;
+		DWORD               cStores;
+		HCERTSTORE *        rghStores;
+		DWORD               cPropSheetPages;
+		LPCPROPSHEETPAGEW   rgPropSheetPages;
+		HCERTSTORE          hSelectedCertStore;
+	} CRYPTUI_SELECTCERTIFICATE_STRUCT, *PCRYPTUI_SELECTCERTIFICATE_STRUCT;
+
+	typedef const CRYPTUI_SELECTCERTIFICATE_STRUCT
+		*PCCRYPTUI_SELECTCERTIFICATE_STRUCT;
+
+	PCCERT_CONTEXT WINAPI CryptUIDlgSelectCertificateW(
+		__in  PCCRYPTUI_SELECTCERTIFICATE_STRUCT pcsc
+		);
+
+#define CryptUIDlgSelectCertificate CryptUIDlgSelectCertificateW
+
+}  // extern "C"
+
+CertificateSelector* CertificateSelector::createCertificateSelector()
+{
+	PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
+	if (!p11.path.empty())
+		return new PKCS11CertificateSelector(p11.path);
 	else
 		return new NativeCertificateSelector();
+}
+
+std::vector<unsigned char> CertificateSelector::showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc)
+{
+	std::wstring title = Labels::l10n.get("select certificate");
+	std::wstring text = Labels::l10n.get("cert info");
+	CRYPTUI_SELECTCERTIFICATE_STRUCT pcsc = { sizeof(pcsc) };
+	pcsc.pFilterCallback = filter_proc;
+	pcsc.pvCallbackData = nullptr;
+	pcsc.szTitle = title.c_str();
+	pcsc.szDisplayString = text.c_str();
+	pcsc.cDisplayStores = 1;
+	pcsc.rghDisplayStores = &store;
+	PCCERT_CONTEXT cert = CryptUIDlgSelectCertificate(&pcsc);
+	CertCloseStore(store, 0);
+	if (!cert)
+		throw UserCancelledException();
+	std::vector<unsigned char> data(cert->pbCertEncoded, cert->pbCertEncoded + cert->cbCertEncoded);
+	CertFreeCertificateContext(cert);
+	return data;
 }

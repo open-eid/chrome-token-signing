@@ -18,35 +18,24 @@
 
 #pragma once
 
-#include <string>
 #include <stdexcept>
 
-using namespace std;
-
-
-class BaseException : public runtime_error {
+class BaseException : public std::runtime_error {
 private:
-	string message;
-	string errorCode;
+	std::string errorCode;
 public:
-	BaseException(const string &code, const string &msg) :runtime_error(msg), message(msg), errorCode(code){}
-
-	string getErrorCode() const{
-		return errorCode;
-	}
-	string getErrorMessage() const{
-		return message;
-	}
+	BaseException(const std::string &code, const std::string &msg) :runtime_error(msg), errorCode(code) {}
+	std::string getErrorCode() const { return errorCode; }
 };
 
 class TechnicalException : public BaseException {
 public:
-	TechnicalException(const string &message) :BaseException("technical_error", message) {}
+	TechnicalException(const std::string &message) :BaseException("technical_error", message) {}
 };
 
 class InvalidArgumentException : public BaseException {
 public:
-	InvalidArgumentException(const string &message) :BaseException("invalid_argument", message) {}
+	InvalidArgumentException(const std::string &message) :BaseException("invalid_argument", message) {}
 };
 
 class InvalidHashException : public BaseException {
@@ -56,13 +45,13 @@ public:
 
 class NotAllowedException : public BaseException {
 public:
-	NotAllowedException(const string &message) :BaseException("not_allowed", message) {}
+	NotAllowedException(const std::string &message) :BaseException("not_allowed", message) {}
 };
 
 class UserCancelledException : public BaseException {
 public:
 	UserCancelledException() :BaseException("user_cancel", "User cancelled") {}
-	UserCancelledException(const string &message) :BaseException("user_cancel", message) {}
+	UserCancelledException(const std::string &message) :BaseException("user_cancel", message) {}
 };
 
 class NoCertificatesException : public BaseException {

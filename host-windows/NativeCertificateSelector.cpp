@@ -1,3 +1,21 @@
+/*
+* Chrome Token Signing Native Host
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include "NativeCertificateSelector.h"
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
@@ -33,11 +51,7 @@ BOOL WINAPI isValidForSigning(PCCERT_CONTEXT certContext) {
 	return isCardInReader(certContext);
 }
 
-BOOL WINAPI filter_proc(PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) {
-	return isValidForSigning(certContext);
-}
-
-string NativeCertificateSelector::getCert() {
+vector<unsigned char> NativeCertificateSelector::getCert() {
 	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
 	if (!store)
 	{
@@ -59,21 +73,7 @@ string NativeCertificateSelector::getCert() {
 		throw NoCertificatesException();
 	}
 
-	CRYPTUI_SELECTCERTIFICATE_STRUCT pcsc = { sizeof(pcsc) };
-	pcsc.pFilterCallback = filter_proc;
-	pcsc.pvCallbackData = nullptr;
-	pcsc.cDisplayStores = 1;
-	pcsc.rghDisplayStores = &store;
-	PCCERT_CONTEXT cert_context = CryptUIDlgSelectCertificate(&pcsc);
-
-	if (!cert_context)
-	{
-		CertCloseStore(store, 0);
-		throw UserCancelledException();
-	}
-
-	vector<unsigned char> data(cert_context->pbCertEncoded, cert_context->pbCertEncoded + cert_context->cbCertEncoded);
-	CertFreeCertificateContext(cert_context);
-	CertCloseStore(store, 0);
-	return BinaryUtils::bin2hex(data);
+	return showDialog(store, [](PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) -> BOOL {
+		return isValidForSigning(certContext);
+	});
 }

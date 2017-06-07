@@ -26,7 +26,13 @@ private:
     Labels();
 
 public:
+#ifdef _WIN32
+	typedef std::wstring lstring;
+#else
+	typedef std::string lstring;
+#endif
+
     static Labels l10n;
 	void setLanguage(const std::string &language);
-    std::string get(const std::string &labelKey) const;
+	lstring get(const std::string &labelKey) const;
 };

@@ -22,6 +22,8 @@
 #include "BinaryUtils.h"
 #include "HostExceptions.h"
 
+#include <memory>
+
 using namespace std;
 
 void PKCS11CertificateSelector::initialize() {
@@ -84,21 +86,7 @@ void PKCS11CertificateSelector::addCertificateToMemoryStore(std::vector<unsigned
 	}
 }
 
-string PKCS11CertificateSelector::getCert() {	
-	CRYPTUI_SELECTCERTIFICATE_STRUCT pcsc = { sizeof(pcsc) };
-	pcsc.pFilterCallback = nullptr; //already filtered in PKCS11CardManager
-	pcsc.pvCallbackData = nullptr;
-	pcsc.cDisplayStores = 1;
-	pcsc.rghDisplayStores = &hMemoryStore;
-	PCCERT_CONTEXT cert_context = CryptUIDlgSelectCertificate(&pcsc);
-
-	if (!cert_context) {
-		CertCloseStore(hMemoryStore, 0);
-		throw UserCancelledException();
-	}
-
-	vector<unsigned char> data(cert_context->pbCertEncoded, cert_context->pbCertEncoded + cert_context->cbCertEncoded);
-	CertFreeCertificateContext(cert_context);
-	CertCloseStore(hMemoryStore, 0);
-	return BinaryUtils::bin2hex(data);
+vector<unsigned char> PKCS11CertificateSelector::getCert()
+{
+	return showDialog(hMemoryStore, nullptr);
 }

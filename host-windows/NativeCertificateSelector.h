@@ -19,10 +19,9 @@
 #pragma once
 
 #include "CertificateSelector.h"
-#include "Logger.h"
 
 class NativeCertificateSelector : public CertificateSelector {
 public:
 	NativeCertificateSelector() : CertificateSelector(){}
-	std::string getCert();
+	std::vector<unsigned char> getCert() override;
 };

@@ -23,7 +23,12 @@
 
 class PKCS11Path {
 private:
-	static std::vector<std::string> atrList();
+    static std::vector<std::string> atrList();
 public:
-	static std::string getPkcs11ModulePath();
+    struct Params
+    {
+        std::string path;
+        std::string signPINLabel;
+    };
+    static Params getPkcs11ModulePath();
 };

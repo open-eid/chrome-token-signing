@@ -19,57 +19,18 @@
 #pragma once
 
 #include "HostExceptions.h"
-#include <string>
 #include <afx.h>
-#include <ncrypt.h>
-#include <WinCrypt.h>
 #include <cryptuiapi.h>
-
-extern "C" {
-
-	typedef BOOL(WINAPI * PFNCCERTDISPLAYPROC)(
-		__in  PCCERT_CONTEXT pCertContext,
-		__in  HWND hWndSelCertDlg,
-		__in  void *pvCallbackData
-		);
-
-	typedef struct _CRYPTUI_SELECTCERTIFICATE_STRUCT {
-		DWORD               dwSize;
-		HWND                hwndParent;
-		DWORD               dwFlags;
-		LPCWSTR             szTitle;
-		DWORD               dwDontUseColumn;
-		LPCWSTR             szDisplayString;
-		PFNCFILTERPROC      pFilterCallback;
-		PFNCCERTDISPLAYPROC pDisplayCallback;
-		void *              pvCallbackData;
-		DWORD               cDisplayStores;
-		HCERTSTORE *        rghDisplayStores;
-		DWORD               cStores;
-		HCERTSTORE *        rghStores;
-		DWORD               cPropSheetPages;
-		LPCPROPSHEETPAGEW   rgPropSheetPages;
-		HCERTSTORE          hSelectedCertStore;
-	} CRYPTUI_SELECTCERTIFICATE_STRUCT, *PCRYPTUI_SELECTCERTIFICATE_STRUCT;
-
-	typedef const CRYPTUI_SELECTCERTIFICATE_STRUCT
-		*PCCRYPTUI_SELECTCERTIFICATE_STRUCT;
-
-	PCCERT_CONTEXT WINAPI CryptUIDlgSelectCertificateW(
-		__in  PCCRYPTUI_SELECTCERTIFICATE_STRUCT pcsc
-		);
-
-#define CryptUIDlgSelectCertificate CryptUIDlgSelectCertificateW
-
-}  // extern "C"
+#include <vector>
 
 class CertificateSelector {
 public:
 	static CertificateSelector* createCertificateSelector();
 
 	virtual ~CertificateSelector() = default;
-	virtual std::string getCert() throw(UserCancelledException, TechnicalException) = 0;
+	virtual std::vector<unsigned char> getCert() throw(UserCancelledException, TechnicalException) = 0;
 
 protected:
 	CertificateSelector() = default;
+	std::vector<unsigned char> showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc);
 };
