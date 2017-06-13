@@ -83,7 +83,7 @@ public:
                      .arg(retriesLeft));
             }
             isInitialCheck = false;
-            dialog.nameLabel->setText((manager->getCardName() + ", " + manager->getPersonalCode()).c_str());
+            dialog.nameLabel->setText(manager->getCN().c_str());
             std::future< std::vector<unsigned char> > signature;
 
             if (manager->isPinpad()) {

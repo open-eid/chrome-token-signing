@@ -25,14 +25,13 @@ BUILD_NUMBER ?= 0
 include ../VERSION.mk
 
 SIGNER ?= Riigi Infosüsteemi Amet
-OPENSSL ?= $(PWD)/target
 TMPROOT = $(PWD)/tmp
 TARGET = $(TMPROOT)/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app
 PKG = chrome-token-signing.pkg
 
-PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER) OPENSSL=$(OPENSSL)
+PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
 
-$(TARGET): *.mm $(OPENSSL)
+$(TARGET): *.mm
 	$(PROJ) install DSTROOT=$(TMPROOT)
 
 codesign: $(TARGET)
@@ -59,15 +58,6 @@ signed: codesign
                 --sign "Developer ID Installer: $(SIGNER)" \
 		$(PKG)
 
-
-
-$(OPENSSL):
-	test -e openssl || git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
-	(cd openssl \
-	&& KERNEL_BITS=64 ./config --prefix=$(OPENSSL) -mmacosx-version-min=10.9 no-shared no-ssl2 no-idea no-dtls no-psk no-srp no-apps \
-	&& make depend \
-	&& make \
-	&& make install_sw)
 
 # helpers
 
