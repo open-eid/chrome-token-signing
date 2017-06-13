@@ -21,26 +21,27 @@
 !IF !DEFINED(BUILD_NUMBER)
 BUILD_NUMBER=0
 !ENDIF
+!IF "$(VISUALSTUDIOVERSION)" == "14.0"
+BUILDPARAMS = ;VisualStudioVersion=14;PlatformToolset=v140
+!ENDIF
 !include VERSION.mk
 SIGN = signtool sign /v /a /s MY /n "RIIGI INFOSUSTEEMI AMET" /fd SHA256 /du http://installer.id.ee /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp /td SHA256
 
 build:
-	msbuild /p:Configuration=Release;Platform=Win32 /property:MAJOR_VERSION=$(MAJOR_VERSION) /property:MINOR_VERSION=$(MINOR_VERSION) /property:RELEASE_VERSION=$(RELEASE_VERSION) /property:BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
+	msbuild /p:Configuration=Release;Platform=Win32$(BUILDPARAMS) /p:MAJOR_VERSION=$(MAJOR_VERSION);MINOR_VERSION=$(MINOR_VERSION);RELEASE_VERSION=$(RELEASE_VERSION);BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
 
-pkg:
+build-signed:
 	$(SIGN) host-windows/Release/chrome-token-signing.exe
-	"$(WIX)\bin\candle.exe" -nologo host-windows\chrome-token-signing.wxs -dVERSION=$(VERSIONEX) -dPlatform=x86
-	"$(WIX)\bin\light.exe" -nologo -out chrome-token-signing_$(VERSIONEX).x86.msi chrome-token-signing.wixobj -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp -dPlatform=x86
-	"$(WIX)\bin\candle.exe" -nologo host-windows\chrome-token-signing.wxs -dVERSION=$(VERSIONEX) -dPlatform=x64
-	"$(WIX)\bin\light.exe" -nologo -out chrome-token-signing_$(VERSIONEX).x64.msi chrome-token-signing.wixobj -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp -dPlatform=x64
-	$(SIGN) chrome-token-signing_$(VERSIONEX).x86.msi
-	$(SIGN) chrome-token-signing_$(VERSIONEX).x64.msi
 
 pkg-unsigned:
 	"$(WIX)\bin\candle.exe" -nologo host-windows\chrome-token-signing.wxs -dVERSION=$(VERSIONEX) -dPlatform=x86
 	"$(WIX)\bin\light.exe" -nologo -out chrome-token-signing_$(VERSIONEX).x86.msi chrome-token-signing.wixobj -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp -dPlatform=x86
 	"$(WIX)\bin\candle.exe" -nologo host-windows\chrome-token-signing.wxs -dVERSION=$(VERSIONEX) -dPlatform=x64
 	"$(WIX)\bin\light.exe" -nologo -out chrome-token-signing_$(VERSIONEX).x64.msi chrome-token-signing.wixobj -ext WixUIExtension -dWixUILicenseRtf=LICENSE.LGPL.rtf -dWixUIDialogBmp=host-windows/dlgbmp.bmp -dPlatform=x64
+
+pkg: build-signed pkg-unsigned
+	$(SIGN) chrome-token-signing_$(VERSIONEX).x86.msi
+	$(SIGN) chrome-token-signing_$(VERSIONEX).x64.msi
 
 test: build
 	python host-test\pipe-test.py -v

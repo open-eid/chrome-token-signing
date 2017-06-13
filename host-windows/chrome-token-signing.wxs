@@ -34,6 +34,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
   <?define Win64 = "no" ?>
 <?endif ?>
 
+<?if $(env.VisualStudioVersion) = "14.0" ?>
+  <?define VCVER = "140" ?>
+  <?define VCRT = "vcruntime" ?>
+<?else?>
+  <?define VCVER = "120" ?>
+  <?define VCRT = "msvcr" ?>
+<?endif?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Name="Chrome Token Signing" UpgradeCode="3e52954d-eee4-4dd8-a4f2-318521e3dbd9"
       Id="*" Language="1033" Version="$(var.VERSION)" Codepage="1251" Manufacturer="RIA">
@@ -52,9 +60,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
       <Directory Id='ProgramFilesFolder'>
         <Directory Id="APPLICATIONFOLDER" Name="Chrome Token Signing">
           <Component Id="Application" Guid="85baa771-7c73-49bb-b546-ab6a4520d258" Win64="no">
-            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcp120.dll"/>
-            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcr120.dll"/>
-            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.MFC\mfc120u.dll"/>
+            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC$(var.VCVER).CRT\msvcp$(var.VCVER).dll"/>
+            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC$(var.VCVER).CRT\$(var.VCRT)$(var.VCVER).dll"/>
+            <File Source="$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC$(var.VCVER).MFC\mfc$(var.VCVER)u.dll"/>
             <File Source="host-windows/Release/chrome-token-signing.exe"/>
             <File Source="host-windows/ee.ria.esteid.json"/>
             <File Source="host-windows/ee.ria.esteid.firefox.json"/>
