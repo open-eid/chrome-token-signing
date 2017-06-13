@@ -149,7 +149,7 @@
             });
         }
 
-        dialog->nameLabel.stringValue = @((selected->getCardName() + ", " + selected->getPersonalCode()).c_str());
+        dialog->nameLabel.stringValue = @(selected->getCN().c_str());
         if (retriesLeft < 3) {
             dialog->messageField.stringValue = [NSString stringWithFormat:@"%@%@ %u",
                                                 (isInitialCheck ? @"" : _L("incorrect PIN2")),

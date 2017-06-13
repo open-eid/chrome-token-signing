@@ -1,5 +1,6 @@
 sudo: true
 dist: trusty
+osx_image: xcode8.3
 language: c
 
 script:
