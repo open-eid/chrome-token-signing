@@ -24,6 +24,9 @@
 #import "PKCS11Path.h"
 #import "Logger.h"
 
+#import <SecurityInterface/SFCertificatePanel.h>
+#import <SecurityInterface/SFCertificateView.h>
+
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
 @interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate> {
@@ -39,9 +42,10 @@
 
 @implementation CertificateSelection
 
-- (bool)isDuplicate:(NSString*) certificate {
-    for(NSUInteger i = 0; i < [certificates count]; i++) {
-        if ([certificates[i][@"cert"] isEqualToString:certificate]) return true;
+- (bool)isDuplicate:(NSString*)certificate {
+    for (NSDictionary *cert in certificates) {
+        if ([cert[@"cert"] isEqualToString:certificate])
+            return true;
     }
     return false;
 }
@@ -147,13 +151,13 @@
     if (certificates.count == 0) {
         return [NSString string];
     }
-    if ([[tableColumn identifier] isEqualToString:@"CN"]) {
+    if ([tableColumn.identifier isEqualToString:@"CN"]) {
         return certificates[row][@"CN"];
     }
-    if ([[tableColumn identifier] isEqualToString:@"type"]) {
+    if ([tableColumn.identifier isEqualToString:@"type"]) {
         return certificates[row][@"type"];
     }
-    if ([[tableColumn identifier] isEqualToString:@"validTo"]) {
+    if ([tableColumn.identifier isEqualToString:@"validTo"]) {
         return certificates[row][@"validTo"];
     }
     return [NSString string];
@@ -164,6 +168,25 @@
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row
 {
     return okButton.enabled = YES;
+}
+
+- (BOOL)tableView:(NSTableView*)tableView shouldTypeSelectForEvent:(NSEvent*)event withCurrentSearchString:(NSString*)searchString
+{
+    switch ([event.charactersIgnoringModifiers characterAtIndex:0]) {
+        case 0x20:
+        case 0x49:
+        {
+            NSString *hex = certificates[certificateSelection.selectedRow][@"cert"];
+            std::vector<unsigned char> der = BinaryUtils::hex2bin(hex.UTF8String);
+            CFDataRef data = CFDataCreateWithBytesNoCopy(nil, der.data(), der.size(), kCFAllocatorNull);
+            id cert = CFBridgingRelease(SecCertificateCreateWithData(nil, data));
+            CFRelease(data);
+            SFCertificatePanel *panel = [[SFCertificatePanel alloc] init];
+            [panel beginSheetForWindow:window modalDelegate:nil didEndSelector:nil contextInfo:nil certificates:@[cert] showGroup:NO];
+            return NO;
+        }
+        default: return YES;
+    }
 }
 
 @end
