@@ -2,10 +2,10 @@
 
 **Now available from [Chrome Web Store](https://chrome.google.com/webstore/detail/ckjefchnfjhjfedoccjbhjpbncimppeg)**
 
+**Info: Firefox version 50 supports Chrome extensions and is implemented in version 1.0.4.**
+
  * License: LGPL 2.1
  * &copy; Estonian Information System Authority
-
-Info: Firefox version 50 supports Chrome extensions wich is implemented in version 1.0.4.
 
 ## Building
 [![Build Status](https://travis-ci.org/open-eid/chrome-token-signing.svg?branch=master)](https://travis-ci.org/open-eid/chrome-token-signing)
@@ -20,8 +20,7 @@ Info: Firefox version 50 supports Chrome extensions wich is implemented in versi
 
    1.2 Windows
 
-     * [Visual Studio Community 2013/2015](https://www.visualstudio.com/downloads/)
-     * [https://www.qt.io/download/](https://www.qt.io/download/)
+     * [Visual Studio Community 2013/2015/2017](https://www.visualstudio.com/downloads/)
 
    1.3 OSX
 
