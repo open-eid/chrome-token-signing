@@ -102,7 +102,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string estPath("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
     static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
-    static const std::string litPath("/System/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    static const std::string litPath("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
 #elif defined _WIN32
     // Use PKCS11 driver on windows to avoid PIN buffering
     static const std::string litPath = [] {
