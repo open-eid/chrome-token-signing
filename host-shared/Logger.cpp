@@ -28,45 +28,35 @@
 
 using namespace std;
 
-static void printCurrentDateTime(FILE *log) {
+void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...) {
+#ifdef _WIN32
+    static const string path = string(getenv("TEMP")) + "\\chrome-signing.log";
+#else
+    static const string path = string(getenv("HOME")) + "/tmp/chrome-signing.log";
+#endif
+
+    FILE *log = fopen(path.c_str(), "r");
+    if (!log) {
+        return;
+    }
+    fclose(log);
+
+    log = fopen(path.c_str(), "a");
+    if (!log) {
+        return;
+    }
+
     time_t now = time(0);
     tm *ltm = localtime(&now);
     //Date format yyyy-MM-dd hh:mm:ss
-	fprintf(log, "%i-%.2i-%.2i %.2i:%.2i:%.2i ",
+    fprintf(log, "%i-%.2i-%.2i %.2i:%.2i:%.2i ",
             1900 + ltm->tm_year,
             ltm->tm_mon + 1,
             ltm->tm_mday,
             ltm->tm_hour,
             ltm->tm_min,
             ltm->tm_sec);
-}
 
-static string getLogFilePath() {
-#ifdef _WIN32
-    return string(getenv("TEMP"))+"\\chrome-signing.log";
-#else
-    return string(getenv("HOME"))+"/tmp/chrome-signing.log";
-#endif
-}
-
-static bool logFileExist() {
-	FILE *file = fopen(getLogFilePath().c_str(), "r");
-	if (!file) {
-		return false;
-	}
-	fclose(file);
-	return true;
-}
-
-void Logger::writeLog(const char *functionName, const char *fileName, int lineNumber, const char *message, ...) {
-	if (!logFileExist()) {
-		return;
-	}
-    FILE *log = fopen(getLogFilePath().c_str(), "a");
-    if (!log) {
-        return;
-    }
-    printCurrentDateTime(log);
 #ifndef _WIN32
     fprintf(log, "[%i] ", getpid());
 #endif
