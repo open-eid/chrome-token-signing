@@ -40,16 +40,6 @@
 #define BINARY_SHA384_LENGTH 48
 #define BINARY_SHA512_LENGTH 64
 
-#ifndef PKCS11_MODULE
-#ifdef _WIN32
-#define PKCS11_MODULE "opensc-pkcs11.dll"
-#elif defined(__APPLE__)
-#define PKCS11_MODULE "/Library/EstonianIDCard/lib/esteid-pkcs11.so"
-#else
-#define PKCS11_MODULE "opensc-pkcs11.so"
-#endif
-#endif
-
 #define C(API, ...) Call(__FILE__, __LINE__, "C_"#API, fl->C_##API, __VA_ARGS__)
 
 class UserCanceledError : public std::runtime_error {
@@ -146,7 +136,7 @@ private:
 
 public:
 
-    static PKCS11CardManager* instance(const std::string &module = PKCS11_MODULE) {
+    static PKCS11CardManager* instance(const std::string &module) {
         static PKCS11CardManager instance(module);
         return &instance;
     }
@@ -224,11 +214,11 @@ public:
         C(OpenSession, token.slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
         C(Login, session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
         std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(session, CKO_PRIVATE_KEY);
-        if (privateKeyHandle.empty()) {
+        if (privateKeyHandle.empty() || token.index >= privateKeyHandle.size()) {
             throw std::runtime_error("Could not read private key");
         }
-        CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
         _log("found %i private keys in slot, using key in position %i", privateKeyHandle.size(), token.index);
+        CK_MECHANISM mechanism = {CKM_RSA_PKCS, 0, 0};
         C(SignInit, session, &mechanism, privateKeyHandle[token.index]);
         std::vector<unsigned char> hashWithPadding;
         switch (hash.size()) {
