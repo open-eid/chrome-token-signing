@@ -81,11 +81,11 @@ public:
         QString label;
         if (ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation)) {
             label = Labels::l10n.get(selected.pinpad ? "sign PIN pinpad" : "sign PIN").c_str();
-            label.replace("PIN", p11.signPINLabel.c_str());
+            label.replace("@PIN@", p11.signPINLabel.c_str());
         }
         else {
             label = Labels::l10n.get(selected.pinpad ? "auth PIN pinpad" : "auth PIN").c_str();
-            label.replace("PIN", p11.authPINLabel.c_str());
+            label.replace("@PIN@", p11.authPINLabel.c_str());
         }
 
         bool isInitialCheck = true;
@@ -201,7 +201,7 @@ private:
             connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
             cancel = buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
-            ok = buttons->addButton(Labels::l10n.get("sign").c_str(), QDialogButtonBox::AcceptRole);
+            ok = buttons->addButton("OK", QDialogButtonBox::AcceptRole);
             ok->setEnabled(false);
 
             pin = new QLineEdit(this);

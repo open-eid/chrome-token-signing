@@ -55,7 +55,6 @@
             [progressBar startAnimation:self];
         }
         else {
-            okButton.title = _L("sign");
             cancelButton.title = _L("cancel");
         }
         pinFieldLabel.stringValue = label;
@@ -131,10 +130,10 @@
 
         NSString *label = [NSString string];
         if (ku.unsignedIntValue & kSecKeyUsageNonRepudiation) {
-            label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"PIN" withString:@(p11.signPINLabel.c_str())];
+            label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
         }
         else {
-            label = [_L(selected.pinpad ? "auth PIN pinpad" : "auth PIN") stringByReplacingOccurrencesOfString:@"PIN" withString:@(p11.authPINLabel.c_str())];
+            label = [_L(selected.pinpad ? "auth PIN pinpad" : "auth PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.authPINLabel.c_str())];
         }
         PINPanel *dialog = [[PINPanel alloc] init:label pinpad:selected.pinpad];
         if (!dialog) {

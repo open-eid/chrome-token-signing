@@ -98,6 +98,11 @@ char* Pkcs11Signer::askPin() {
 			label = Labels::l10n.get("auth PIN");
 		CertFreeCertificateContext(cert);
 	}
+	size_t start_pos = 0;
+	while((start_pos = label.find(L"@PIN@", start_pos)) != std::string::npos) {
+		label.replace(start_pos, 5, L"PIN");
+		start_pos += 3;
+	}
 
 	PinDialog dialog(label);
 	if (dialog.DoModal() != IDOK) {

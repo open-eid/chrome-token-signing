@@ -24,8 +24,7 @@
 
 using namespace std;
 
-Signer * Signer::createSigner(const jsonxx::Object &jsonRequest){
-	string cert = jsonRequest.get<string>("cert");
+Signer * Signer::createSigner(const string &cert){
 	PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
 	if (!p11.path.empty()) {
 		return new Pkcs11Signer(p11.path, cert);
