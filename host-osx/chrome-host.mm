@@ -49,12 +49,14 @@ int main(int argc, const char * argv[]) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
         __block NSString *cert, *origin, *version = [NSString stringWithFormat:@"%@.%@",
-                                                     [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
-                                                     [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];
+                                                     NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"],
+                                                     NSBundle.mainBundle.infoDictionary[@"CFBundleVersion"]];
         _log("Starting native host %s", version.UTF8String);
         NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
         [input waitForDataInBackgroundAndNotify];
         NSNotificationCenter *dc = NSNotificationCenter.defaultCenter;
+        __block uint32_t size = 0;
+        __block NSMutableData *buf = nil;
         [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification *note) {
             NSData *data = [input availableData];
             if (data.length == 0) {
@@ -62,24 +64,33 @@ int main(int argc, const char * argv[]) {
             }
             [input waitForDataInBackgroundAndNotify];
 
+            if (buf) {
+                [buf appendData:data];
+                data = buf;
+                buf = nil;
+            }
+
             for (NSUInteger pos = 0; pos < data.length;) {
-                uint32_t size = 0;
-                [data getBytes:&size range:NSMakeRange(pos, sizeof(size))];
-                pos += sizeof(size);
-                _log("Message size: %u", size);
+                if (size == 0) {
+                    [data getBytes:&size range:NSMakeRange(pos, sizeof(size))];
+                    pos += sizeof(size);
+                    _log("Message size: %u", size);
+                }
                 if (size > 8*1024) {
+                    _log("Size (%u) exceeds allowed size", size, 8*1024);
                     write(@{@"result": @"invalid_argument"}, nil);
                     return exit(1);
                 }
                 else if (data.length < pos + size) {
-                    _log("Size (%u) exceeds available data (%u)", size, data.length - pos);
-                    write(@{@"result": @"invalid_argument"}, nil);
-                    return exit(1);
+                    _log("Size (%u) exceeds available data (%u), waiting more", size, data.length - pos);
+                    buf = [NSMutableData dataWithData:[data subdataWithRange:NSMakeRange(pos, data.length - pos)]];
+                    return;
                 }
 
                 NSData *json = [data subdataWithRange:NSMakeRange(pos, size)];
                 pos += size;
                 _log("Message (%u): %s", size, (const char*)json.bytes);
+                size = 0;
 
                 NSError *error;
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
