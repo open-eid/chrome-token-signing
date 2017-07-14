@@ -27,6 +27,7 @@ public:
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 private:
 	int pinTriesLeft;
+	std::string pkcs11Path;
 	void validatePinNotBlocked();
 	char* askPin();
 	void handleWrongPinEntry();

@@ -30,6 +30,7 @@ using namespace std;
 
 Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const string &certInHex)
 	: Signer(certInHex)
+	, pkcs11Path(pkcs11ModulePath)
 {
 	HMODULE hModule = ::GetModuleHandle(NULL);
 	if (hModule == NULL) {
@@ -41,8 +42,6 @@ Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const string &certInH
 		_log("MFC initialization failed");
 		throw TechnicalException("MFC initialization failed");
 	}
-	// Init static card manager
-	pkcs11ModulePath.empty() ? PKCS11CardManager::instance() : PKCS11CardManager::instance(pkcs11ModulePath);
 }
 
 vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
@@ -50,7 +49,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 
 	PKCS11CardManager::Token selected;
 	try {
-		for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance()->tokens()) {
+		for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(pkcs11Path)->tokens()) {
 			if (token.cert == BinaryUtils::hex2bin(getCertInHex())) {
 				selected = token;
 				break;
@@ -71,7 +70,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 
 	try {
 		validatePinNotBlocked();
-		return PKCS11CardManager::instance()->sign(selected, digest, askPin());
+		return PKCS11CardManager::instance(pkcs11Path)->sign(selected, digest, askPin());
 	}
 	catch (const AuthenticationError &) {
 		_log("Wrong pin");
