@@ -18,67 +18,44 @@
 
 #include "NativeCertificateSelector.h"
 #include "HostExceptions.h"
+#include "Logger.h"
 
 using namespace std;
 
-static bool isValid(PCCERT_CONTEXT certContext, bool forSigning) {
-	DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG;
-	NCRYPT_KEY_HANDLE key = 0;
-	DWORD spec = 0;
-	BOOL freeKey = FALSE;
-	CryptAcquireCertificatePrivateKey(certContext, flags, 0, &key, &spec, &freeKey);
-	if (!key) {
-		return FALSE;
-	}
-	switch (spec)
-	{
-	case CERT_NCRYPT_KEY_SPEC:
-		if (freeKey)
-			NCryptFreeObject(key);
-		break;
-	case AT_KEYEXCHANGE:
-	case AT_SIGNATURE:
-	default:
-		if (freeKey)
-			CryptReleaseContext(key, 0);
-		break;
-	}
-	BYTE keyUsage = 0;
-	CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certContext->pCertInfo, &keyUsage, 1);
-	return CertVerifyTimeValidity(NULL, certContext->pCertInfo) == 0 && (
-		(forSigning && keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) ||
-		(!forSigning && keyUsage & CERT_DIGITAL_SIGNATURE_KEY_USAGE));
-}
-
 vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const {
-	HCERTSTORE store = CertOpenSystemStore(0, L"MY");
-	if (!store) {
+	HCERTSTORE sys = CertOpenStore(CERT_STORE_PROV_SYSTEM,
+		X509_ASN_ENCODING, 0, CERT_SYSTEM_STORE_CURRENT_USER | CERT_STORE_READONLY_FLAG, L"MY");
+	if (!sys)
 		throw TechnicalException("Failed to open Cert Store");
-	}
 
-	PCCERT_CONTEXT pCertContextForEnumeration = nullptr;
+	PCCERT_CONTEXT cert = nullptr;
 	int certificatesCount = 0;
-	while (pCertContextForEnumeration = CertEnumCertificatesInStore(store, pCertContextForEnumeration)) {
-		if (isValid(pCertContextForEnumeration, forSigning)) {
-			certificatesCount++;
+	while (cert = CertEnumCertificatesInStore(sys, cert)) {
+		if (!isValid(cert, forSigning))
+			continue;
+		DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG;
+		NCRYPT_KEY_HANDLE key = 0;
+		DWORD spec = 0;
+		BOOL freeKey = FALSE;
+		CryptAcquireCertificatePrivateKey(cert, flags, 0, &key, &spec, &freeKey);
+		if (!key)
+			continue;
+		switch (spec)
+		{
+		case CERT_NCRYPT_KEY_SPEC: if (freeKey)	NCryptFreeObject(key); break;
+		case AT_KEYEXCHANGE:
+		case AT_SIGNATURE: if (freeKey) CryptReleaseContext(key, 0); break;
 		}
+		PCCERT_CONTEXT copy = nullptr;
+		if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, &copy)) {
+			++certificatesCount;
+			_log("Certificate added to the memory store.");
+		}
+		else
+			_log("Could not add the certificate to the memory store.");
 	}
-	if (pCertContextForEnumeration){
-		CertFreeCertificateContext(pCertContextForEnumeration);
-	}
-	if (certificatesCount < 1) {
-		CertCloseStore(store, 0);
+	CertCloseStore(sys, 0);
+	if (certificatesCount < 1)
 		throw NoCertificatesException();
-	}
-
-	if (forSigning) {
-		return showDialog(store, [](PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) -> BOOL {
-			return isValid(certContext, true);
-		});
-	}
-	else {
-		return showDialog(store, [](PCCERT_CONTEXT certContext, BOOL *pfInitialSelectedCert, void *pvCallbackData) -> BOOL {
-			return isValid(certContext, false);
-		});
-	}
+	return showDialog();
 }

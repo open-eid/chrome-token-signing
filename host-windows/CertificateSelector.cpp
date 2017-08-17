@@ -71,19 +71,27 @@ CertificateSelector* CertificateSelector::createCertificateSelector()
 		return new NativeCertificateSelector();
 }
 
-std::vector<unsigned char> CertificateSelector::showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc) const
+bool CertificateSelector::isValid(PCCERT_CONTEXT cert, bool forSigning) const
+{
+	if (CertVerifyTimeValidity(nullptr, cert->pCertInfo) > 0)
+		return false;
+	BYTE keyUsage = 0;
+	CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
+	return forSigning == bool(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE);
+}
+
+std::vector<unsigned char> CertificateSelector::showDialog() const
 {
 	std::wstring title = Labels::l10n.get("select certificate");
 	std::wstring text = Labels::l10n.get("cert info");
 	CRYPTUI_SELECTCERTIFICATE_STRUCT pcsc = { sizeof(pcsc) };
-	pcsc.pFilterCallback = filter_proc;
+	pcsc.pFilterCallback = nullptr;
 	pcsc.pvCallbackData = nullptr;
 	pcsc.szTitle = title.c_str();
 	pcsc.szDisplayString = text.c_str();
 	pcsc.cDisplayStores = 1;
-	pcsc.rghDisplayStores = &store;
+	pcsc.rghDisplayStores = const_cast<HCERTSTORE*>(&store);
 	PCCERT_CONTEXT cert = CryptUIDlgSelectCertificate(&pcsc);
-	CertCloseStore(store, 0);
 	if (!cert)
 		throw UserCancelledException();
 	std::vector<unsigned char> data(cert->pbCertEncoded, cert->pbCertEncoded + cert->cbCertEncoded);

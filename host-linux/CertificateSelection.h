@@ -60,7 +60,7 @@ public:
                 const int keyUsageNonRepudiation = 1;
                 const bool isNonRepudiation = ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation);
                 ASN1_BIT_STRING_free(keyusage);
-                if (!((forSigning && isNonRepudiation) || (!forSigning && !isNonRepudiation))) {
+                if (forSigning != isNonRepudiation) {
                     _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
                     continue;
                 }
