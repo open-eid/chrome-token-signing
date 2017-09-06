@@ -30,16 +30,8 @@ PKCS11CertificateSelector::PKCS11CertificateSelector(const string &_driverPath)
 	, driverPath(_driverPath)
 {}
 
-vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {	
-	HCERTSTORE  hMemoryStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, NULL);
-	if (hMemoryStore) {
-		_log("Opened a memory store.");
-	}
-	else {
-		_log("Error opening a memory store.");
-		throw TechnicalException("Error opening a memory store.");
-	}
-
+vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {
+	int certificatesCount = 0;
 	try {
 		for (const auto &token : PKCS11CardManager::instance(driverPath)->tokens()) {
 			PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, token.cert.data(), token.cert.size());
@@ -47,27 +39,23 @@ vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const 
 				continue;
 			_log("new certificate handle created.");
 
-			BYTE keyUsage = 0;
-			CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
-			if (CertVerifyTimeValidity(NULL, cert->pCertInfo) != 0 ||
-				(forSigning && !(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE)) ||
-				(!forSigning && keyUsage & CERT_NON_REPUDIATION_KEY_USAGE)) {
+			if (isValid(cert, forSigning)) {
 				CertFreeCertificateContext(cert);
 				continue;
 			}
-			if (CertAddCertificateContextToStore(hMemoryStore, cert, CERT_STORE_ADD_USE_EXISTING, NULL)) {
+			if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, nullptr)) {
+				++certificatesCount;
 				_log("Certificate added to the memory store.");
 			}
-			else {
+			else
 				_log("Could not add the certificate to the memory store.");
-			}
 		}
 	}
 	catch (const std::runtime_error &a) {
 		_log("Technical error: %s", a.what());
-		CertCloseStore(hMemoryStore, 0);
 		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
-
-	return showDialog(hMemoryStore, nullptr);
+	if (certificatesCount < 1)
+		throw NoCertificatesException();
+	return showDialog();
 }

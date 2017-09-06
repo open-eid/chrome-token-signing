@@ -20,17 +20,22 @@
 
 #include "HostExceptions.h"
 #include <afx.h>
-#include <cryptuiapi.h>
+#include <wincrypt.h>
 #include <vector>
 
 class CertificateSelector {
 public:
 	static CertificateSelector* createCertificateSelector();
 
-	virtual ~CertificateSelector() = default;
+	virtual ~CertificateSelector() {
+		if (store)
+			CertCloseStore(store, 0);
+	}
 	virtual std::vector<unsigned char> getCert(bool forSigning) const throw(UserCancelledException, TechnicalException) = 0;
 
 protected:
 	CertificateSelector() = default;
-	std::vector<unsigned char> showDialog(HCERTSTORE store, PFNCFILTERPROC filter_proc) const;
+	bool isValid(PCCERT_CONTEXT cert, bool forSigning) const;
+	std::vector<unsigned char> showDialog() const;
+	HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, NULL);
 };

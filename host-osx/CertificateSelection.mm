@@ -74,7 +74,7 @@
 
                 NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
                 const bool isNonRepudiation = ku.unsignedIntValue & kSecKeyUsageNonRepudiation;
-                if (!((forSigning && isNonRepudiation) || (!forSigning && !isNonRepudiation))) {
+                if (forSigning != isNonRepudiation) {
                     _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
                     continue;
                 }

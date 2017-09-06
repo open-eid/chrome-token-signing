@@ -34,6 +34,8 @@ Signer * Signer::createSigner(const string &cert){
 
 bool Signer::showInfo(const string &msg)
 {
+	if (msg.empty())
+		return true;
 	int size = MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), msg.size(), nullptr, 0);
 	if (size > 500)
 		throw TechnicalException("Information message to long");
