@@ -136,13 +136,14 @@ void RequestHandler::handleSignRequest() {
 		_log("Hash length %i is invalid", hash.size());
 		throw InvalidHashException();
 	}
-	unique_ptr<Signer> signer(Signer::createSigner(jsonRequest.get<string>("cert")));
+	string certInHex = jsonRequest.get<string>("cert");
+	unique_ptr<Signer> signer(Signer::createSigner(BinaryUtils::hex2bin(certInHex)));
 	
 	if (!signer->showInfo(jsonRequest.get<string>("info", string())))
 		throw UserCancelledException();
 
-	_log("signing hash: %s, with certId: %s", hash.c_str(), signer->getCertInHex().c_str());
-	validateContext(signer->getCertInHex());
+	_log("signing hash: %s, with certId: %s", hash.c_str(), certInHex.c_str());
+	validateContext(certInHex);
 	string signature = BinaryUtils::bin2hex(signer->sign(digest));
 	_log("Sign result: %s", signature.c_str());
 	jsonResponse << "signature" << signature;

@@ -18,18 +18,20 @@
 
 #include "Signer.h"
 #include "HostExceptions.h"
-#include "CngCapiSigner.h"
+#include "NativeSigner.h"
 #include "Pkcs11Signer.h"
 #include "PKCS11Path.h"
 
+#include <Windows.h>
+
 using namespace std;
 
-Signer * Signer::createSigner(const string &cert){
+Signer * Signer::createSigner(const vector<unsigned char> &cert){
 	PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
 	if (!p11.path.empty()) {
 		return new Pkcs11Signer(p11.path, cert);
 	}
-	return new CngCapiSigner(cert);
+	return new NativeSigner(cert);
 }
 
 bool Signer::showInfo(const string &msg)

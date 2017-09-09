@@ -16,18 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "CngCapiSigner.h"
-#include "BinaryUtils.h"
+#include "NativeSigner.h"
 #include "HostExceptions.h"
+#include "Logger.h"
+
 #include <Windows.h>
 #include <ncrypt.h>
 #include <WinCrypt.h>
 #include <cryptuiapi.h>
-#include "Logger.h"
+
+#include <memory>
 
 using namespace std;
 
-vector<unsigned char> CngCapiSigner::sign(const vector<unsigned char> &digest)
+vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 {
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	DWORD obtainKeyStrategy = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
@@ -59,75 +61,77 @@ vector<unsigned char> CngCapiSigner::sign(const vector<unsigned char> &digest)
 		throw InvalidHashException();
 	}
 	
-	SECURITY_STATUS err = 0;
-	DWORD size = 256;
-	vector<unsigned char> signature(size, 0);
-
 	HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM,
 		X509_ASN_ENCODING, 0, CERT_SYSTEM_STORE_CURRENT_USER | CERT_STORE_READONLY_FLAG, L"MY");
 	if (!store)
 		throw TechnicalException("Failed to open Cert Store");
 	
-	vector<unsigned char> certInBinary = BinaryUtils::hex2bin(getCertInHex());
-	
-	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, certInBinary.data(), certInBinary.size());
+	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, cert.data(), cert.size());
 	PCCERT_CONTEXT certInStore = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_EXISTING, certFromBinary, 0);
 	CertFreeCertificateContext(certFromBinary);
+	CertCloseStore(store, 0);
 
 	if (!certInStore)
-	{
-		CertCloseStore(store, 0);
 		throw NoCertificatesException();
-	}
 
 	DWORD flags = obtainKeyStrategy | CRYPT_ACQUIRE_COMPARE_KEY_FLAG;
 	DWORD spec = 0;
 	BOOL freeKeyHandle = false;
-	HCRYPTPROV_OR_NCRYPT_KEY_HANDLE key = NULL;
-	BOOL gotKey = true;
-	gotKey = CryptAcquireCertificatePrivateKey(certInStore, flags, 0, &key, &spec, &freeKeyHandle);
+	HCRYPTPROV_OR_NCRYPT_KEY_HANDLE *handle = new HCRYPTPROV_OR_NCRYPT_KEY_HANDLE(0);
+	BOOL gotKey = CryptAcquireCertificatePrivateKey(certInStore, flags, 0, handle, &spec, &freeKeyHandle);
 	CertFreeCertificateContext(certInStore);
-	CertCloseStore(store, 0);
+	if (!gotKey)
+		throw NoCertificatesException();
 
-	switch (spec) 
+	auto deleter = [=](HCRYPTPROV_OR_NCRYPT_KEY_HANDLE *key) {
+		if (!freeKeyHandle)
+			return;
+		if (spec == CERT_NCRYPT_KEY_SPEC)
+			NCryptFreeObject(*key);
+		else
+			CryptReleaseContext(*key, 0);
+	};
+	unique_ptr<HCRYPTPROV_OR_NCRYPT_KEY_HANDLE, decltype(deleter)> key(handle, deleter);
+
+	SECURITY_STATUS err = ERROR_SUCCESS;
+	vector<unsigned char> signature;
+	switch (spec)
 	{
 	case CERT_NCRYPT_KEY_SPEC:
 	{
-		err = NCryptSignHash(key, &padInfo, PBYTE(digest.data()), DWORD(digest.size()),
-			signature.data(), DWORD(signature.size()), (DWORD*)&size, BCRYPT_PAD_PKCS1);
-		if (freeKeyHandle) {
-			NCryptFreeObject(key);
-		}
+		DWORD size = 0;
+		err = NCryptSignHash(*key.get(), &padInfo, PBYTE(digest.data()), DWORD(digest.size()),
+			nullptr, 0, LPDWORD(&size), BCRYPT_PAD_PKCS1);
+		if (FAILED(err))
+			break;
+
 		signature.resize(size);
+		err = NCryptSignHash(*key.get(), &padInfo, PBYTE(digest.data()), DWORD(digest.size()),
+			signature.data(), DWORD(signature.size()), LPDWORD(&size), BCRYPT_PAD_PKCS1);
 		break;
 	}
 	case AT_KEYEXCHANGE:
 	case AT_SIGNATURE:
 	{
 		HCRYPTHASH hash = 0;
-		if (!CryptCreateHash(key, alg, 0, 0, &hash)) {
-			if (freeKeyHandle) {
-				CryptReleaseContext(key, 0);
-			}
+		if (!CryptCreateHash(*key.get(), alg, 0, 0, &hash))
 			throw TechnicalException("CreateHash failed");
-		}
-
 		if (!CryptSetHashParam(hash, HP_HASHVAL, digest.data(), 0))	{
-			if (freeKeyHandle) {
-				CryptReleaseContext(key, 0);
-			}
 			CryptDestroyHash(hash);
 			throw TechnicalException("SetHashParam failed");
 		}
 
-		INT retCode = CryptSignHashW(hash, spec, 0, 0, LPBYTE(signature.data()), &size);
-		err = retCode ? ERROR_SUCCESS : GetLastError();
-		_log("CryptSignHash() return code: %u (%s) %x", retCode, retCode ? "SUCCESS" : "FAILURE", err);
-		if (freeKeyHandle) {
-			CryptReleaseContext(key, 0);
+		DWORD size = 0;
+		if (!CryptSignHashW(hash, spec, nullptr, 0, nullptr, &size)) {
+			CryptDestroyHash(hash);
+			err = GetLastError();
+			break;
 		}
-		CryptDestroyHash(hash);
+
 		signature.resize(size);
+		if (!CryptSignHashW(hash, spec, nullptr, 0, LPBYTE(signature.data()), &size))
+			err = GetLastError();
+		CryptDestroyHash(hash);
 		reverse(signature.begin(), signature.end());
 		break;
 	}
@@ -135,6 +139,7 @@ vector<unsigned char> CngCapiSigner::sign(const vector<unsigned char> &digest)
 		throw TechnicalException("Incompatible key");
 	}
 
+	_log("sign return code: %x", err);
 	switch (err)
 	{
 	case ERROR_SUCCESS:

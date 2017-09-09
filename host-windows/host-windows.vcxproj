@@ -99,11 +99,11 @@
     <ClInclude Include="..\host-shared\PKCS11Path.h" />
     <ClInclude Include="..\host-shared\VersionInfo.h" />
     <ClInclude Include="CertificateSelector.h" />
-    <ClInclude Include="CngCapiSigner.h" />
     <ClInclude Include="ContextMaintainer.h" />
     <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="NativeCertificateSelector.h" />
+    <ClInclude Include="NativeSigner.h" />
     <ClInclude Include="PinDialog.h" />
     <ClInclude Include="PKCS11CertificateSelector.h" />
     <ClInclude Include="Pkcs11Signer.h" />
@@ -123,11 +123,11 @@
     <ClCompile Include="chrome-token-signing.cpp" />
     <ClCompile Include="IOCommunicator.cpp" />
     <ClCompile Include="NativeCertificateSelector.cpp" />
+    <ClCompile Include="NativeSigner.cpp" />
     <ClCompile Include="PinDialog.cpp" />
     <ClCompile Include="PKCS11CertificateSelector.cpp" />
     <ClCompile Include="Pkcs11Signer.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
-    <ClCompile Include="CngCapiSigner.cpp" />
     <ClCompile Include="Signer.cpp" />
   </ItemGroup>
   <ItemGroup>
