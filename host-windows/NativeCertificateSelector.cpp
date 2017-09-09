@@ -33,7 +33,7 @@ vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const 
 	while (cert = CertEnumCertificatesInStore(sys, cert)) {
 		if (!isValid(cert, forSigning))
 			continue;
-		DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG;
+		DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG | CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
 		NCRYPT_KEY_HANDLE key = 0;
 		DWORD spec = 0;
 		BOOL freeKey = FALSE;

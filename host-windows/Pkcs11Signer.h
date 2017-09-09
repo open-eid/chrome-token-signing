@@ -19,11 +19,10 @@
 #pragma once
 
 #include "Signer.h"
-#include "PKCS11CardManager.h"
 
 class Pkcs11Signer : public Signer {
 public:
-	Pkcs11Signer(const std::string &pkcs11ModulePath, const std::string &certInHex);
+	Pkcs11Signer(const std::string &pkcs11ModulePath, const std::vector<unsigned char> &cert);
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 private:
 	int pinTriesLeft;

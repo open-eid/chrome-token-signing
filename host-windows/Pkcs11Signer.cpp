@@ -20,7 +20,6 @@
 #include "PKCS11CardManager.h"
 #include "Labels.h"
 #include "Logger.h"
-#include "BinaryUtils.h"
 #include "HostExceptions.h"
 #include "PinDialog.h"
 
@@ -28,8 +27,8 @@
 
 using namespace std;
 
-Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const string &certInHex)
-	: Signer(certInHex)
+Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const vector<unsigned char> &cert)
+	: Signer(cert)
 	, pkcs11Path(pkcs11ModulePath)
 {
 	HMODULE hModule = ::GetModuleHandle(NULL);
@@ -50,7 +49,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 	PKCS11CardManager::Token selected;
 	try {
 		for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(pkcs11Path)->tokens()) {
-			if (token.cert == BinaryUtils::hex2bin(getCertInHex())) {
+			if (token.cert == cert) {
 				selected = token;
 				break;
 			}
@@ -89,14 +88,12 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 char* Pkcs11Signer::askPin() {
 	_log("Showing pin entry dialog");
 	wstring label = Labels::l10n.get("sign PIN");
-	vector<unsigned char> data = BinaryUtils::hex2bin(getCertInHex());
-	PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, data.data(), data.size());
-	if (cert) {
+	if (PCCERT_CONTEXT certificate = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert.data(), cert.size())) {
 		BYTE keyUsage = 0;
-		CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
+		CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificate->pCertInfo, &keyUsage, 1);
 		if (!(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE))
 			label = Labels::l10n.get("auth PIN");
-		CertFreeCertificateContext(cert);
+		CertFreeCertificateContext(certificate);
 	}
 	size_t start_pos = 0;
 	while((start_pos = label.find(L"@PIN@", start_pos)) != std::string::npos) {
