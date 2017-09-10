@@ -103,6 +103,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
     static const std::string litPath("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
 #elif defined _WIN32
     // Use PKCS11 driver on windows to avoid PIN buffering
     static const std::string litPath = [] {
@@ -119,6 +120,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string latPath("otlv-pkcs11.so");
     static const std::string finPath("opensc-pkcs11.so");
     static const std::string litPath("/usr/lib/ccs/libccpkip11.so");
+    static const std::string eTokenPath("/usr/local/lib/libeTPkcs11.dylib");
 #endif
     static const std::map<std::string, Params> m = {
 #ifdef _WIN32
@@ -143,6 +145,9 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         {"3BDD18008131FE45904C41545649412D65494490008C", {latPath, "PIN1", "PIN2"}},
 
         {"3B7B940000806212515646696E454944", {finPath, "PIN1", "PIN2"}},
+
+        {"3BD5180081313A7D8073C8211030", {eTokenPath, "PIN", "PIN"}},
+        {"3BD518008131FE7D8073C82110F4", {eTokenPath, "PIN", "PIN"}},
 #endif
         {"3BF81300008131FE45536D617274417070F8", {litPath, "PIN", "PIN"}},
         {"3B7D94000080318065B08311C0A983009000", {litPath, "PIN", "PIN"}},
