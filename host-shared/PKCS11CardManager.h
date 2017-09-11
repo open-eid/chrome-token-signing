@@ -99,13 +99,25 @@ private:
         }
     }
 
-    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, CK_ULONG max = 2) const {
+    std::vector<unsigned char> attribute(CK_SESSION_HANDLE session, CK_OBJECT_CLASS obj, CK_ATTRIBUTE_TYPE attr) const {
+        CK_ATTRIBUTE attribute = { attr, nullptr, 0 };
+        C(GetAttributeValue, session, obj, &attribute, 1);
+        std::vector<unsigned char> data(attribute.ulValueLen, 0);
+        attribute.pValue = data.data();
+        C(GetAttributeValue, session, obj, &attribute, 1);
+        return data;
+    }
+
+    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, const std::vector<unsigned char> &id = std::vector<unsigned char>()) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
-        CK_ATTRIBUTE searchAttribute = {CKA_CLASS, &objectClass, sizeof(objectClass)};
-        C(FindObjectsInit, session, &searchAttribute, 1);
-        CK_ULONG objectCount = max;
+        std::vector<CK_ATTRIBUTE> searchAttribute{ {CKA_CLASS, &objectClass, sizeof(objectClass)} };
+        if (!id.empty()) {
+            searchAttribute.push_back({ CKA_ID, (void*)id.data(), id.size() });
+        }
+        C(FindObjectsInit, session, searchAttribute.data(), searchAttribute.size());
+        CK_ULONG objectCount = 32;
         std::vector<CK_OBJECT_HANDLE> objectHandle(objectCount);
         C(FindObjects, session, objectHandle.data(), objectHandle.size(), &objectCount);
         C(FindObjectsFinal, session);
@@ -155,8 +167,7 @@ public:
     struct Token {
         std::string label;
         CK_SLOT_ID slotID;
-        std::vector<unsigned char> cert;
-        size_t index;
+        std::vector<unsigned char> cert, certID;
         int retry;
         bool pinpad;
         unsigned long minPinLen, maxPinLen;
@@ -181,14 +192,10 @@ public:
             CK_SESSION_HANDLE session = 0;
             C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
 
-            std::vector<CK_OBJECT_HANDLE> objs = findObject(session, CKO_CERTIFICATE);
-            for (size_t i = 0; i < objs.size(); ++i) {
-                CK_ATTRIBUTE attribute = { CKA_VALUE, nullptr, 0 };
-                C(GetAttributeValue, session, objs[i], &attribute, 1);
-                std::vector<unsigned char> cert(attribute.ulValueLen, 0);
-                attribute.pValue = cert.data();
-                C(GetAttributeValue, session, objs[i], &attribute, 1);
-                result.push_back({ std::string((const char*)tokenInfo.label, sizeof(tokenInfo.label)), slotID, cert, i,
+            for (CK_OBJECT_HANDLE obj: findObject(session, CKO_CERTIFICATE)) {
+                result.push_back({ std::string((const char*)tokenInfo.label, sizeof(tokenInfo.label)), slotID,
+                    attribute(session, obj, CKA_VALUE),
+                    attribute(session, obj, CKA_ID),
                     [&] {
                         if (tokenInfo.flags & CKF_USER_PIN_LOCKED) return 0;
                         if (tokenInfo.flags & CKF_USER_PIN_FINAL_TRY) return 1;
@@ -213,18 +220,24 @@ public:
         CK_SESSION_HANDLE session = 0;
         C(OpenSession, token.slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
         C(Login, session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
-        std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(session, CKO_PRIVATE_KEY);
-        if (privateKeyHandle.empty() || token.index >= privateKeyHandle.size()) {
-            throw std::runtime_error("Could not read private key");
+        if (token.certID.empty()) {
+            throw std::runtime_error("Could not read private key. Certificate ID is empty");
         }
-        _log("found %i private keys in slot, using key in position %i", privateKeyHandle.size(), token.index);
+        std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(session, CKO_PRIVATE_KEY, token.certID);
+        if (privateKeyHandle.empty()) {
+            throw std::runtime_error("Could not read private key. Key not found");
+        }
+        if (privateKeyHandle.size() > 1) {
+            throw std::runtime_error("Could not read private key. Found multiple keys");
+        }
+        _log("found %i private keys in slot, using key ID %x", privateKeyHandle.size(), token.certID.data());
 
         CK_KEY_TYPE keyType = CKK_RSA;
         CK_ATTRIBUTE attribute = { CKA_KEY_TYPE, &keyType, sizeof(keyType) };
-        C(GetAttributeValue, session, privateKeyHandle[token.index], &attribute, 1);
-
+        C(GetAttributeValue, session, privateKeyHandle[0], &attribute, 1);
+        
         CK_MECHANISM mechanism = {keyType == CKK_ECDSA ? CKM_ECDSA : CKM_RSA_PKCS, 0, 0};
-        C(SignInit, session, &mechanism, privateKeyHandle[token.index]);
+        C(SignInit, session, &mechanism, privateKeyHandle[0]);
         std::vector<unsigned char> hashWithPadding;
         if (keyType == CKK_RSA) {
             switch (hash.size()) {
