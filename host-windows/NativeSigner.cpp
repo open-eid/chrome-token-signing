@@ -100,14 +100,19 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 	case CERT_NCRYPT_KEY_SPEC:
 	{
 		DWORD size = 0;
-		err = NCryptSignHash(*key.get(), &padInfo, PBYTE(digest.data()), DWORD(digest.size()),
-			nullptr, 0, LPDWORD(&size), BCRYPT_PAD_PKCS1);
+		wstring algo(5, 0);
+		err = NCryptGetProperty(*key.get(), NCRYPT_ALGORITHM_GROUP_PROPERTY, PBYTE(algo.data()), (algo.size() + 1) * 2, &size, 0);
+		algo.resize(size / 2 - 1);
+		bool isRSA = algo == L"RSA";
+		
+		err = NCryptSignHash(*key.get(), isRSA ? &padInfo : nullptr, PBYTE(digest.data()), DWORD(digest.size()),
+			nullptr, 0, LPDWORD(&size), isRSA ? BCRYPT_PAD_PKCS1 : 0);
 		if (FAILED(err))
 			break;
 
 		signature.resize(size);
-		err = NCryptSignHash(*key.get(), &padInfo, PBYTE(digest.data()), DWORD(digest.size()),
-			signature.data(), DWORD(signature.size()), LPDWORD(&size), BCRYPT_PAD_PKCS1);
+		err = NCryptSignHash(*key.get(), isRSA ? &padInfo : nullptr, PBYTE(digest.data()), DWORD(digest.size()),
+			signature.data(), DWORD(signature.size()), LPDWORD(&size), isRSA ? BCRYPT_PAD_PKCS1 : 0);
 		break;
 	}
 	case AT_KEYEXCHANGE:
