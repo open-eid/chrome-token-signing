@@ -16,7 +16,7 @@
 
    1.1 Ubuntu
 
-        sudo apt-get install qtbase5-dev libssl-dev libpcsclite-dev
+        sudo apt-get install qtbase5-dev libssl-dev libpcsclite-dev qt5-default
 
    1.2 Windows
 
