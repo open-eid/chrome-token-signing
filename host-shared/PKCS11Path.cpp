@@ -99,7 +99,7 @@ std::vector<std::string> PKCS11Path::atrList() {
 
 PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #ifdef __APPLE__
-    static const std::string estPath("/Library/EstonianIDCard/lib/esteid-pkcs11.so");
+    static const std::string estPath("/Library/OpenSC/lib/opensc-pkcs11.so");
     static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
     static const std::string litPath("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
