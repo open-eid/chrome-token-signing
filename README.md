@@ -14,6 +14,11 @@
 
 1. Install dependencies
 
+   1.0 blackPanther OS
+
+        installing qtbase5-common-devel libopenssl-devel libpcsclite-devel libqt5core-devel libqt5network-devel libqt5widgets-devel
+         (or binary package from official repository : installing chrome-token-signing)
+
    1.1 Ubuntu
 
         sudo apt-get install qtbase5-dev libssl-dev libpcsclite-dev qt5-default
@@ -26,6 +31,7 @@
 
      * [XCode](https://itunes.apple.com/en/app/xcode/id497799835?mt=12)
 
+        
 2. Fetch the source
 
         git clone --recursive https://github.com/open-eid/chrome-token-signing
