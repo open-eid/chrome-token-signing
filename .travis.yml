@@ -10,7 +10,7 @@ os:
 - osx
 env:
   global:
-  - secure: oRtk0cC35ItGNDY0z9gRenVW8qTE8St+XmhFNkh/K4BWLp5vMzv+hOBzXK9ZJ38prppcGur6evVNqJ7NCrGyH6DjS3TjBzd/FalvD1lEZyAKPKVihHjLwOr2uayt6nGhA7wt7HlFLvL1pfiuWnR6tFWxP3fI8duuu0x9N0ILyu0=
+  - BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
 addons:
   apt:
     packages:
@@ -23,6 +23,5 @@ addons:
     project:
       name: open-eid/chrome-token-signing
     notification_email: martin@martinpaljak.net
-    build_command_prepend: 
     build_command: make
     branch_pattern: coverity_scan
