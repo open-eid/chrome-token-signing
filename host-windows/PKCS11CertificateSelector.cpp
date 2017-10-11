@@ -39,7 +39,7 @@ vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const 
 				continue;
 			_log("new certificate handle created.");
 
-			if (isValid(cert, forSigning)) {
+			if (!isValid(cert, forSigning)) {
 				CertFreeCertificateContext(cert);
 				continue;
 			}
