@@ -99,7 +99,8 @@ std::vector<std::string> PKCS11Path::atrList() {
 
 PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #ifdef __APPLE__
-    static const std::string estPath("/Library/OpenSC/lib/opensc-pkcs11.so");
+    static const std::string openscPath("/Library/OpenSC/lib/opensc-pkcs11.so");
+    static const std::string estPath = openscPath;
     static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
     static const std::string litPath("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
@@ -116,9 +117,10 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         return path + "\\CryptoTech\\CryptoCard\\CCPkiP11.dll";
     }();
 #else
-    static const std::string estPath("opensc-pkcs11.so");
+    static const std::string openscPath("opensc-pkcs11.so");
+    static const std::string estPath = openscPath;
     static const std::string latPath("otlv-pkcs11.so");
-    static const std::string finPath("opensc-pkcs11.so");
+    static const std::string finPath = openscPath;
     static const std::string litPath("/usr/lib/ccs/libccpkip11.so");
     static const std::string eTokenPath("/usr/local/lib/libeTPkcs11.dylib");
 #endif
@@ -160,6 +162,10 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         auto it = m.find(atr);
         if (it != m.end())
             return it->second;
-	}
-	return Params();
+    }
+#ifdef _WIN32
+    return Params();
+#else
+    return {openscPath, "PIN", "PIN"};
+#endif
 }
