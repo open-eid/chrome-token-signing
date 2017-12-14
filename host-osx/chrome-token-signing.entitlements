@@ -6,7 +6,5 @@
 	<true/>
 	<key>com.apple.security.smartcard</key>
 	<true/>
-	<key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
-	<string>/private/var/run/pcscd.pub</string>
 </dict>
 </plist>
