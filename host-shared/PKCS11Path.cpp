@@ -23,13 +23,16 @@
 #ifdef _WIN32
 #undef UNICODE
 #include <Shlobj.h>
+#include <Shlwapi.h>
 #include <Knownfolders.h>
 #include <winscard.h>
 #elif defined __APPLE__
 #include <PCSC/winscard.h>
 #include <PCSC/wintypes.h>
+#include <unistd.h>
 #else
 #include <winscard.h>
+#include <unistd.h>
 #endif
 
 #include <map>
@@ -39,14 +42,14 @@
 std::vector<std::string> PKCS11Path::atrList() {
 	SCARDCONTEXT hContext;
 	std::vector<std::string> result;
-	LONG err = SCardEstablishContext(SCARD_SCOPE_USER, NULL, NULL, &hContext);
+	LONG err = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hContext);
 	if (err != SCARD_S_SUCCESS) {
 		_log("SCardEstablishContext ERROR: %x", err);
 		return result;
 	}
 
 	DWORD size;
-	err = SCardListReaders(hContext, NULL, NULL, &size);
+	err = SCardListReaders(hContext, nullptr, nullptr, &size);
 	if (err != SCARD_S_SUCCESS || !size) {
 		_log("SCardListReaders || !size ERROR: %x", err);
 		SCardReleaseContext(hContext);
@@ -54,7 +57,7 @@ std::vector<std::string> PKCS11Path::atrList() {
 	}
 
 	std::string readers(size, 0);
-	err = SCardListReaders(hContext, NULL, &readers[0], &size);
+	err = SCardListReaders(hContext, nullptr, &readers[0], &size);
 	readers.resize(size);
 	if (err != SCARD_S_SUCCESS) {
 		_log("SCardListReaders ERROR: %x", err);
@@ -103,25 +106,34 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string estPath = openscPath;
     static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
-    static const std::string litPath("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    static const std::string lit1Path("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    static const std::string lit2Path("/Library/PWPW-Card/pwpw-card-pkcs11.so");
+    static const std::string litPath = access(lit1Path.c_str(), 2) == 0 ? lit1Path : lit2Path;
     static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
 #elif defined _WIN32
     // Use PKCS11 driver on windows to avoid PIN buffering
     static const std::string litPath = [] {
-        wchar_t *programFilesX86 = 0;
+        PWSTR programFilesX86 = 0;
         SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, 0, NULL, &programFilesX86);
-        int size = WideCharToMultiByte(CP_UTF8, 0, programFilesX86, wcslen(programFilesX86), NULL, 0, NULL, NULL);
-        std::string path(size, 0);
-        WideCharToMultiByte(CP_UTF8, 0, programFilesX86, wcslen(programFilesX86), &path[0], size, NULL, NULL);
+        std::wstring path = programFilesX86;
         CoTaskMemFree(programFilesX86);
-        return path + "\\CryptoTech\\CryptoCard\\CCPkiP11.dll";
+        if (PathFileExistsW((path + L"\\PWPW\\pwpw-card-pkcs11.dll").c_str()))
+            path += L"\\PWPW\\pwpw-card-pkcs11.dll";
+        else
+            path += L"\\CryptoTech\\CryptoCard\\CCPkiP11.dll";
+        int size = WideCharToMultiByte(CP_UTF8, 0, path.c_str(), path.size(), nullptr, 0, nullptr, nullptr);
+        std::string result(size, 0);
+        WideCharToMultiByte(CP_UTF8, 0, path.c_str(), path.size(), &result[0], size, nullptr, nullptr);
+        return result;
     }();
 #else
     static const std::string openscPath("opensc-pkcs11.so");
     static const std::string estPath = openscPath;
     static const std::string latPath("otlv-pkcs11.so");
     static const std::string finPath = openscPath;
-    static const std::string litPath("/usr/lib/ccs/libccpkip11.so");
+    static const std::string lit1Path("/usr/lib/ccs/libccpkip11.so");
+    static const std::string lit2Path("pwpw-card-pkcs11.so");
+    static const std::string litPath = access(lit1Path.c_str(), 2) == 0 ? lit1Path : lit2Path;
     static const std::string eTokenPath("/usr/local/lib/libeTPkcs11.dylib");
 #endif
     static const std::map<std::string, Params> m = {
