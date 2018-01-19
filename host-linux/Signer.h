@@ -210,7 +210,7 @@ private:
             pin->setValidator(new QRegExpValidator(QRegExp(QString("\\d{%1,12}").arg(minPinLen)), pin));
             pin->setMaxLength(12);
             connect(pin, &QLineEdit::textEdited, [=](const QString &text){
-                ok->setEnabled(text.size() >= minPinLen);
+                ok->setEnabled((unsigned long)text.size() >= minPinLen);
             });
 
             layout->addWidget(pin);
