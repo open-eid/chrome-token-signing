@@ -40,7 +40,7 @@
 #define MAX_ATR_SIZE 33	/**< Maximum ATR size */
 
 std::vector<std::string> PKCS11Path::atrList() {
-	SCARDCONTEXT hContext;
+	SCARDCONTEXT hContext = 0;
 	std::vector<std::string> result;
 	LONG err = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hContext);
 	if (err != SCARD_S_SUCCESS) {
@@ -48,7 +48,7 @@ std::vector<std::string> PKCS11Path::atrList() {
 		return result;
 	}
 
-	DWORD size;
+	DWORD size = 0;
 	err = SCardListReaders(hContext, nullptr, nullptr, &size);
 	if (err != SCARD_S_SUCCESS || !size) {
 		_log("SCardListReaders || !size ERROR: %x", err);
@@ -170,7 +170,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         {"3B9F90801FC30068104405014649534531C800000000", {litPath, "PIN", "PIN"}},
     };
 
-    for (const std::string &atr : atrList()) {
+    const std::vector<std::string> list = atrList();
+    for (const std::string &atr : list) {
         auto it = m.find(atr);
         if (it != m.end())
             return it->second;
@@ -178,6 +179,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #ifdef _WIN32
     return Params();
 #else
+    if (!list.empty())
+        _log("Unknown ATR '%s' using default module '%s'", list[0].c_str(), openscPath.c_str());
     return {openscPath, "PIN", "PIN"};
 #endif
 }
