@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\host-shared\BinaryUtils.h" />
+    <ClInclude Include="..\host-shared\Exceptions.h" />
     <ClInclude Include="..\host-shared\json\jsonxx.h" />
     <ClInclude Include="..\host-shared\Labels.h" />
     <ClInclude Include="..\host-shared\Logger.h" />
@@ -100,7 +101,6 @@
     <ClInclude Include="..\host-shared\VersionInfo.h" />
     <ClInclude Include="CertificateSelector.h" />
     <ClInclude Include="ContextMaintainer.h" />
-    <ClInclude Include="HostExceptions.h" />
     <ClInclude Include="IOCommunicator.h" />
     <ClInclude Include="NativeCertificateSelector.h" />
     <ClInclude Include="NativeSigner.h" />

@@ -20,7 +20,7 @@
 #include "PKCS11CardManager.h"
 #include "Labels.h"
 #include "Logger.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include "PinDialog.h"
 
 #include <WinCrypt.h>

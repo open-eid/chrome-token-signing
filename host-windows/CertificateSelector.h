@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include <afx.h>
 #include <wincrypt.h>
 #include <vector>

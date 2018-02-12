@@ -18,7 +18,7 @@
 
 #include "IOCommunicator.h"
 #include "Logger.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include <stdint.h>
 #include <fcntl.h>
 #include <io.h>

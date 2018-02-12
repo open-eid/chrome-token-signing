@@ -19,7 +19,7 @@
 #include "PKCS11CertificateSelector.h"
 #include "PKCS11CardManager.h"
 #include "Logger.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 
 #include <memory>
 

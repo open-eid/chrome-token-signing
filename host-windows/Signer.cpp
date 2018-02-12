@@ -17,7 +17,7 @@
 */
 
 #include "Signer.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include "NativeSigner.h"
 #include "Pkcs11Signer.h"
 #include "PKCS11Path.h"
