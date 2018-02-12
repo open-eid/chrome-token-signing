@@ -121,7 +121,7 @@ public:
                         dialog.done(AuthError);
                     } catch (const AuthenticationBadInput &) {
                         dialog.done(AuthError);
-                    } catch (const UserCanceledError &) {
+                    } catch (const UserCancelledException &) {
                         dialog.done(UserCancel);
                     } catch (const std::runtime_error &) {
                         dialog.done(TechnicalError);
@@ -153,7 +153,7 @@ public:
             } catch (const AuthenticationBadInput &) {
             } catch (const AuthenticationError &) {
                 --retriesLeft;
-            } catch (const UserCanceledError &) {
+            } catch (const UserCancelledException &) {
                 return {{"result", "user_cancel"}};
             } catch (const std::runtime_error &) {
                 return {{"result", "technical_error"}};

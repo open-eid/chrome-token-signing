@@ -20,10 +20,10 @@
 
 #include "pkcs11.h"
 #include "Logger.h"
+#include "Exceptions.h"
 
 #include <algorithm>
 #include <cstring>
-#include <stdexcept>
 #include <vector>
 
 #ifdef _WIN32
@@ -41,31 +41,6 @@
 #define BINARY_SHA512_LENGTH 64
 
 #define C(API, ...) Call(__FILE__, __LINE__, "C_"#API, fl->C_##API, __VA_ARGS__)
-
-class UserCanceledError : public std::runtime_error {
-public:
-    UserCanceledError() : std::runtime_error("User canceled"){}
-};
-
-class AuthenticationError : public std::runtime_error {
-public:
-    AuthenticationError() : std::runtime_error("Authentication error"){}
-};
-
-class AuthenticationBadInput : public std::runtime_error {
-public:
-    AuthenticationBadInput() : std::runtime_error("Authentication Bad Input"){}
-};
-
-class PKCS11TokenNotRecognized: public std::runtime_error {
-public:
-    PKCS11TokenNotRecognized() : std::runtime_error("Token not recognized.") {}
-};
-
-class PKCS11TokenNotPresent: public std::runtime_error {
-public:
-    PKCS11TokenNotPresent() : std::runtime_error("Token not present.") {}
-};
 
 class PKCS11CardManager {
 private:
@@ -85,7 +60,7 @@ private:
             case CKR_OK:
                 break;
             case CKR_FUNCTION_CANCELED:
-                throw UserCanceledError();
+                throw UserCancelledException();
             case CKR_PIN_INCORRECT:
                 throw AuthenticationError();
             case CKR_PIN_LEN_RANGE:

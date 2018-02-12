@@ -70,8 +70,32 @@ public:
 	InconsistentOriginException() : BaseException("invalid_argument", "Request origin can't change between requests") {}
 };
 
+class AuthenticationBadInput : public BaseException {
+public:
+	AuthenticationBadInput() : BaseException("pin_format_error", "Authentication Bad Input") {}
+};
+
+class AuthenticationError : public BaseException {
+public:
+	AuthenticationError() : BaseException("pin_invalid", "Authentication error") {}
+};
+
 class PinBlockedException : public BaseException {
 public:
 	PinBlockedException() : BaseException("pin_blocked", "Maximum number of PIN entry attempts has been reached") {}
 };
 
+class PKCS11Exception : public BaseException {
+public:
+	PKCS11Exception(const std::string &msg) : BaseException("technical_error", msg) {}
+};
+
+class PKCS11TokenNotRecognized : public PKCS11Exception {
+public:
+	PKCS11TokenNotRecognized() : PKCS11Exception("Token not recognized.") {}
+};
+
+class PKCS11TokenNotPresent : public PKCS11Exception {
+public:
+	PKCS11TokenNotPresent() : PKCS11Exception("Token not present.") {}
+};
