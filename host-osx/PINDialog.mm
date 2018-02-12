@@ -156,7 +156,7 @@
                     pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
                     [NSApp stopModal];
                 }
-                catch(const UserCanceledError &) {
+                catch(const UserCancelledException &) {
                     [NSApp abortModal];
                 }
                 catch(const AuthenticationError &) {
