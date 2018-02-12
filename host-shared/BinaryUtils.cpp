@@ -17,14 +17,15 @@
  */
 
 #include "BinaryUtils.h"
+#include "Exceptions.h"
+
 #include <stdio.h>
-#include <stdexcept>
 
 using namespace std;
 
 vector<unsigned char> BinaryUtils::hex2bin(const string &hex) {
   if (hex.size() % 2 == 1)
-      throw runtime_error("Hex is incorrect");
+      throw InvalidArgumentException("Hex is incorrect");
 
   vector<unsigned char> bin(hex.size() / 2, 0);
   unsigned char *c = &bin[0];

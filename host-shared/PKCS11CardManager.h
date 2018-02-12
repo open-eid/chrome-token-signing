@@ -70,7 +70,7 @@ private:
             case CKR_TOKEN_NOT_PRESENT:
                 throw PKCS11TokenNotPresent();
             default:
-                throw std::runtime_error("PKCS11 method failed.");
+                throw PKCS11Exception("PKCS11 method failed.");
         }
     }
 
@@ -84,9 +84,8 @@ private:
     }
 
     std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, const std::vector<CK_BYTE> &id = std::vector<CK_BYTE>()) const {
-        if (!fl) {
-            throw std::runtime_error("PKCS11 is not loaded");
-        }
+        if (!fl)
+            throw DriverException();
         CK_BBOOL btrue = CK_TRUE;
         std::vector<CK_ATTRIBUTE> searchAttribute{
             {CKA_CLASS, &objectClass, CK_ULONG(sizeof(objectClass))},
@@ -106,19 +105,30 @@ private:
 public:
     PKCS11CardManager(const std::string &module) {
         CK_C_GetFunctionList C_GetFunctionList = nullptr;
+        std::string error;
 #ifdef _WIN32
         library = LoadLibraryA(module.c_str());
         if (library)
             C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
+		else
+		{
+			LPSTR msg = nullptr;
+			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LPSTR(&msg), 0, nullptr);
+			error = msg;
+			LocalFree(msg);
+		}
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
             C_GetFunctionList = CK_C_GetFunctionList(dlsym(library, "C_GetFunctionList"));
+        else
+            error = dlerror();
 #endif
 
         if (!C_GetFunctionList) {
-            _log("Function List not loaded %s", module.c_str());
-            throw std::runtime_error("PKCS11 is not loaded");
+            _log("Function List not loaded %s: %s", module.c_str(), error.c_str());
+            throw DriverException();
         }
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
         _log("initializing module %s", module.c_str());
@@ -146,9 +156,8 @@ public:
     };
 
     std::vector<Token> tokens() const {
-        if (!fl) {
-            throw std::runtime_error("PKCS11 is not loaded");
-        }
+        if (!fl)
+            throw DriverException();
         CK_ULONG slotCount = 0;
         C(GetSlotList, CK_TRUE, nullptr, &slotCount);
         _log("slotCount = %i", slotCount);
@@ -161,8 +170,8 @@ public:
             CK_TOKEN_INFO tokenInfo;
             try {
                 C(GetTokenInfo, slotID, &tokenInfo);
-            } catch(const std::runtime_error &e) {
-                _log("Failed to get slot info at SLOT ID %u, skiping", slotID);
+            } catch(const BaseException &e) {
+                _log("Failed to get slot info at SLOT ID %u '%s', skiping", slotID, e.what());
                 continue;
             }
             CK_SESSION_HANDLE session = 0;
@@ -190,22 +199,18 @@ public:
     }
 
     std::vector<CK_BYTE> sign(const Token &token, const std::vector<CK_BYTE> &hash, const char *pin) const {
-        if (!fl) {
-            throw std::runtime_error("PKCS11 is not loaded");
-        }
+        if (!fl)
+            throw DriverException();
         CK_SESSION_HANDLE session = 0;
         C(OpenSession, token.slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
         C(Login, session, CKU_USER, CK_CHAR_PTR(pin), pin ? strlen(pin) : 0);
-        if (token.certID.empty()) {
-            throw std::runtime_error("Could not read private key. Certificate ID is empty");
-        }
+        if (token.certID.empty())
+            throw PKCS11Exception("Could not read private key. Certificate ID is empty");
         std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(session, CKO_PRIVATE_KEY, token.certID);
-        if (privateKeyHandle.empty()) {
-            throw std::runtime_error("Could not read private key. Key not found");
-        }
-        if (privateKeyHandle.size() > 1) {
-            throw std::runtime_error("Could not read private key. Found multiple keys");
-        }
+        if (privateKeyHandle.empty())
+            throw PKCS11Exception("Could not read private key. Key not found");
+        if (privateKeyHandle.size() > 1)
+            throw PKCS11Exception("Could not read private key. Found multiple keys");
         _log("found %i private keys in slot, using key ID %x", privateKeyHandle.size(), token.certID.data());
 
         CK_KEY_TYPE keyType = CKK_RSA;
