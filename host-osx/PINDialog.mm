@@ -27,7 +27,7 @@
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
-@interface PINPanel () {
+@implementation PINPanel {
     IBOutlet NSPanel *window;
     IBOutlet NSButton *okButton;
     IBOutlet NSButton *cancelButton;
@@ -38,10 +38,6 @@
     IBOutlet NSProgressIndicator *progressBar;
     unsigned long minPinLen;
 }
-
-@end
-
-@implementation PINPanel
 
 - (instancetype)init:(NSString*)label pinpad:(BOOL)pinpad
 {
@@ -105,8 +101,9 @@
             }
         }
     }
-    catch(const std::runtime_error &) {
-        return @{@"result": @"technical_error"};
+    catch(const BaseException &e) {
+        _log("Exception: %s", e.what());
+        return @{@"result": @(e.getErrorCode().c_str())};
     }
 
     if (selected.cert.empty()) {
@@ -114,8 +111,8 @@
     }
 
     bool isInitialCheck = true;
-    for (int retriesLeft = selected.retry; retriesLeft > 0; ) {
-
+    for (int retriesLeft = selected.retry; retriesLeft > 0; )
+    {
         CFDataRef data = CFDataCreateWithBytesNoCopy(nil, selected.cert.data(), selected.cert.size(), kCFAllocatorNull);
         SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
         CFRelease(data);
@@ -149,11 +146,10 @@
         NSTimer *timer;
         if (selected.pinpad) {
             timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:dialog selector:@selector(handleTimerTick:) userInfo:nil repeats:YES];
-            [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
-            future = std::async(std::launch::async, [&]() {
+            [NSRunLoop.currentRunLoop addTimer:timer forMode:NSModalPanelRunLoopMode];
+            future = std::async(std::launch::async, [&] {
                 try {
-                    std::vector<unsigned char> signature = pkcs11->sign(selected, hash, nullptr);
-                    pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+                    pinpadresult = @{@"signature": @(BinaryUtils::bin2hex(pkcs11->sign(selected, hash, nullptr)).c_str())};
                     [NSApp stopModal];
                 }
                 catch(const UserCancelledException &) {
@@ -166,8 +162,9 @@
                 catch(const AuthenticationBadInput &) {
                     [NSApp stopModal];
                 }
-                catch(const std::runtime_error &) {
-                    pinpadresult = @{@"result": @"technical_error"};
+                catch(const BaseException &e) {
+                    _log("Exception: %s", e.what());
+                    pinpadresult = @{@"result": @(e.getErrorCode().c_str())};
                     [NSApp stopModal];
                 }
             });
@@ -210,8 +207,9 @@
             catch(const AuthenticationError &) {
                 --retriesLeft;
             }
-            catch(const std::runtime_error &) {
-                return @{@"result": @"technical_error"};
+            catch(const BaseException &e) {
+                _log("Exception: %s", e.what());
+                return @{@"result": @(e.getErrorCode().c_str())};
             }
         }
     }

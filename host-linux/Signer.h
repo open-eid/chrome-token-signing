@@ -68,8 +68,9 @@ public:
                     break;
                 }
             }
-        } catch (const std::runtime_error &a) {
-            return {{"result", "technical_error"}};
+        } catch (const BaseException &e) {
+            qDebug() << e.what();
+            return {{"result", QString::fromStdString(e.getErrorCode())}};
         }
 
         if(selected.cert.empty())
@@ -111,7 +112,7 @@ public:
             std::future< std::vector<unsigned char> > signature;
 
             if (selected.pinpad) {
-                signature = std::async(std::launch::async, [&](){
+                signature = std::async(std::launch::async, [&]{
                     std::vector<unsigned char> result;
                     try {
                         result = pkcs11.sign(selected, fromHex(hash), nullptr);
@@ -123,7 +124,9 @@ public:
                         dialog.done(AuthError);
                     } catch (const UserCancelledException &) {
                         dialog.done(UserCancel);
-                    } catch (const std::runtime_error &) {
+                    } catch (const BaseException &e) {
+                        qDebug() << e.what();
+                        dialog.setProperty("exception", QString::fromStdString(e.getErrorCode()));
                         dialog.done(TechnicalError);
                     }
                     return result;
@@ -137,7 +140,7 @@ public:
             case AuthError:
                 continue;
             case TechnicalError:
-                return {{"result", "technical_error"}};
+                return {{"result", dialog.property("exception")}};
             default:
                 if (selected.pinpad) {
                     return {{"signature", toHex(signature.get())}};
@@ -155,8 +158,9 @@ public:
                 --retriesLeft;
             } catch (const UserCancelledException &) {
                 return {{"result", "user_cancel"}};
-            } catch (const std::runtime_error &) {
-                return {{"result", "technical_error"}};
+            } catch (const BaseException &e) {
+                qDebug() << e.what();
+                return {{"result", QString::fromStdString(e.getErrorCode())}};
             }
         }
         return {{"result", "pin_blocked"}};

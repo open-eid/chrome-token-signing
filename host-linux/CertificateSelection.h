@@ -74,10 +74,10 @@ public:
             if (dialog.exec() == 0)
                 return {{"result", "user_cancel"}};
             return {{"cert", certs.at(dialog.table->currentIndex().row())[3]}};
-        } catch (const std::runtime_error &e) {
+        } catch (const BaseException &e) {
             qDebug() << e.what();
+            return {{"result", QString::fromStdString(e.getErrorCode())}};
         }
-        return {{"result", "technical_error"}};
     }
 
 private:
@@ -120,7 +120,7 @@ private:
         cancel = buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
         connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-        connect(table, &QTreeWidget::clicked, [&](){
+        connect(table, &QTreeWidget::clicked, [&]{
             ok->setEnabled(true);
         });
 

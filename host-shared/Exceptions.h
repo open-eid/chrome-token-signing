@@ -85,6 +85,11 @@ public:
 	PinBlockedException() : BaseException("pin_blocked", "Maximum number of PIN entry attempts has been reached") {}
 };
 
+class DriverException : public BaseException {
+public:
+	DriverException() : BaseException("driver_error", "Failed to load driver") {}
+};
+
 class PKCS11Exception : public BaseException {
 public:
 	PKCS11Exception(const std::string &msg) : BaseException("technical_error", msg) {}

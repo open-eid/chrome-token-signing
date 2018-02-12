@@ -25,8 +25,6 @@
 
 #include <WinCrypt.h>
 
-#include <memory>
-
 using namespace std;
 
 Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const vector<unsigned char> &cert)
@@ -49,19 +47,12 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 	_log("Signing using PKCS#11 module");
 
 	PKCS11CardManager::Token selected;
-	std::unique_ptr<PKCS11CardManager> pkcs11;
-	try {
-		pkcs11.reset(new PKCS11CardManager(pkcs11Path));
-		for (const PKCS11CardManager::Token &token : pkcs11->tokens()) {
-			if (token.cert == cert) {
-				selected = token;
-				break;
-			}
+	PKCS11CardManager pkcs11(pkcs11Path);
+	for (const PKCS11CardManager::Token &token : pkcs11.tokens()) {
+		if (token.cert == cert) {
+			selected = token;
+			break;
 		}
-	}
-	catch (const runtime_error &a) {
-		_log("Technical error: %s", a.what());
-		throw TechnicalException("Error getting certificate manager: " + string(a.what()));
 	}
 
 	if (selected.cert.empty()) {
@@ -73,7 +64,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 
 	try {
 		validatePinNotBlocked();
-		return pkcs11->sign(selected, digest, askPin());
+		return pkcs11.sign(selected, digest, askPin());
 	}
 	catch (const AuthenticationError &) {
 		_log("Wrong pin");
