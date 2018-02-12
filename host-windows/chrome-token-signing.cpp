@@ -21,7 +21,7 @@
 #include "jsonxx.h"
 #include "RequestHandler.h"
 #include "Logger.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 
 using namespace std;
 using namespace jsonxx;

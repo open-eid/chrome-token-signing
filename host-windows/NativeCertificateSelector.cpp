@@ -17,7 +17,7 @@
 */
 
 #include "NativeCertificateSelector.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include "Logger.h"
 
 using namespace std;

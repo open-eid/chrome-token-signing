@@ -36,9 +36,6 @@
     <ClInclude Include="ContextMaintainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HostExceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\host-shared\VersionInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,6 +70,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\host-shared\Labels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\host-shared\Exceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

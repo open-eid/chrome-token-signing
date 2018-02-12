@@ -19,7 +19,7 @@
 #pragma once
 
 #include "jsonxx.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include "ContextMaintainer.h"
 
 class RequestHandler {

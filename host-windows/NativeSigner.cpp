@@ -17,7 +17,7 @@
  */
 
 #include "NativeSigner.h"
-#include "HostExceptions.h"
+#include "Exceptions.h"
 #include "Logger.h"
 
 #include <Windows.h>
