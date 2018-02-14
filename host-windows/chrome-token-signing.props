@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <MAJOR_VERSION>1</MAJOR_VERSION>
     <MINOR_VERSION>0</MINOR_VERSION>
-    <RELEASE_VERSION>7</RELEASE_VERSION>
+    <RELEASE_VERSION>8</RELEASE_VERSION>
     <BUILD_NUMBER>0</BUILD_NUMBER>
   </PropertyGroup>
   <PropertyGroup>
