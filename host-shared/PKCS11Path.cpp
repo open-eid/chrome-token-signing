@@ -35,6 +35,7 @@
 #include <unistd.h>
 #endif
 
+#include <cstring>
 #include <map>
 
 #define MAX_ATR_SIZE 33	/**< Maximum ATR size */
@@ -65,19 +66,15 @@ std::vector<std::string> PKCS11Path::atrList() {
 		return result;
 	}
 
-	for (std::string::const_iterator i = readers.begin(); i != readers.end(); ++i) {
-		std::string name(&*i);
-		i += name.size();
-		if (name.empty())
-			continue;
 
-		_log("found reader: %s", name.c_str());
+	for (const char *name = readers.c_str(); *name != 0; name += strlen(name) + 1) {
+		_log("found reader: %s", name);
 
 		SCARDHANDLE cardHandle = 0;
 		DWORD dwProtocol = 0;
-		LONG err = SCardConnect(hContext, name.c_str(), SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &cardHandle, &dwProtocol);
+		LONG err = SCardConnect(hContext, name, SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &cardHandle, &dwProtocol);
 		if (err != SCARD_S_SUCCESS) {
-			_log("SCardConnect ERROR for %s: %x", name.c_str(), err);
+			_log("SCardConnect ERROR for %s: %x", name, err);
 			continue;
 		}
 
@@ -88,11 +85,10 @@ std::vector<std::string> PKCS11Path::atrList() {
 			bAtr.resize(atrSize);
 			std::string atr = BinaryUtils::bin2hex(bAtr);
 			result.push_back(atr);
-			_log("Set ATR = %s for reader %s", atr.c_str(), name.c_str());
+			_log("Set ATR = %s for reader %s", atr.c_str(), name);
 		}
-		else {
-			_log("SCardStatus ERROR for %s: %x", name.c_str(), err);
-		}
+		else
+			_log("SCardStatus ERROR for %s: %x", name, err);
 		SCardDisconnect(cardHandle, SCARD_LEAVE_CARD);
 	}
 
@@ -108,7 +104,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
     static const std::string lit1Path("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
     static const std::string lit2Path("/Library/PWPW-Card/pwpw-card-pkcs11.so");
-    static const std::string litPath = access(lit1Path.c_str(), 2) == 0 ? lit1Path : lit2Path;
+    static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
 #elif defined _WIN32
     // Use PKCS11 driver on windows to avoid PIN buffering
@@ -133,7 +129,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string finPath = openscPath;
     static const std::string lit1Path("/usr/lib/ccs/libccpkip11.so");
     static const std::string lit2Path("pwpw-card-pkcs11.so");
-    static const std::string litPath = access(lit1Path.c_str(), 2) == 0 ? lit1Path : lit2Path;
+    static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string eTokenPath("/usr/local/lib/libeTPkcs11.dylib");
 #endif
     static const std::map<std::string, Params> m = {
