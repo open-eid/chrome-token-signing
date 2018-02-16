@@ -24,5 +24,6 @@
 namespace BinaryUtils {
     std::vector<unsigned char> hex2bin(const std::string &hex);
     std::string bin2hex(const std::vector<unsigned char> &bin);
+    std::string bin2hex(const unsigned char *bin, size_t size);
 };
 
