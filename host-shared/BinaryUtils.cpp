@@ -40,8 +40,12 @@ vector<unsigned char> BinaryUtils::hex2bin(const string &hex) {
 }
 
 string BinaryUtils::bin2hex(const vector<unsigned char> &bin) {
-  string hex(bin.size() * 2, 0);
-  for (size_t j = 0; j < bin.size(); ++j)
-    sprintf(&hex[j * 2], "%02X", (unsigned char) bin.at(j));
+    return bin2hex(bin.data(), bin.size());
+}
+
+string BinaryUtils::bin2hex(const unsigned char *bin, size_t size) {
+  string hex(size * 2, 0);
+  for (size_t j = 0; j < size; ++j)
+    sprintf(&hex[j * 2], "%02X", (unsigned char) bin[j]);
   return hex;
 }

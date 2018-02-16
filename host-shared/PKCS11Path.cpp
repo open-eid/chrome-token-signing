@@ -38,8 +38,6 @@
 #include <cstring>
 #include <map>
 
-#define MAX_ATR_SIZE 33	/**< Maximum ATR size */
-
 std::vector<std::string> PKCS11Path::atrList() {
 	SCARDCONTEXT hContext = 0;
 	std::vector<std::string> result;
@@ -66,47 +64,31 @@ std::vector<std::string> PKCS11Path::atrList() {
 		return result;
 	}
 
+    std::vector<SCARD_READERSTATE> list;
+    for (const char *name = readers.c_str(); *name != 0; name += strlen(name) + 1) {
+        _log("found reader: %s", name);
+        list.push_back({name, 0, 0, 0, 0, 0});
+    }
 
-	for (const char *name = readers.c_str(); *name != 0; name += strlen(name) + 1) {
-		_log("found reader: %s", name);
+    err = SCardGetStatusChange(hContext, 0, list.data(), DWORD(list.size()));
+    if (err != SCARD_S_SUCCESS)
+        _log("SCardGetStatusChange ERROR: %x", err);
+    for(const SCARD_READERSTATE &state: list)
+    {
+        if (state.dwEventState & SCARD_STATE_PRESENT)
+        {
+            std::string atr = BinaryUtils::bin2hex(state.rgbAtr, state.cbAtr);
+            result.push_back(atr);
+            _log("Set ATR = %s for reader %s", atr.c_str(), state.szReader);
+        }
+    }
 
-		SCARDHANDLE cardHandle = 0;
-		DWORD dwProtocol = 0;
-		LONG err = SCardConnect(hContext, name, SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &cardHandle, &dwProtocol);
-		if (err != SCARD_S_SUCCESS) {
-			_log("SCardConnect ERROR for %s: %x", name, err);
-			continue;
-		}
-
-		std::vector<unsigned char> bAtr(MAX_ATR_SIZE, 0);
-		DWORD atrSize = DWORD(bAtr.size());
-		err = SCardStatus(cardHandle, nullptr, nullptr, nullptr, nullptr, bAtr.data(), &atrSize);
-		if (err == SCARD_S_SUCCESS) {
-			bAtr.resize(atrSize);
-			std::string atr = BinaryUtils::bin2hex(bAtr);
-			result.push_back(atr);
-			_log("Set ATR = %s for reader %s", atr.c_str(), name);
-		}
-		else
-			_log("SCardStatus ERROR for %s: %x", name, err);
-		SCardDisconnect(cardHandle, SCARD_LEAVE_CARD);
-	}
-
-	SCardReleaseContext(hContext);
-	return result;
+    SCardReleaseContext(hContext);
+    return result;
 }
 
 PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
-#ifdef __APPLE__
-    static const std::string openscPath("/Library/OpenSC/lib/opensc-pkcs11.so");
-    static const std::string estPath = openscPath;
-    static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
-    static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
-    static const std::string lit1Path("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
-    static const std::string lit2Path("/Library/PWPW-Card/pwpw-card-pkcs11.so");
-    static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
-    static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
-#elif defined _WIN32
+#ifdef _WIN32
     // Use PKCS11 driver on windows to avoid PIN buffering
     static const std::string litPath = [] {
         PWSTR programFilesX86 = 0;
@@ -122,6 +104,15 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         WideCharToMultiByte(CP_UTF8, 0, path.c_str(), path.size(), &result[0], size, nullptr, nullptr);
         return result;
     }();
+#elif defined __APPLE__
+    static const std::string openscPath("/Library/OpenSC/lib/opensc-pkcs11.so");
+    static const std::string estPath = openscPath;
+    static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
+    static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
+    static const std::string lit1Path("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
+    static const std::string lit2Path("/Library/PWPW-Card/pwpw-card-pkcs11.so");
+    static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
+    static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
 #else
     static const std::string openscPath("opensc-pkcs11.so");
     static const std::string estPath = openscPath;
