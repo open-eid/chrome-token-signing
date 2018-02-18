@@ -66,12 +66,6 @@
                 NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, nil, nil));
                 CFRelease(cert);
 
-                NSDictionary *bc = dict[(__bridge NSString*)kSecOIDBasicConstraints][(__bridge NSString*)kSecPropertyKeyValue][1];
-                if ([@"YES" isEqualToString:bc[(__bridge NSString*)kSecPropertyKeyValue]]) {
-                    _log("Cert is CA");
-                    continue;
-                }
-
                 NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
                 const bool isNonRepudiation = ku.unsignedIntValue & kSecKeyUsageNonRepudiation;
                 if (forSigning != isNonRepudiation) {

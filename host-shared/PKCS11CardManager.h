@@ -99,27 +99,30 @@ private:
         }
     }
 
-    std::vector<unsigned char> attribute(CK_SESSION_HANDLE session, CK_OBJECT_CLASS obj, CK_ATTRIBUTE_TYPE attr) const {
+    std::vector<CK_BYTE> attribute(CK_SESSION_HANDLE session, CK_OBJECT_CLASS obj, CK_ATTRIBUTE_TYPE attr) const {
         CK_ATTRIBUTE attribute = { attr, nullptr, 0 };
         C(GetAttributeValue, session, obj, &attribute, 1);
-        std::vector<unsigned char> data(attribute.ulValueLen, 0);
+        std::vector<CK_BYTE> data(attribute.ulValueLen, 0);
         attribute.pValue = data.data();
         C(GetAttributeValue, session, obj, &attribute, 1);
         return data;
     }
 
-    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, const std::vector<unsigned char> &id = std::vector<unsigned char>()) const {
+    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, const std::vector<CK_BYTE> &id = std::vector<CK_BYTE>()) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
-        std::vector<CK_ATTRIBUTE> searchAttribute{ {CKA_CLASS, &objectClass, sizeof(objectClass)} };
-        if (!id.empty()) {
-            searchAttribute.push_back({ CKA_ID, (void*)id.data(), CK_ULONG(id.size()) });
-        }
-        C(FindObjectsInit, session, searchAttribute.data(), searchAttribute.size());
+        CK_BBOOL btrue = CK_TRUE;
+        std::vector<CK_ATTRIBUTE> searchAttribute{
+            {CKA_CLASS, &objectClass, CK_ULONG(sizeof(objectClass))},
+            {CKA_TOKEN, &btrue, CK_ULONG(sizeof(btrue))}
+        };
+        if (!id.empty())
+            searchAttribute.push_back({ CKA_ID, CK_VOID_PTR(id.data()), CK_ULONG(id.size()) });
+        C(FindObjectsInit, session, searchAttribute.data(), CK_ULONG(searchAttribute.size()));
         CK_ULONG objectCount = 32;
         std::vector<CK_OBJECT_HANDLE> objectHandle(objectCount);
-        C(FindObjects, session, objectHandle.data(), objectHandle.size(), &objectCount);
+        C(FindObjects, session, objectHandle.data(), CK_ULONG(objectHandle.size()), &objectCount);
         C(FindObjectsFinal, session);
         objectHandle.resize(objectCount);
         return objectHandle;
@@ -167,10 +170,10 @@ public:
     struct Token {
         std::string label;
         CK_SLOT_ID slotID;
-        std::vector<unsigned char> cert, certID;
+        std::vector<CK_BYTE> cert, certID;
         int retry;
         bool pinpad;
-        unsigned long minPinLen, maxPinLen;
+        CK_ULONG minPinLen, maxPinLen;
     };
 
     std::vector<Token> tokens() const {
@@ -218,13 +221,13 @@ public:
         return result;
     }
 
-    std::vector<unsigned char> sign(const Token &token, const std::vector<unsigned char> &hash, const char *pin) const {
+    std::vector<CK_BYTE> sign(const Token &token, const std::vector<CK_BYTE> &hash, const char *pin) const {
         if (!fl) {
             throw std::runtime_error("PKCS11 is not loaded");
         }
         CK_SESSION_HANDLE session = 0;
         C(OpenSession, token.slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
-        C(Login, session, CKU_USER, (unsigned char*)pin, pin ? strlen(pin) : 0);
+        C(Login, session, CKU_USER, CK_CHAR_PTR(pin), pin ? strlen(pin) : 0);
         if (token.certID.empty()) {
             throw std::runtime_error("Could not read private key. Certificate ID is empty");
         }
@@ -243,7 +246,7 @@ public:
         
         CK_MECHANISM mechanism = {keyType == CKK_ECDSA ? CKM_ECDSA : CKM_RSA_PKCS, 0, 0};
         C(SignInit, session, &mechanism, privateKeyHandle[0]);
-        std::vector<unsigned char> hashWithPadding;
+        std::vector<CK_BYTE> hashWithPadding;
         if (keyType == CKK_RSA) {
             switch (hash.size()) {
                 case BINARY_SHA1_LENGTH:
@@ -267,9 +270,9 @@ public:
         }
         hashWithPadding.insert(hashWithPadding.end(), hash.begin(), hash.end());
         CK_ULONG signatureLength = 0;
-        C(Sign, session, hashWithPadding.data(), hashWithPadding.size(), nullptr, &signatureLength);
-        std::vector<unsigned char> signature(signatureLength, 0);
-        C(Sign, session, hashWithPadding.data(), hashWithPadding.size(), signature.data(), &signatureLength);
+        C(Sign, session, hashWithPadding.data(), CK_ULONG(hashWithPadding.size()), nullptr, &signatureLength);
+        std::vector<CK_BYTE> signature(signatureLength, 0);
+        C(Sign, session, hashWithPadding.data(), CK_ULONG(hashWithPadding.size()), signature.data(), &signatureLength);
         C(Logout, session);
         C(CloseSession, session);
 
