@@ -31,13 +31,12 @@
 #include <QPushButton>
 #include <QRegExpValidator>
 #include <QSslCertificate>
+#include <QSslCertificateExtension>
 #include <QTimeLine>
 #include <QVBoxLayout>
 
 #include <future>
 #include <string>
-
-#include <openssl/x509v3.h>
 
 class Signer: public QDialog {
     enum {
@@ -76,10 +75,18 @@ public:
             return {{"result", "invalid_argument"}};
 
         QSslCertificate c(QByteArray::fromRawData((const char*)data.data(), data.size()), QSsl::Der);
-        ASN1_BIT_STRING *keyusage = (ASN1_BIT_STRING*)X509_get_ext_d2i((X509*)c.handle(), NID_key_usage, 0, 0);
-        const int keyUsageNonRepudiation = 1;
+        bool isNonRepudiation = false;
+        for(const QSslCertificateExtension &ex: c.extensions())
+        {
+            if(ex.name() == "keyUsage")
+            {
+                for(const QVariant &item: ex.value().toList())
+                    if(item.toString() == "Non Repudiation")
+                        isNonRepudiation = true;
+            }
+        }
         QString label;
-        if (ASN1_BIT_STRING_get_bit(keyusage, keyUsageNonRepudiation)) {
+        if (isNonRepudiation) {
             label = Labels::l10n.get(selected.pinpad ? "sign PIN pinpad" : "sign PIN").c_str();
             label.replace("@PIN@", p11.signPINLabel.c_str());
         }
