@@ -26,7 +26,7 @@
 
 #import <SecurityInterface/SFCertificatePanel.h>
 #import <SecurityInterface/SFCertificateView.h>
-#include <Security/Security.h>
+#import <Security/Security.h>
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
@@ -108,7 +108,7 @@
             return self;
         }
 
-        if (![NSBundle loadNibNamed:@"CertificateSelection" owner:self]) {
+        if (![NSBundle.mainBundle loadNibNamed:@"CertificateSelection" owner:self topLevelObjects:nil]) {
             self = nil;
             return self;
         }

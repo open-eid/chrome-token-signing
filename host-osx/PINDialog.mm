@@ -46,7 +46,7 @@
 - (instancetype)init:(NSString*)label pinpad:(BOOL)pinpad
 {
     if (self = [super init]) {
-        if (![NSBundle loadNibNamed:pinpad ? @"PINPadDialog" : @"PINDialog" owner:self]) {
+        if (![NSBundle.mainBundle loadNibNamed:pinpad ? @"PINPadDialog" : @"PINDialog" owner:self topLevelObjects:nil]) {
             self = nil;
             return self;
         }
