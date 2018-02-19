@@ -128,6 +128,7 @@ private:
         return objectHandle;
     }
 
+public:
     PKCS11CardManager(const std::string &module) {
         CK_C_GetFunctionList C_GetFunctionList = nullptr;
 #ifdef _WIN32
@@ -147,13 +148,6 @@ private:
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
         _log("initializing module %s", module.c_str());
         C(Initialize, nullptr);
-    }
-
-public:
-
-    static PKCS11CardManager* instance(const std::string &module) {
-        static PKCS11CardManager instance(module);
-        return &instance;
     }
 
     ~PKCS11CardManager() {
@@ -185,7 +179,6 @@ public:
         _log("slotCount = %i", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
         C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
-        std::reverse(slotIDs.begin(), slotIDs.end());
 
         std::vector<Token> result;
         for (CK_SLOT_ID slotID : slotIDs)

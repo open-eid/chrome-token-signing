@@ -60,8 +60,9 @@ public:
         std::vector<unsigned char> data = fromHex(cert);
         PKCS11CardManager::Token selected;
         PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
+        PKCS11CardManager pkcs11(p11.path);
         try {
-            for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+            for (const PKCS11CardManager::Token &token : pkcs11.tokens()) {
                 if (token.cert == data) {
                     selected = token;
                     break;
@@ -113,7 +114,7 @@ public:
                 signature = std::async(std::launch::async, [&](){
                     std::vector<unsigned char> result;
                     try {
-                        result = PKCS11CardManager::instance(p11.path)->sign(selected, fromHex(hash), nullptr);
+                        result = pkcs11.sign(selected, fromHex(hash), nullptr);
                         dialog.accept();
                     } catch (const AuthenticationError &) {
                         --retriesLeft;
@@ -145,7 +146,7 @@ public:
 
             try {
                 if (!selected.pinpad) {
-                    std::vector<unsigned char> result = PKCS11CardManager::instance(p11.path)->sign(
+                    std::vector<unsigned char> result = pkcs11.sign(
                         selected, fromHex(hash), dialog.pin->text().toUtf8().constData());
                     return {{"signature", toHex(result)}};
                 }

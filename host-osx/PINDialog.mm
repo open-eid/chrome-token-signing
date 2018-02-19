@@ -94,9 +94,11 @@
     }
 
     PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
+    std::unique_ptr<PKCS11CardManager> pkcs11;
     PKCS11CardManager::Token selected;
     try {
-        for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+        pkcs11.reset(new PKCS11CardManager(p11.path));
+        for (const PKCS11CardManager::Token &token : pkcs11->tokens()) {
             if (BinaryUtils::hex2bin(cert.UTF8String) == token.cert) {
                 selected = token;
                 break;
@@ -150,7 +152,7 @@
             [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
             future = std::async(std::launch::async, [&]() {
                 try {
-                    std::vector<unsigned char> signature = PKCS11CardManager::instance(p11.path)->sign(selected, hash, nullptr);
+                    std::vector<unsigned char> signature = pkcs11->sign(selected, hash, nullptr);
                     pinpadresult = @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
                     [NSApp stopModal];
                 }
@@ -200,7 +202,7 @@
         }
         else {
             try {
-                std::vector<unsigned char> signature = PKCS11CardManager::instance(p11.path)->sign(selected, hash, dialog->pinField.stringValue.UTF8String);
+                std::vector<unsigned char> signature = pkcs11->sign(selected, hash, dialog->pinField.stringValue.UTF8String);
                 return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
             }
             catch(const AuthenticationBadInput &) {
