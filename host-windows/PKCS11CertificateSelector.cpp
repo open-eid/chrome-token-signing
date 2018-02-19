@@ -33,7 +33,7 @@ PKCS11CertificateSelector::PKCS11CertificateSelector(const string &_driverPath)
 vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {
 	int certificatesCount = 0;
 	try {
-		for (const auto &token : PKCS11CardManager::instance(driverPath)->tokens()) {
+		for (const auto &token : PKCS11CardManager(driverPath).tokens()) {
 			PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, token.cert.data(), token.cert.size());
 			if (!cert)
 				continue;

@@ -59,7 +59,7 @@
             NSDateFormatter *df = [[NSDateFormatter alloc] init];
             df.dateFormat = @"dd.MM.YYYY";
             PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
-            for (const PKCS11CardManager::Token &token : PKCS11CardManager::instance(p11.path)->tokens()) {
+            for (const PKCS11CardManager::Token &token : PKCS11CardManager(p11.path).tokens()) {
                 CFDataRef data = CFDataCreateWithBytesNoCopy(nil, token.cert.data(), token.cert.size(), kCFAllocatorNull);
                 SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
                 CFRelease(data);
