@@ -36,7 +36,7 @@ public:
 
 class InvalidArgumentException : public BaseException {
 public:
-	InvalidArgumentException(const std::string &message) : BaseException("invalid_argument", message) {}
+	InvalidArgumentException(const std::string &message = "Invalid argument") : BaseException("invalid_argument", message) {}
 };
 
 class InvalidHashException : public BaseException {

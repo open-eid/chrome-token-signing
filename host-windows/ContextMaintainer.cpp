@@ -19,18 +19,15 @@
 #pragma once
 
 #include "ContextMaintainer.h"
-#include <string>
 
-using namespace std;
+std::vector<unsigned char> ContextMaintainer::selectedCertificate = std::vector<unsigned char>();
+std::string ContextMaintainer::savedOrigin = std::string();
 
-std::string ContextMaintainer::selectedCertificate;
-std::string ContextMaintainer::savedOrigin;
-
-void ContextMaintainer::saveCertificate(const string &certificate) {
+void ContextMaintainer::saveCertificate(const std::vector<unsigned char> &certificate) {
 	ContextMaintainer::selectedCertificate = certificate;
 }
 
-bool ContextMaintainer::isSelectedCertificate(const std::string &certificate) {
+bool ContextMaintainer::isSelectedCertificate(const std::vector<unsigned char> &certificate) {
 	return ContextMaintainer::selectedCertificate == certificate;
 }
 
@@ -43,8 +40,6 @@ bool ContextMaintainer::isSameOrigin(const std::string &origin) {
 		saveOrigin(origin);
 		return true;
 	}
-	else {
-		return ContextMaintainer::savedOrigin == origin;
-	}
+	return ContextMaintainer::savedOrigin == origin;
 }
 

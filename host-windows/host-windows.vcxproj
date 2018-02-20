@@ -107,7 +107,6 @@
     <ClInclude Include="PinDialog.h" />
     <ClInclude Include="PKCS11CertificateSelector.h" />
     <ClInclude Include="Pkcs11Signer.h" />
-    <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Signer.h" />
     <ClInclude Include="stdafx.h" />
@@ -127,7 +126,6 @@
     <ClCompile Include="PinDialog.cpp" />
     <ClCompile Include="PKCS11CertificateSelector.cpp" />
     <ClCompile Include="Pkcs11Signer.cpp" />
-    <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Signer.cpp" />
   </ItemGroup>
   <ItemGroup>
