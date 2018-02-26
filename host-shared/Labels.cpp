@@ -45,6 +45,13 @@ void Labels::setLanguage(const std::string &language) {
 
 Labels::lstring Labels::get(const std::string &labelKey) const {
     static const std::map<std::string,std::vector<lstring> > labels = {
+    { "language", {
+        T("ET"),
+        T("EN"),
+        T("RU"),
+        T("LT"),
+        T("LV")
+    } },
     { "auth PIN", {
         T("Autentimiseks sisesta @PIN@:"),
         T("For authentication enter @PIN@:"),
