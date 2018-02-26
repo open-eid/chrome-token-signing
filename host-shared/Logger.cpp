@@ -60,7 +60,11 @@ void Logger::writeLog(const char *functionName, const char *fileName, int lineNu
 #ifndef _WIN32
     fprintf(log, "[%i] ", getpid());
 #endif
-    fprintf(log, "%s() [%s:%i] ", functionName, fileName, lineNumber);
+    string fname(fileName);
+    size_t pos = fname.find_last_of("/\\");
+    if (pos != string::npos)
+        fname = fname.substr(pos + 1, fname.size() - pos - 1);
+    fprintf(log, "%s() [%s:%i] ", functionName, fname.c_str(), lineNumber);
     va_list args;
     va_start(args, message);
     vfprintf(log, message, args);
