@@ -99,9 +99,9 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
             path += L"\\PWPW\\pwpw-card-pkcs11.dll";
         else
             path += L"\\CryptoTech\\CryptoCard\\CCPkiP11.dll";
-        int size = WideCharToMultiByte(CP_UTF8, 0, path.c_str(), path.size(), nullptr, 0, nullptr, nullptr);
+        int size = WideCharToMultiByte(CP_UTF8, 0, path.c_str(), DWORD(path.size()), nullptr, 0, nullptr, nullptr);
         std::string result(size, 0);
-        WideCharToMultiByte(CP_UTF8, 0, path.c_str(), path.size(), &result[0], size, nullptr, nullptr);
+        WideCharToMultiByte(CP_UTF8, 0, path.c_str(), DWORD(path.size()), &result[0], size, nullptr, nullptr);
         return result;
     }();
 #elif defined __APPLE__

@@ -20,16 +20,13 @@
 #include "Exceptions.h"
 #include "Logger.h"
 
-using namespace std;
-
-vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const {
+std::vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const {
 	HCERTSTORE sys = CertOpenStore(CERT_STORE_PROV_SYSTEM,
 		X509_ASN_ENCODING, 0, CERT_SYSTEM_STORE_CURRENT_USER | CERT_STORE_READONLY_FLAG, L"MY");
 	if (!sys)
 		throw TechnicalException("Failed to open Cert Store");
 
 	PCCERT_CONTEXT cert = nullptr;
-	int certificatesCount = 0;
 	while (cert = CertEnumCertificatesInStore(sys, cert)) {
 		if (!isValid(cert, forSigning))
 			continue;
@@ -47,15 +44,11 @@ vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const 
 		case AT_SIGNATURE: if (freeKey) CryptReleaseContext(key, 0); break;
 		}
 		PCCERT_CONTEXT copy = nullptr;
-		if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, &copy)) {
-			++certificatesCount;
+		if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, &copy))
 			_log("Certificate added to the memory store.");
-		}
 		else
 			_log("Could not add the certificate to the memory store.");
 	}
 	CertCloseStore(sys, 0);
-	if (certificatesCount < 1)
-		throw NoCertificatesException();
 	return showDialog();
 }

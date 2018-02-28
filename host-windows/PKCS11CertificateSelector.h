@@ -19,7 +19,6 @@
 #pragma once
 
 #include "CertificateSelector.h"
-#include <vector>
 
 class PKCS11CertificateSelector : public CertificateSelector {
 public:
