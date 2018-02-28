@@ -34,12 +34,6 @@
 #include <dlfcn.h>
 #endif
 
-#define BINARY_SHA1_LENGTH 20
-#define BINARY_SHA224_LENGTH 28
-#define BINARY_SHA256_LENGTH 32
-#define BINARY_SHA384_LENGTH 48
-#define BINARY_SHA512_LENGTH 64
-
 #define C(API, ...) Call(__FILE__, __LINE__, "C_"#API, fl->C_##API, __VA_ARGS__)
 
 class PKCS11CardManager {
@@ -222,23 +216,24 @@ public:
         std::vector<CK_BYTE> hashWithPadding;
         if (keyType == CKK_RSA) {
             switch (hash.size()) {
-                case BINARY_SHA1_LENGTH:
+                case 20: //BINARY_SHA1_LENGTH:
                     hashWithPadding = {0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14};
                     break;
-                case BINARY_SHA224_LENGTH:
+                case 28: //BINARY_SHA224_LENGTH:
                     hashWithPadding = {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c};
                     break;
-                case BINARY_SHA256_LENGTH:
+                case 32: //BINARY_SHA256_LENGTH:
                     hashWithPadding = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
                     break;
-                case BINARY_SHA384_LENGTH:
+                case 48: //BINARY_SHA384_LENGTH:
                     hashWithPadding = {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30};
                     break;
-                case BINARY_SHA512_LENGTH:
+                case 64: //BINARY_SHA512_LENGTH:
                     hashWithPadding = {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
                     break;
                 default:
-                    _log("incorrect digest length, dropping padding");
+                    _log("incorrect digest length");
+                    throw InvalidHashException();
             }
         }
         hashWithPadding.insert(hashWithPadding.end(), hash.begin(), hash.end());

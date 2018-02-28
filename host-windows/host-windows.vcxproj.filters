@@ -27,12 +27,6 @@
     <ClInclude Include="..\host-shared\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IOCommunicator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ContextMaintainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\host-shared\VersionInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -81,12 +75,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\host-shared\Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCommunicator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ContextMaintainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="chrome-token-signing.cpp">

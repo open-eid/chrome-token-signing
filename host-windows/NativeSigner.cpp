@@ -37,23 +37,23 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 	ALG_ID alg = 0;	
 	switch (digest.size())
 	{
-	case BINARY_SHA1_LENGTH:
+	case 20: //BINARY_SHA1_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA1_ALGORITHM;
 		alg = CALG_SHA1;
 		break;
-	case BINARY_SHA224_LENGTH:
+	case 28: //BINARY_SHA224_LENGTH:
 		padInfo.pszAlgId = L"SHA224";
 		obtainKeyStrategy = CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG;
 		break;
-	case BINARY_SHA256_LENGTH:
+	case 32: //BINARY_SHA256_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA256_ALGORITHM;
 		alg = CALG_SHA_256;
 		break;
-	case BINARY_SHA384_LENGTH:
+	case 48: //BINARY_SHA384_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA384_ALGORITHM;
 		alg = CALG_SHA_384;
 		break;
-	case BINARY_SHA512_LENGTH:
+	case 64: //BINARY_SHA512_LENGTH:
 		padInfo.pszAlgId = NCRYPT_SHA512_ALGORITHM;
 		alg = CALG_SHA_512;
 		break;
