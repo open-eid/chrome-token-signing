@@ -20,11 +20,39 @@
 
 #include <stdexcept>
 
+// Legacy NPAPI/BHO error codes
+#define ESTEID_NO_ERROR 0
+#define ESTEID_USER_CANCEL 1
+#define ESTEID_CERT_NOT_FOUND_ERROR 2
+#define ESTEID_MD5_ERROR 3
+#define ESTEID_CRYPTO_API_ERROR 4
+#define ESTEID_UNKNOWN_ERROR 5
+#define ESTEID_PKCS11_ERROR 14
+#define ESTEID_LIBRARY_LOAD_ERROR 15
+#define ESTEID_INVALID_HASH_ERROR 17
+#define ESTEID_PTHREAD_ERROR 18
+#define ESTEID_SITE_NOT_ALLOWED 19
+#define ESTEID_PIN_BLOCKED 24
+
+#define ESTEID_ERROR_SIZE 1024
+#define NOT_FOUND -1
+
 class BaseException : public std::runtime_error {
 private:
 	std::string errorCode;
 public:
     std::string getErrorCode() const { return errorCode; }
+	int toInt() const
+	{
+		if (errorCode.empty()) return ESTEID_NO_ERROR;
+		if (errorCode == "invalid_argument") return ESTEID_INVALID_HASH_ERROR;
+		if (errorCode == "user_cancel") return ESTEID_USER_CANCEL;
+		if (errorCode == "no_certificates") return ESTEID_CERT_NOT_FOUND_ERROR;
+		if (errorCode == "not_allowed") return ESTEID_SITE_NOT_ALLOWED;
+		if (errorCode == "driver_error") return ESTEID_LIBRARY_LOAD_ERROR;
+		if (errorCode == "pin_blocked") return ESTEID_PIN_BLOCKED;
+		return ESTEID_UNKNOWN_ERROR;
+	}
 protected:
 	BaseException(const std::string &code, const std::string &msg) : runtime_error(msg), errorCode(code) {}
 };

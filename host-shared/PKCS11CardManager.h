@@ -187,7 +187,7 @@ public:
                         if (tokenInfo.flags & CKF_USER_PIN_COUNT_LOW) return 2;
                         return 3;
                     }(),
-                    bool(tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH),
+                    (tokenInfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH) > 0,
                     tokenInfo.ulMinPinLen,
                     tokenInfo.ulMaxPinLen,
                 });
@@ -203,7 +203,7 @@ public:
             throw DriverException();
         CK_SESSION_HANDLE session = 0;
         C(OpenSession, token.slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
-        C(Login, session, CKU_USER, CK_CHAR_PTR(pin), pin ? strlen(pin) : 0);
+        C(Login, session, CKU_USER, CK_CHAR_PTR(pin), CK_ULONG(pin ? strlen(pin) : 0));
         if (token.certID.empty())
             throw PKCS11Exception("Could not read private key. Certificate ID is empty");
         std::vector<CK_OBJECT_HANDLE> privateKeyHandle = findObject(session, CKO_PRIVATE_KEY, token.certID);

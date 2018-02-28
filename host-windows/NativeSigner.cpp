@@ -66,7 +66,7 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 	if (!store)
 		throw TechnicalException("Failed to open Cert Store");
 	
-	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, cert.data(), cert.size());
+	PCCERT_CONTEXT certFromBinary = CertCreateCertificateContext(X509_ASN_ENCODING, cert.data(), DWORD(cert.size()));
 	PCCERT_CONTEXT certInStore = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_EXISTING, certFromBinary, 0);
 	CertFreeCertificateContext(certFromBinary);
 	CertCloseStore(store, 0);
@@ -101,7 +101,7 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 	{
 		DWORD size = 0;
 		wstring algo(5, 0);
-		err = NCryptGetProperty(*key.get(), NCRYPT_ALGORITHM_GROUP_PROPERTY, PBYTE(algo.data()), (algo.size() + 1) * 2, &size, 0);
+		err = NCryptGetProperty(*key.get(), NCRYPT_ALGORITHM_GROUP_PROPERTY, PBYTE(algo.data()), DWORD(algo.size() + 1) * 2, &size, 0);
 		algo.resize(size / 2 - 1);
 		bool isRSA = algo == L"RSA";
 		

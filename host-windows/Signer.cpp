@@ -38,11 +38,11 @@ bool Signer::showInfo(const string &msg)
 {
 	if (msg.empty())
 		return true;
-	int size = MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), msg.size(), nullptr, 0);
+	int size = MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), DWORD(msg.size()), nullptr, 0);
 	if (size > 500)
 		throw TechnicalException("Information message to long");
 	wstring wmsg(size, 0);
-	if (MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), msg.size(), &wmsg[0], wmsg.size()) != size)
+	if (MultiByteToWideChar(CP_UTF8, 0, msg.c_str(), DWORD(msg.size()), &wmsg[0], DWORD(wmsg.size())) != size)
 		throw TechnicalException("Failed to convert string to wide chars");
 	return MessageBox(nullptr, wmsg.c_str(), L"", MB_OKCANCEL | MB_ICONINFORMATION | MB_SYSTEMMODAL) == IDOK;
 }

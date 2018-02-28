@@ -19,19 +19,13 @@
 #include "PKCS11CertificateSelector.h"
 #include "PKCS11CardManager.h"
 #include "Logger.h"
-#include "Exceptions.h"
 
-#include <memory>
-
-using namespace std;
-
-PKCS11CertificateSelector::PKCS11CertificateSelector(const string &_driverPath)
+PKCS11CertificateSelector::PKCS11CertificateSelector(const std::string &_driverPath)
 	: CertificateSelector()
 	, driverPath(_driverPath)
 {}
 
-vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {
-	int certificatesCount = 0;
+std::vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {
 	for (const auto &token : PKCS11CardManager(driverPath).tokens()) {
 		PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, token.cert.data(), token.cert.size());
 		if (!cert)
@@ -42,14 +36,10 @@ vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const 
 			CertFreeCertificateContext(cert);
 			continue;
 		}
-		if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, nullptr)) {
-			++certificatesCount;
+		if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, nullptr))
 			_log("Certificate added to the memory store.");
-		}
 		else
 			_log("Could not add the certificate to the memory store.");
 	}
-	if (certificatesCount < 1)
-		throw NoCertificatesException();
 	return showDialog();
 }
