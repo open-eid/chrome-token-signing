@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Extension">
+      <UniqueIdentifier>{84dc6a0f-8ac5-407c-980a-3413aa53e59b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\host-shared\BinaryUtils.h">
@@ -107,6 +110,9 @@
     <ClCompile Include="..\host-shared\Labels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="chrome-token-signing.wxs">
@@ -118,6 +124,24 @@
     <None Include="..\VERSION.mk">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ee.ria.esteid.firefox.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ee.ria.esteid.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\extension\background.js">
+      <Filter>Extension</Filter>
+    </None>
+    <None Include="..\extension\content.js">
+      <Filter>Extension</Filter>
+    </None>
+    <None Include="..\extension\manifest.json">
+      <Filter>Extension</Filter>
+    </None>
+    <None Include="..\extension\page.js">
+      <Filter>Extension</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="chrome-token-signing.rc">
@@ -126,5 +150,13 @@
     <ResourceCompile Include="PinDialog.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\extension\icon48.png">
+      <Filter>Extension</Filter>
+    </Image>
+    <Image Include="..\extension\icon128.png">
+      <Filter>Extension</Filter>
+    </Image>
   </ItemGroup>
 </Project>
