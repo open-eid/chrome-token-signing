@@ -18,28 +18,17 @@
 
 #pragma once
 
-#include "resource.h"
-
-#include <afxcmn.h>
+#include "stdafx.h"
 #include <string>
 
-class PinDialog : public CDialog
+class PinDialog
 {
-	DECLARE_DYNAMIC(PinDialog)
-
 public:
-	PinDialog(const std::wstring &_label, CWnd* pParent = NULL) : CDialog(PinDialog::IDD, pParent), label(_label) {}
-	char* getPin();
-	afx_msg void OnBnClickedOk();
-
-	// Dialog Data
-	enum { IDD = IDD_PIN_DIALOG };
-
-protected:
-	DECLARE_MESSAGE_MAP()
-	virtual BOOL OnInitDialog() override;
+	static std::string getPin(const std::wstring &label, HWND pParent = NULL);
 
 private:
-	char* pin;
+	PinDialog() {}
+	static INT_PTR CALLBACK DlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	std::wstring label;
+	std::string pin;
 };

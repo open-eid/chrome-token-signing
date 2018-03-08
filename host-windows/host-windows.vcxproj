@@ -22,7 +22,6 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -30,7 +29,6 @@
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -62,7 +60,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib</AdditionalDependencies>
+      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -84,7 +83,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib</AdditionalDependencies>
+      <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>MAJOR_VER=$(MAJOR_VERSION);MINOR_VER=$(MINOR_VERSION);RELEASE_VER=$(RELEASE_VERSION);BUILD_VER=$(BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -103,9 +103,9 @@
     <ClInclude Include="NativeCertificateSelector.h" />
     <ClInclude Include="NativeSigner.h" />
     <ClInclude Include="PinDialog.h" />
+    <ClInclude Include="PinDialogResource.h" />
     <ClInclude Include="PKCS11CertificateSelector.h" />
     <ClInclude Include="Pkcs11Signer.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Signer.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -133,7 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="chrome-token-signing.rc" />
-    <ResourceCompile Include="Resource.rc" />
+    <ResourceCompile Include="PinDialog.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

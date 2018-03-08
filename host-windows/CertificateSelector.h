@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Exceptions.h"
-#include <afx.h>
+#include "stdafx.h"
 #include <wincrypt.h>
 #include <vector>
 
