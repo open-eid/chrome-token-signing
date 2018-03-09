@@ -42,7 +42,7 @@
 - (instancetype)init:(NSString*)label pinpad:(BOOL)pinpad
 {
     if (self = [super init]) {
-        if (![NSBundle.mainBundle loadNibNamed:pinpad ? @"PINPadDialog" : @"PINDialog" owner:self topLevelObjects:nil]) {
+        if (![[NSBundle bundleForClass:PINPanel.class] loadNibNamed:pinpad ? @"PINPadDialog" : @"PINDialog" owner:self topLevelObjects:nil]) {
             self = nil;
             return self;
         }
@@ -64,16 +64,6 @@
         return @{@"result": @"invalid_argument"};
     }
 
-    std::vector<unsigned char> hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
-    switch (hash.size()) {
-        case BINARY_SHA1_LENGTH:
-        case BINARY_SHA224_LENGTH:
-        case BINARY_SHA256_LENGTH:
-        case BINARY_SHA384_LENGTH:
-        case BINARY_SHA512_LENGTH: break;
-        default: return @{@"result": @"invalid_argument"};
-    }
-
     if (params[@"info"] && [params[@"info"] length] > 0) {
         if ([params[@"info"] length] > 500) {
             return @{@"result": @"technical_error"};
@@ -92,7 +82,9 @@
     PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
     std::unique_ptr<PKCS11CardManager> pkcs11;
     PKCS11CardManager::Token selected;
+    std::vector<unsigned char> hash;
     try {
+        hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
         pkcs11.reset(new PKCS11CardManager(p11.path));
         for (const PKCS11CardManager::Token &token : pkcs11->tokens()) {
             if (BinaryUtils::hex2bin(cert.UTF8String) == token.cert) {

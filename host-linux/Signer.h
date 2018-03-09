@@ -46,17 +46,6 @@ class Signer: public QDialog {
     };
 public:
     static QVariantMap sign(const QString &hash, const QString &cert) {
-        switch(hash.length())
-        {
-        case BINARY_SHA1_LENGTH * 2:
-        case BINARY_SHA224_LENGTH * 2:
-        case BINARY_SHA256_LENGTH * 2:
-        case BINARY_SHA384_LENGTH * 2:
-        case BINARY_SHA512_LENGTH * 2: break;
-        default:
-            return {{"result", "invalid_argument"}};
-        }
-
         std::vector<unsigned char> data = fromHex(cert);
         PKCS11CardManager::Token selected;
         PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();

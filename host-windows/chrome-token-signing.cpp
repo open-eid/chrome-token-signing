@@ -18,34 +18,59 @@
 
 #include "BinaryUtils.h"
 #include "CertificateSelector.h"
-#include "ContextMaintainer.h"
 #include "Exceptions.h"
-#include "IOCommunicator.h"
 #include "jsonxx.h"
 #include "Labels.h"
 #include "Logger.h"
 #include "Signer.h"
 #include "VersionInfo.h"
 
+#include <fcntl.h>
+#include <io.h>
 #include <memory>
 
 using namespace std;
 using namespace jsonxx;
 
+string readMessage()
+{
+	uint32_t messageLength = 0;
+	cin.read((char*)&messageLength, sizeof(messageLength));
+	if (messageLength > 1024 * 8)
+		throw InvalidArgumentException("Invalid message length " + to_string(messageLength));
+	string message(messageLength, 0);
+	cin.read(&message[0], messageLength);
+	_log("Request(%i): %s ", messageLength, message.c_str());
+	return message;
+}
+
+void sendMessage(const string &message)
+{
+	uint32_t messageLength = message.length();
+	cout.write((char *)&messageLength, sizeof(messageLength));
+	_log("Response(%i) %s ", messageLength, message.c_str());
+	cout << message;
+}
+
 int main(int argc, char **argv)
 {
-	IOCommunicator ioCommunicator;
-
+	//Necessary for sending correct message length to stout (in Windows)
+	_setmode(_fileno(stdin), O_BINARY);
+	_setmode(_fileno(stdout), O_BINARY);
+	vector<unsigned char> selectedCert;
 	while (true)
 	{
 		_log("Parsing input...");
 		jsonxx::Object jsonRequest, jsonResponse;
 		try {
-			if (!jsonRequest.parse(ioCommunicator.readMessage()))
+			if (!jsonRequest.parse(readMessage()))
 				throw InvalidArgumentException();
+
 			if (!jsonRequest.has<string>("type") || !jsonRequest.has<string>("nonce") || !jsonRequest.has<string>("origin"))
 				throw InvalidArgumentException();
-			if (!ContextMaintainer::isSameOrigin(jsonRequest.get<string>("origin")))
+
+			static const string origin = jsonRequest.get<string>("origin");
+			if (jsonRequest.get<string>("origin") != origin)
 				throw InconsistentOriginException();
 
 			if (jsonRequest.has<string>("lang"))
@@ -59,8 +84,7 @@ int main(int argc, char **argv)
 			else if (type == "CERT")
 			{
 				unique_ptr<CertificateSelector> certificateSelector(CertificateSelector::createCertificateSelector());
-				vector<unsigned char> selectedCert = certificateSelector->getCert(!jsonRequest.has<string>("filter") || jsonRequest.get<string>("filter") != "AUTH");
-				ContextMaintainer::saveCertificate(selectedCert);
+				selectedCert = certificateSelector->getCert(!jsonRequest.has<string>("filter") || jsonRequest.get<string>("filter") != "AUTH");
 				jsonResponse << "cert" << BinaryUtils::bin2hex(selectedCert);
 			}
 			else if (type == "SIGN")
@@ -71,23 +95,10 @@ int main(int argc, char **argv)
 				vector<unsigned char> cert = BinaryUtils::hex2bin(jsonRequest.get<string>("cert"));
 				vector<unsigned char> digest = BinaryUtils::hex2bin(jsonRequest.get<string>("hash"));
 				_log("signing hash: %s, with certId: %s", jsonRequest.get<string>("hash").c_str(), jsonRequest.get<string>("cert").c_str());
-				if (!ContextMaintainer::isSelectedCertificate(cert))
+				if (cert != selectedCert)
 					throw NotSelectedCertificateException();
 
-				switch (digest.size())
-				{
-				case BINARY_SHA1_LENGTH:
-				case BINARY_SHA224_LENGTH:
-				case BINARY_SHA256_LENGTH:
-				case BINARY_SHA384_LENGTH:
-				case BINARY_SHA512_LENGTH:
-					break;
-				default:
-					_log("Hash length %i is invalid", digest.size());
-					throw InvalidHashException();
-				}
 				unique_ptr<Signer> signer(Signer::createSigner(cert));
-
 				if (!signer->showInfo(jsonRequest.get<string>("info", string())))
 					throw UserCancelledException();
 
@@ -100,7 +111,7 @@ int main(int argc, char **argv)
 		catch (const InvalidArgumentException &e)
 		{
 			_log("Handling exception: %s", e.getErrorCode());
-			ioCommunicator.sendMessage((Object() << "result" << e.getErrorCode() << "message" << e.what()).json());
+			sendMessage((Object() << "result" << e.getErrorCode() << "message" << e.what()).json());
 			return EXIT_FAILURE;
 		}
 		catch (const BaseException &e) {
@@ -112,7 +123,7 @@ int main(int argc, char **argv)
 		if (!jsonResponse.has<string>("result"))
 			jsonResponse << "result" << "ok";
 		jsonResponse << "api" << API;
-		ioCommunicator.sendMessage(jsonResponse.json());
+		sendMessage(jsonResponse.json());
 	}
 	return EXIT_SUCCESS;
 }

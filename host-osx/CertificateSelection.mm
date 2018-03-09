@@ -97,7 +97,7 @@
             [certificates addObject: @{@"cert": hex, @"validTo": [df stringFromDate:date], @"CN": cn, @"type": type}];
         }
 
-        if (![NSBundle.mainBundle loadNibNamed:@"CertificateSelection" owner:self topLevelObjects:nil]) {
+        if (![[NSBundle bundleForClass:CertificateSelection.class] loadNibNamed:@"CertificateSelection" owner:self topLevelObjects:nil]) {
             self = nil;
             return self;
         }
