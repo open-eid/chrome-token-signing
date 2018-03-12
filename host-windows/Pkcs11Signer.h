@@ -25,9 +25,5 @@ public:
 	Pkcs11Signer(const std::string &pkcs11ModulePath, const std::vector<unsigned char> &cert);
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 private:
-	int pinTriesLeft;
 	std::string pkcs11Path;
-	void validatePinNotBlocked();
-	std::string askPin();
-	void handleWrongPinEntry();
 };
