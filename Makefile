@@ -30,7 +30,7 @@ SIGN = signtool sign /v /a /s MY /n "RIIGI INFOSUSTEEMI AMET" /fd SHA256 /du htt
 build:
 	msbuild /p:Configuration=Release;Platform=Win32$(BUILDPARAMS) /p:MAJOR_VERSION=$(MAJOR_VERSION);MINOR_VERSION=$(MINOR_VERSION);RELEASE_VERSION=$(RELEASE_VERSION);BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
 
-build-signed:
+build-signed: build
 	$(SIGN) host-windows/Release/chrome-token-signing.exe
 
 pkg-unsigned:

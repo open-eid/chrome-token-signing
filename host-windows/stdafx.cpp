@@ -16,26 +16,4 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma once
-
-#include <Windows.h>
-#include <cryptuiapi.h>
-#include <Knownfolders.h>
-#include <ncrypt.h>
-#include <Shlobj.h>
-#include <Shlwapi.h>
-#include <WinCrypt.h>
-
-#include <algorithm>
-#include <map>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-#include <cstring>
-#include <cstdarg>
-#include <fcntl.h>
-#include <io.h>
-#include <stdio.h>
-#include <time.h>
+#include "stdafx.h"

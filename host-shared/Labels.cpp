@@ -22,8 +22,8 @@
 #include <vector>
 
 #ifdef _WIN32
-#define _T(X) L##X
-#define T(X) _T(X)
+#define _TOTEXT(X) L##X
+#define T(X) _TOTEXT(X)
 #else
 #define T(X) X
 #endif
