@@ -17,11 +17,11 @@
 */
 
 #include "Pkcs11Signer.h"
+#include "PinDialog.h"
 #include "PKCS11CardManager.h"
 #include "Labels.h"
 #include "Logger.h"
 #include "Exceptions.h"
-#include "PinDialog.h"
 
 #include <WinCrypt.h>
 
@@ -31,16 +31,6 @@ Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const vector<unsigned
 	: Signer(cert)
 	, pkcs11Path(pkcs11ModulePath)
 {
-	HMODULE hModule = ::GetModuleHandle(NULL);
-	if (hModule == NULL) {
-		_log("MFC initialization failed. Module handle is null");
-		throw TechnicalException("MFC initialization failed. Module handle is null");
-	}
-	// initialize MFC
-	if (!AfxWinInit(hModule, NULL, ::GetCommandLine(), 0)) {
-		_log("MFC initialization failed");
-		throw TechnicalException("MFC initialization failed");
-	}
 }
 
 vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
@@ -64,7 +54,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 
 	try {
 		validatePinNotBlocked();
-		return pkcs11.sign(selected, digest, askPin());
+		return pkcs11.sign(selected, digest, askPin().c_str());
 	}
 	catch (const AuthenticationError &) {
 		_log("Wrong pin");
@@ -80,7 +70,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest) {
 	}
 }
 
-char* Pkcs11Signer::askPin() {
+std::string Pkcs11Signer::askPin() {
 	_log("Showing pin entry dialog");
 	wstring label = Labels::l10n.get("sign PIN");
 	if (PCCERT_CONTEXT certificate = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert.data(), cert.size())) {
@@ -96,17 +86,12 @@ char* Pkcs11Signer::askPin() {
 		start_pos += 3;
 	}
 
-	PinDialog dialog(label);
-	if (dialog.DoModal() != IDOK) {
+	std::string pin = PinDialog::getPin(label);
+	if (pin.empty()) {
 		_log("User cancelled");
 		throw UserCancelledException();
 	}
-	if (strlen(dialog.getPin()) < 4) {
-		_log("Pin is too short");
-		handleWrongPinEntry();
-		return askPin();
-	}
-	return dialog.getPin();
+	return pin;
 }
 
 void Pkcs11Signer::validatePinNotBlocked() {

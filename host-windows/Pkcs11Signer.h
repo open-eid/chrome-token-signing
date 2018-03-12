@@ -28,6 +28,6 @@ private:
 	int pinTriesLeft;
 	std::string pkcs11Path;
 	void validatePinNotBlocked();
-	char* askPin();
+	std::string askPin();
 	void handleWrongPinEntry();
 };
