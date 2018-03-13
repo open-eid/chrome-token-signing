@@ -16,10 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
-ifeq ($(BUILD_NUMBER),)
-BUILD_NUMBER = 0
-endif
+BUILD_NUMBER ?= 0
 include ../VERSION.mk
+LIBPATH ?= /usr/lib
+# man qtchooser
+export QT_SELECT=qt5
 
 all:
 	qmake VERSION=$(VERSIONEX)
