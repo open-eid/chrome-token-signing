@@ -24,11 +24,11 @@
 class PinDialog
 {
 public:
-	static std::string getPin(const std::wstring &label, HWND pParent = NULL);
+	static std::string getPin(const std::wstring &label, const std::wstring &message, HWND pParent = NULL);
 
 private:
 	PinDialog() {}
 	static INT_PTR CALLBACK DlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	std::wstring label;
+	std::wstring label, message;
 	std::string pin;
 };

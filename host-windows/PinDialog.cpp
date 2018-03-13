@@ -21,10 +21,11 @@
 #include "Labels.h"
 #include "PinDialogResource.h"
 
-std::string PinDialog::getPin(const std::wstring &label, HWND pParent)
+std::string PinDialog::getPin(const std::wstring &label, const std::wstring &message, HWND pParent)
 {
 	PinDialog p;
 	p.label = label;
+	p.message = message;
 	if (DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_PIN_DIALOG), pParent, DlgProc, LPARAM(&p)) != IDOK)
 		p.pin.clear();
 	return p.pin;
@@ -38,10 +39,9 @@ INT_PTR CALLBACK PinDialog::DlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 	{
 		PinDialog *self = (PinDialog*)lParam;
 		SetWindowLongPtr(hwndDlg, GWLP_USERDATA, lParam);
-		SetDlgItemText(hwndDlg, IDC_PIN_MESSAGE, self->label.c_str());
+		SetDlgItemText(hwndDlg, IDC_MESSAGE, self->message.c_str());
+		SetDlgItemText(hwndDlg, IDC_LABEL, self->label.c_str());
 		SetDlgItemText(hwndDlg, IDCANCEL, Labels::l10n.get("cancel").c_str());
-		SendMessage(hwndDlg, DM_SETDEFID, IDCANCEL, 0);
-		EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
 		return TRUE;
 	}
 	case WM_COMMAND:
