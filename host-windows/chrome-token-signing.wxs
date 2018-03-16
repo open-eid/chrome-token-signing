@@ -71,6 +71,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
             <RegistryValue Root='HKLM' Type='string' Name="update_url"
                 Key='SOFTWARE\Google\Chrome\Extensions\ckjefchnfjhjfedoccjbhjpbncimppeg'
                 Value='https://clients2.google.com/service/update2/crx'/>
+            <RegistryValue Root='HKLM' Type='string' Name="56789"
+                Key='SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist'
+                Value='ckjefchnfjhjfedoccjbhjpbncimppeg;https://clients2.google.com/service/update2/crx'/>
             <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"
                 Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
           </Component>

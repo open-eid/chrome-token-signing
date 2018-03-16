@@ -1,5 +1,6 @@
 ./host-linux/chrome-token-signing /usr/bin
 ./host-linux/ee.ria.esteid.json /usr/share/chrome-token-signing
+./host-linux/ee.ria.chrome-token-signing.policy.json /usr/share/chrome-token-signing
 ./host-linux/ff/ee.ria.esteid.json /usr/lib/mozilla/native-messaging-hosts
 ./ckjefchnfjhjfedoccjbhjpbncimppeg.json /usr/share/chrome-token-signing
 ./\{443830f0-1fff-4f9a-aa1e-444bafbc7319\}.xpi /usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}

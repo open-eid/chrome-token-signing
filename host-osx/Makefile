@@ -46,6 +46,7 @@ $(PKG): $(TARGET)
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
 		--install-location / \
+		--scripts scripts \
 		$(PKG)
 
 pkg: $(PKG)
@@ -55,6 +56,7 @@ signed: codesign
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
 		--install-location / \
+		--scripts scripts \
 		--sign "Developer ID Installer: $(SIGNER)" \
 		$(PKG)
 

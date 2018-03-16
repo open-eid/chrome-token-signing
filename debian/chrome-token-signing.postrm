@@ -3,7 +3,7 @@
 set -e
 
 rm -f /etc/opt/chrome/native-messaging-hosts/ee.ria.esteid.json
-
+rm -f /etc/opt/chrome/policies/managed/ee.ria.chrome-token-signing.policy.json
 rmdir -p --ignore-fail-on-non-empty /etc/opt/chrome/native-messaging-hosts
 
 #DEBHELPER#
