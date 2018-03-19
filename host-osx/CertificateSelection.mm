@@ -30,7 +30,12 @@
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
-@interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate> {
+static NSTouchBarItemIdentifier touchBarItemGroupId = @"ee.ria.chrome-token-signing.touchbar.group";
+static NSTouchBarItemIdentifier touchBarItemSelectId = @"ee.ria.chrome-token-signing.touchbar.select";
+static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-signing.touchbar.cancel";
+static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-signing.touchbar.segment";
+
+@interface CertificateSelection () <NSTableViewDataSource,NSTableViewDelegate,NSTouchBarDelegate> {
     IBOutlet NSPanel *window;
     IBOutlet NSTableView *certificateSelection;
     IBOutlet NSButton *okButton;
@@ -102,6 +107,7 @@
             return self;
         }
 
+        window.touchBar = [self makeTouchBar];
         window.title = _L("select certificate");
         cancelButton.title = _L("cancel");
         okButton.title = _L("select");
@@ -109,7 +115,6 @@
         [[certificateSelection tableColumnWithIdentifier:@"CN"].headerCell setStringValue:_L("certificate")];
         [[certificateSelection tableColumnWithIdentifier:@"type"].headerCell setStringValue:_L("type")];
         [[certificateSelection tableColumnWithIdentifier:@"validTo"].headerCell setStringValue:_L("valid to")];
-        [certificateSelection setDoubleAction:@selector(okClicked:)];
         if (certificateSelection.numberOfRows > 0) {
             [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];
             okButton.enabled = YES;
@@ -154,6 +159,70 @@
 - (IBAction)enableOkButton:(id)sender
 {
     okButton.enabled = certificateSelection.selectedRow != -1;
+}
+
+- (IBAction)changeSelection:(id)sender
+{
+    NSUInteger index = certificateSelection.selectedRow >= 0 ? certificateSelection.selectedRow : 0;
+    NSSegmentedControl *control = sender;
+    if (control.selectedSegment == 0 && index > 0)
+        --index;
+    if (control.selectedSegment == 1 && index < certificates.count -1)
+        ++index;
+    [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:NO];
+}
+
+#pragma mark - NSTouchBarProvider
+
+- (NSTouchBar *)makeTouchBar
+{
+    if (NSClassFromString(@"NSTouchBar"))
+    {
+        NSTouchBar *touchBar = [[NSTouchBar alloc] init];
+        touchBar.delegate = self;
+        touchBar.defaultItemIdentifiers = @[NSTouchBarItemIdentifierFlexibleSpace, touchBarItemSegmentId, touchBarItemGroupId];
+        touchBar.principalItemIdentifier = touchBarItemGroupId;
+        return touchBar;
+    }
+    return nil;
+}
+
+#pragma mark - NSTouchBarDelegate
+
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+{
+    if ([identifier isEqualToString:touchBarItemGroupId])
+    {
+        NSArray *items = @[
+            [self touchBar:touchBar makeItemForIdentifier:touchBarItemCancelId],
+            [self touchBar:touchBar makeItemForIdentifier:touchBarItemSelectId]];
+        return [NSGroupTouchBarItem groupItemWithIdentifier:identifier items:items];
+    }
+    if ([identifier isEqualToString:touchBarItemSegmentId])
+    {
+        NSSegmentedControl *control = [NSSegmentedControl segmentedControlWithImages:@[[NSImage imageNamed:NSImageNameTouchBarGoUpTemplate], [NSImage imageNamed:NSImageNameTouchBarGoDownTemplate]]
+            trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(changeSelection:)];
+        [control setWidth:40 forSegment:0];
+        [control setWidth:40 forSegment:1];
+        NSCustomTouchBarItem *touchBarItem = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        touchBarItem.view = control;
+        return touchBarItem;
+    }
+    if ([identifier isEqualToString:touchBarItemSelectId])
+    {
+        NSButton *button = [NSButton buttonWithTitle:_L("select") target:self action:@selector(okClicked:)];
+        button.bezelColor = NSColor.selectedMenuItemColor;
+        NSCustomTouchBarItem *touchBarItem = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        touchBarItem.view = button;
+        return touchBarItem;
+    }
+    if ([identifier isEqualToString:touchBarItemCancelId])
+    {
+        NSCustomTouchBarItem *touchBarItem = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        touchBarItem.view = [NSButton buttonWithTitle:_L("cancel") target:self action:@selector(cancelClicked:)];
+        return touchBarItem;
+    }
+    return nil;
 }
 
 #pragma mark - NSTableViewDataSource

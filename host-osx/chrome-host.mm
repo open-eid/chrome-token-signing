@@ -52,6 +52,7 @@ int main(int argc, const char * argv[]) {
                                                      NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"],
                                                      NSBundle.mainBundle.infoDictionary[@"CFBundleVersion"]];
         _log("Starting native host %s", version.UTF8String);
+        NSApplication.sharedApplication.automaticCustomizeTouchBarMenuItemEnabled = YES;
         NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
         [input waitForDataInBackgroundAndNotify];
         NSNotificationCenter *dc = NSNotificationCenter.defaultCenter;

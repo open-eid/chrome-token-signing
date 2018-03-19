@@ -78,6 +78,7 @@
                                     </tableColumns>
                                     <connections>
                                         <action selector="enableOkButton:" target="-2" id="91"/>
+                                        <action trigger="doubleAction" selector="okClicked:" target="-2" id="aZ3-fC-9xO"/>
                                         <outlet property="dataSource" destination="-2" id="FEe-7n-sSg"/>
                                         <outlet property="delegate" destination="-2" id="5A7-OG-ubU"/>
                                     </connections>

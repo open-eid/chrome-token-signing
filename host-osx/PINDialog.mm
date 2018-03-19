@@ -27,6 +27,13 @@
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
+static NSTouchBarItemIdentifier touchBarItemGroupId = @"ee.ria.chrome-token-signing.touchbar.group";
+static NSTouchBarItemIdentifier touchBarItemOkId = @"ee.ria.chrome-token-signing.touchbar.ok";
+static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-signing.touchbar.cancel";
+
+@interface PINPanel () <NSTouchBarDelegate>
+@end
+
 @implementation PINPanel {
     IBOutlet NSPanel *window;
     IBOutlet NSButton *okButton;
@@ -53,6 +60,7 @@
         else {
             cancelButton.title = _L("cancel");
         }
+        window.touchBar = [self makeTouchBar];
         pinFieldLabel.stringValue = label;
     }
     return self;
@@ -119,7 +127,7 @@
             }
         }
 
-        NSString *label = [NSString string];
+        NSString *label;
         if (ku.unsignedIntValue & kSecKeyUsageNonRepudiation) {
             label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
         }
@@ -224,7 +232,11 @@
     pinField.stringValue = [[pinField.stringValue componentsSeparatedByCharactersInSet:
                              NSCharacterSet.decimalDigitCharacterSet.invertedSet]
                             componentsJoinedByString:@""];
-    okButton.enabled = pinField.stringValue.length >= minPinLen;
+    if (okButton.enabled != pinField.stringValue.length >= minPinLen)
+    {
+        okButton.enabled = pinField.stringValue.length >= minPinLen;
+        window.touchBar = [self makeTouchBar];
+    }
 }
 
 - (void)handleTimerTick:(NSTimer*)timer
@@ -234,6 +246,51 @@
         [progressBar stopAnimation:self];
         [NSApp abortModal];
     }
+}
+
+#pragma mark - NSTouchBarProvider
+
+- (NSTouchBar *)makeTouchBar
+{
+    if (NSClassFromString(@"NSTouchBar"))
+    {
+        NSTouchBar *touchBar = [[NSTouchBar alloc] init];
+        touchBar.delegate = self;
+        touchBar.defaultItemIdentifiers = @[touchBarItemGroupId];
+        touchBar.principalItemIdentifier = touchBarItemGroupId;
+        return touchBar;
+    }
+    return nil;
+}
+
+#pragma mark - NSTouchBarDelegate
+
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+{
+    if ([identifier isEqualToString:touchBarItemGroupId])
+    {
+        NSArray *items = @[
+                           [self touchBar:touchBar makeItemForIdentifier:touchBarItemCancelId],
+                           [self touchBar:touchBar makeItemForIdentifier:touchBarItemOkId]];
+        return [NSGroupTouchBarItem groupItemWithIdentifier:identifier items:items];
+    }
+    if ([identifier isEqualToString:touchBarItemOkId])
+    {
+        NSButton *button = [NSButton buttonWithTitle:@"OK" target:self action:@selector(okClicked:)];
+        button.enabled = okButton.enabled;
+        if (okButton.enabled)
+            button.bezelColor = NSColor.selectedMenuItemColor;
+        NSCustomTouchBarItem *touchBarItem = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        touchBarItem.view = button;
+        return touchBarItem;
+    }
+    if ([identifier isEqualToString:touchBarItemCancelId])
+    {
+        NSCustomTouchBarItem *touchBarItem = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        touchBarItem.view = [NSButton buttonWithTitle:_L("cancel") target:self action:@selector(cancelClicked:)];
+        return touchBarItem;
+    }
+    return nil;
 }
 
 @end
