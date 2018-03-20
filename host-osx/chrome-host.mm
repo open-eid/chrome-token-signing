@@ -52,14 +52,16 @@ int main(int argc, const char * argv[]) {
                                                      NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"],
                                                      NSBundle.mainBundle.infoDictionary[@"CFBundleVersion"]];
         _log("Starting native host %s", version.UTF8String);
-        NSApplication.sharedApplication.automaticCustomizeTouchBarMenuItemEnabled = YES;
+        if (@available(macOS 10_12_2, *)) {
+            NSApplication.sharedApplication.automaticCustomizeTouchBarMenuItemEnabled = YES;
+        }
         NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
         [input waitForDataInBackgroundAndNotify];
         NSNotificationCenter *dc = NSNotificationCenter.defaultCenter;
         __block uint32_t size = 0;
         __block NSMutableData *buf = nil;
         [dc addObserverForName:NSFileHandleDataAvailableNotification object:input queue:nil usingBlock:^(NSNotification *note) {
-            NSData *data = [input availableData];
+            NSData *data = input.availableData;
             if (data.length == 0) {
                 return exit(0);
             }

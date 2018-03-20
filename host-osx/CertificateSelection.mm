@@ -107,7 +107,9 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
             return self;
         }
 
-        window.touchBar = [self makeTouchBar];
+        if (@available(macOS 10_12_2, *)) {
+            window.touchBar = [self makeTouchBar];
+        }
         window.title = _L("select certificate");
         cancelButton.title = _L("cancel");
         okButton.title = _L("select");
@@ -146,6 +148,17 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
     }
 }
 
+- (void)showCertificate
+{
+    NSString *hex = certificates[certificateSelection.selectedRow][@"cert"];
+    std::vector<unsigned char> der = BinaryUtils::hex2bin(hex.UTF8String);
+    CFDataRef data = CFDataCreateWithBytesNoCopy(nil, der.data(), der.size(), kCFAllocatorNull);
+    id cert = CFBridgingRelease(SecCertificateCreateWithData(nil, data));
+    CFRelease(data);
+    SFCertificatePanel *panel = [[SFCertificatePanel alloc] init];
+    [panel beginSheetForWindow:window modalDelegate:nil didEndSelector:nil contextInfo:nil certificates:@[cert] showGroup:NO];
+}
+
 - (IBAction)okClicked:(id)sender
 {
     [NSApp stopModal];
@@ -164,46 +177,47 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 - (IBAction)changeSelection:(id)sender
 {
     NSUInteger index = certificateSelection.selectedRow >= 0 ? certificateSelection.selectedRow : 0;
-    NSSegmentedControl *control = sender;
-    if (control.selectedSegment == 0 && index > 0)
-        --index;
-    if (control.selectedSegment == 1 && index < certificates.count -1)
-        ++index;
-    [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:NO];
+    switch ([sender selectedSegment]) {
+        case 0:
+            if (index > 0)
+                [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:--index] byExtendingSelection:NO];
+            break;
+        case 1:
+            if (index < certificates.count -1)
+                [certificateSelection selectRowIndexes:[NSIndexSet indexSetWithIndex:++index] byExtendingSelection:NO];
+            break;
+        default:
+            [self showCertificate];
+            break;
+    }
 }
 
 #pragma mark - NSTouchBarProvider
 
-- (NSTouchBar *)makeTouchBar
+- (NSTouchBar *)makeTouchBar NS_AVAILABLE_MAC(10_12_2)
 {
-    if (NSClassFromString(@"NSTouchBar"))
-    {
-        NSTouchBar *touchBar = [[NSTouchBar alloc] init];
-        touchBar.delegate = self;
-        touchBar.defaultItemIdentifiers = @[NSTouchBarItemIdentifierFlexibleSpace, touchBarItemSegmentId, touchBarItemGroupId];
-        touchBar.principalItemIdentifier = touchBarItemGroupId;
-        return touchBar;
-    }
-    return nil;
+    NSTouchBar *touchBar = [[NSTouchBar alloc] init];
+    touchBar.delegate = self;
+    touchBar.defaultItemIdentifiers = @[NSTouchBarItemIdentifierFlexibleSpace, touchBarItemSegmentId, touchBarItemGroupId];
+    touchBar.principalItemIdentifier = touchBarItemGroupId;
+    return touchBar;
 }
 
 #pragma mark - NSTouchBarDelegate
 
-- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier NS_AVAILABLE_MAC(10_12_2)
 {
     if ([identifier isEqualToString:touchBarItemGroupId])
     {
-        NSArray *items = @[
-            [self touchBar:touchBar makeItemForIdentifier:touchBarItemCancelId],
-            [self touchBar:touchBar makeItemForIdentifier:touchBarItemSelectId]];
+        NSArray *items = @[[self touchBar:touchBar makeItemForIdentifier:touchBarItemCancelId],
+                           [self touchBar:touchBar makeItemForIdentifier:touchBarItemSelectId]];
         return [NSGroupTouchBarItem groupItemWithIdentifier:identifier items:items];
     }
     if ([identifier isEqualToString:touchBarItemSegmentId])
     {
-        NSSegmentedControl *control = [NSSegmentedControl segmentedControlWithImages:@[[NSImage imageNamed:NSImageNameTouchBarGoUpTemplate], [NSImage imageNamed:NSImageNameTouchBarGoDownTemplate]]
+        NSSegmentedControl *control = [NSSegmentedControl segmentedControlWithImages:
+            @[[NSImage imageNamed:NSImageNameTouchBarGoUpTemplate], [NSImage imageNamed:NSImageNameTouchBarGoDownTemplate], [NSImage imageNamed:NSImageNameTouchBarGetInfoTemplate]]
             trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(changeSelection:)];
-        [control setWidth:40 forSegment:0];
-        [control setWidth:40 forSegment:1];
         NSCustomTouchBarItem *touchBarItem = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
         touchBarItem.view = control;
         return touchBarItem;
@@ -261,16 +275,8 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
     switch ([event.charactersIgnoringModifiers characterAtIndex:0]) {
         case 0x20:
         case 0x49:
-        {
-            NSString *hex = certificates[certificateSelection.selectedRow][@"cert"];
-            std::vector<unsigned char> der = BinaryUtils::hex2bin(hex.UTF8String);
-            CFDataRef data = CFDataCreateWithBytesNoCopy(nil, der.data(), der.size(), kCFAllocatorNull);
-            id cert = CFBridgingRelease(SecCertificateCreateWithData(nil, data));
-            CFRelease(data);
-            SFCertificatePanel *panel = [[SFCertificatePanel alloc] init];
-            [panel beginSheetForWindow:window modalDelegate:nil didEndSelector:nil contextInfo:nil certificates:@[cert] showGroup:NO];
+            [self showCertificate];
             return NO;
-        }
         default: return YES;
     }
 }
