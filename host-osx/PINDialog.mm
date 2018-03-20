@@ -60,7 +60,9 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         else {
             cancelButton.title = _L("cancel");
         }
-        window.touchBar = [self makeTouchBar];
+        if (@available(macOS 10_12_2, *)) {
+            window.touchBar = [self makeTouchBar];
+        }
         pinFieldLabel.stringValue = label;
     }
     return self;
@@ -235,7 +237,9 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     if (okButton.enabled != pinField.stringValue.length >= minPinLen)
     {
         okButton.enabled = pinField.stringValue.length >= minPinLen;
-        window.touchBar = [self makeTouchBar];
+        if (@available(macOS 10_12_2, *)) {
+            window.touchBar = [self makeTouchBar];
+        }
     }
 }
 
@@ -250,27 +254,22 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 #pragma mark - NSTouchBarProvider
 
-- (NSTouchBar *)makeTouchBar
+- (NSTouchBar *)makeTouchBar NS_AVAILABLE_MAC(10_12_2)
 {
-    if (NSClassFromString(@"NSTouchBar"))
-    {
-        NSTouchBar *touchBar = [[NSTouchBar alloc] init];
-        touchBar.delegate = self;
-        touchBar.defaultItemIdentifiers = @[touchBarItemGroupId];
-        touchBar.principalItemIdentifier = touchBarItemGroupId;
-        return touchBar;
-    }
-    return nil;
+    NSTouchBar *touchBar = [[NSTouchBar alloc] init];
+    touchBar.delegate = self;
+    touchBar.defaultItemIdentifiers = @[touchBarItemGroupId];
+    touchBar.principalItemIdentifier = touchBarItemGroupId;
+    return touchBar;
 }
 
 #pragma mark - NSTouchBarDelegate
 
-- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier NS_AVAILABLE_MAC(10_12_2)
 {
     if ([identifier isEqualToString:touchBarItemGroupId])
     {
-        NSArray *items = @[
-                           [self touchBar:touchBar makeItemForIdentifier:touchBarItemCancelId],
+        NSArray *items = @[[self touchBar:touchBar makeItemForIdentifier:touchBarItemCancelId],
                            [self touchBar:touchBar makeItemForIdentifier:touchBarItemOkId]];
         return [NSGroupTouchBarItem groupItemWithIdentifier:identifier items:items];
     }
