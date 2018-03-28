@@ -65,7 +65,7 @@ std::vector<std::string> PKCS11Path::atrList() {
 	}
 
     std::vector<SCARD_READERSTATE> list;
-    for (const char *name = readers.c_str(); *name != 0; name += strlen(name) + 1) {
+    for (const char *name = readers.c_str(); *name; name += strlen(name) + 1) {
         _log("found reader: %s", name);
         list.push_back({name, 0, 0, 0, 0, 0});
     }
@@ -112,6 +112,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string lit1Path("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
     static const std::string lit2Path("/Library/PWPW-Card/pwpw-card-pkcs11.so");
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
+    static const std::string belPath("/usr/local/lib/beid-pkcs11.bundle/Contents/MacOS/libbeidpkcs11.dylib");
     static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
 #else
     static const std::string openscPath("opensc-pkcs11.so");
@@ -121,6 +122,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string lit1Path("/usr/lib/ccs/libccpkip11.so");
     static const std::string lit2Path("pwpw-card-pkcs11.so");
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
+    static const std::string belPath("libbeidpkcs11.so.0");
     static const std::string eTokenPath("/usr/local/lib/libeTPkcs11.dylib");
 #endif
     static const std::map<std::string, Params> m = {
@@ -136,6 +138,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         {"3BDD18008131FE45904C41545649412D65494490008C", {latPath, "PIN1", "PIN2"}},
 
         {"3B7B940000806212515646696E454944", {finPath, "PIN1", "PIN2"}},
+
+        {"3B9813400AA503010101AD1311", {belPath, "PIN", "PIN"}},
 
         {"3BD5180081313A7D8073C8211030", {eTokenPath, "PIN", "PIN"}},
         {"3BD518008131FE7D8073C82110F4", {eTokenPath, "PIN", "PIN"}},
