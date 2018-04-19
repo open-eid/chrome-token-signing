@@ -27,15 +27,13 @@ vector<unsigned char> BinaryUtils::hex2bin(const string &hex) {
   if (hex.size() % 2 == 1)
       throw InvalidArgumentException("Hex is incorrect");
 
-  vector<unsigned char> bin(hex.size() / 2, 0);
-  unsigned char *c = &bin[0];
-  const char *h = hex.c_str();
-  while (*h) {
+  vector<unsigned char> bin(hex.size() / 2);
+  unsigned char *c = bin.data();
+  for (const char *h = hex.c_str(); *h; h += 2) {
     int x;
     sscanf(h, "%2X", &x);
     *c = x;
     c++;
-    h += 2;
   }
   return bin;
 }
