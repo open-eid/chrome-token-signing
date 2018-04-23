@@ -23,7 +23,7 @@ LIBPATH ?= /usr/lib
 export QT_SELECT=qt5
 
 all:
-	qmake VERSION=$(VERSIONEX)
+	qmake VERSION=$(VERSIONEX) LIBPATH=$(LIBPATH)
 	make -f Makefile
 
 clean:
