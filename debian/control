@@ -3,7 +3,6 @@ Section: web
 Priority: extra
 Maintainer: RIA <info@ria.ee>
 Build-Depends:
- libssl-dev,
  qtbase5-dev,
  debhelper (>= 7),
  pkg-config,
@@ -11,7 +10,7 @@ Build-Depends:
  python,
  xvfb,
  xauth
-Standards-Version: 3.9.5
+Standards-Version: 3.9.8
 Homepage: https://github.com/open-eid/chrome-token-signing
 
 Package: chrome-token-signing

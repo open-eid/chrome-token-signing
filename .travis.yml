@@ -14,10 +14,8 @@ env:
 addons:
   apt:
     packages:
-    - qtbase5-dev
     - qttools5-dev
     - qttools5-dev-tools
-    - libssl-dev
     - libpcsclite-dev
   coverity_scan:
     project:

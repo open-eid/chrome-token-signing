@@ -1,7 +1,7 @@
 Chrome Token Signing [1.0.7](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.7) release notes
 --------------------------------------------
 - Use OpenSC driver with unkown ATR on OSX/Linux (#75)
-- Add new Lithuanian driver paths (#81)
+- Add new Finland and Lithuanian driver paths (#81)
 - Use SCardGetStatusChange to get ATR-s and avoid to connecting with card (#85)
 - Filter attributes with token filter (#87)
 - Code and build improvements
