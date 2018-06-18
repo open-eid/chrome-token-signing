@@ -52,6 +52,8 @@ $(PKG): $(TARGET)
 pkg: $(PKG)
 
 signed: codesign
+	security cms -S -N "Developer ID Application: $(SIGNER)" -i scripts/force-install.plist -o scripts/force-install.plist-signed
+	mv scripts/force-install.plist-signed scripts/force-install.plist
 	pkgbuild --version $(VERSION) \
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
