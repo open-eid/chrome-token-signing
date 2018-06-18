@@ -18,6 +18,12 @@
 
         sudo apt-get install qtbase5-dev libssl-dev libpcsclite-dev qt5-default
 
+   1.2 OpenSUSE
+
+     * Apply this patch first: https://gist.github.com/hsanjuan/64a1484c5aa0a6cba80d6459cf00cc70
+
+            sudo zypper in libQt5Core-devel libQt5Widgets-devel libQt5Gui-devel libQt5Network-devel libqt5-qtbase-common-devel`
+
    1.2 Windows
 
      * [Visual Studio Community 2013/2015/2017](https://www.visualstudio.com/downloads/)
@@ -34,6 +40,14 @@
 3. Build
 
         make
+
+4. Install
+
+    1.1 Linux
+
+        cd host-linux
+        sudo make install
+
 
 ## Support
 Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds.
