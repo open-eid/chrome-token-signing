@@ -31,7 +31,7 @@ std::vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) c
 		if (!isValid(cert, forSigning))
 			continue;
 		DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG | CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
-		NCRYPT_KEY_HANDLE key = 0;
+		HCRYPTPROV_OR_NCRYPT_KEY_HANDLE key = 0;
 		DWORD spec = 0;
 		BOOL freeKey = FALSE;
 		CryptAcquireCertificatePrivateKey(cert, flags, 0, &key, &spec, &freeKey);
@@ -39,9 +39,41 @@ std::vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) c
 			continue;
 		switch (spec)
 		{
-		case CERT_NCRYPT_KEY_SPEC: if (freeKey)	NCryptFreeObject(key); break;
+		case CERT_NCRYPT_KEY_SPEC:
+		{
+			NCRYPT_PROV_HANDLE prov = 0;
+			DWORD type = 0, size = sizeof(prov);
+			NCryptGetProperty(key, NCRYPT_PROVIDER_HANDLE_PROPERTY, PBYTE(&prov), size, &size, 0);
+			if (prov)
+			{
+				size = sizeof(type);
+				NCryptGetProperty(prov, NCRYPT_IMPL_TYPE_PROPERTY, PBYTE(&type), size, &size, 0);
+				NCryptFreeObject(prov);
+			}
+			if (freeKey)
+				NCryptFreeObject(key);
+			if ((type & (NCRYPT_IMPL_HARDWARE_FLAG | NCRYPT_IMPL_REMOVABLE_FLAG)) == 0)
+			{
+				_log("Key does not contain hardware or removable flag.");
+				continue;
+			}
+			break;
+		}
 		case AT_KEYEXCHANGE:
-		case AT_SIGNATURE: if (freeKey) CryptReleaseContext(key, 0); break;
+		case AT_SIGNATURE:
+		{
+			DWORD type = 0;
+			DWORD size = sizeof(type);
+			CryptGetProvParam(key, PP_IMPTYPE, PBYTE(&type), &size, 0);
+			if ((type & (CRYPT_IMPL_HARDWARE | CRYPT_IMPL_REMOVABLE)) == 0)
+			{
+				_log("Key does not contain hardware or removable flag.");
+				continue;
+			}
+			if (freeKey)
+				CryptReleaseContext(key, 0);
+			break;
+		}
 		}
 		PCCERT_CONTEXT copy = nullptr;
 		if (CertAddCertificateContextToStore(store, cert, CERT_STORE_ADD_USE_EXISTING, &copy))
