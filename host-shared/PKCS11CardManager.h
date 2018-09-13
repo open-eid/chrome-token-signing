@@ -57,6 +57,8 @@ private:
                 throw AuthenticationError();
             case CKR_PIN_LEN_RANGE:
                 throw AuthenticationBadInput();
+            case CKR_PIN_LOCKED:
+                throw PinBlockedException();
             case CKR_TOKEN_NOT_RECOGNIZED:
                 throw PKCS11TokenNotRecognized();
             case CKR_TOKEN_NOT_PRESENT:
@@ -69,13 +71,13 @@ private:
     std::vector<CK_BYTE> attribute(CK_SESSION_HANDLE session, CK_OBJECT_CLASS obj, CK_ATTRIBUTE_TYPE attr) const {
         CK_ATTRIBUTE attribute = { attr, nullptr, 0 };
         C(GetAttributeValue, session, obj, &attribute, 1);
-        std::vector<CK_BYTE> data(attribute.ulValueLen, 0);
+        std::vector<CK_BYTE> data(attribute.ulValueLen);
         attribute.pValue = data.data();
         C(GetAttributeValue, session, obj, &attribute, 1);
         return data;
     }
 
-    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, const std::vector<CK_BYTE> &id = std::vector<CK_BYTE>()) const {
+    std::vector<CK_OBJECT_HANDLE> findObject(CK_SESSION_HANDLE session, CK_OBJECT_CLASS objectClass, const std::vector<CK_BYTE> &id = {}) const {
         if (!fl)
             throw DriverException();
         CK_BBOOL btrue = CK_TRUE;
@@ -153,7 +155,7 @@ public:
         CK_ULONG slotCount = 0;
         C(GetSlotList, CK_TRUE, nullptr, &slotCount);
         _log("slotCount = %i", slotCount);
-        std::vector<CK_SLOT_ID> slotIDs(slotCount, 0);
+        std::vector<CK_SLOT_ID> slotIDs(slotCount);
         C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
 
         std::vector<Token> result;
@@ -173,7 +175,7 @@ public:
                 result.push_back({ std::string((const char*)tokenInfo.label, sizeof(tokenInfo.label)), slotID,
                     attribute(session, obj, CKA_VALUE),
                     attribute(session, obj, CKA_ID),
-                    [&] {
+                    [&tokenInfo] {
                         if (tokenInfo.flags & CKF_USER_PIN_LOCKED) return 0;
                         if (tokenInfo.flags & CKF_USER_PIN_FINAL_TRY) return 1;
                         if (tokenInfo.flags & CKF_USER_PIN_COUNT_LOW) return 2;
@@ -234,10 +236,10 @@ public:
                     throw InvalidHashException();
             }
         }
-        hashWithPadding.insert(hashWithPadding.end(), hash.begin(), hash.end());
+        hashWithPadding.insert(hashWithPadding.end(), hash.cbegin(), hash.cend());
         CK_ULONG signatureLength = 0;
         C(Sign, session, hashWithPadding.data(), CK_ULONG(hashWithPadding.size()), nullptr, &signatureLength);
-        std::vector<CK_BYTE> signature(signatureLength, 0);
+        std::vector<CK_BYTE> signature(signatureLength);
         C(Sign, session, hashWithPadding.data(), CK_ULONG(hashWithPadding.size()), signature.data(), &signatureLength);
         C(Logout, session);
         C(CloseSession, session);

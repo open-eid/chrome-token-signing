@@ -109,6 +109,9 @@ public:
                     } catch (const AuthenticationError &) {
                         --retriesLeft;
                         dialog.done(AuthError);
+                    } catch (const PinBlockedException &) {
+                        retriesLeft = 0;
+                        dialog.done(AuthError);
                     } catch (const AuthenticationBadInput &) {
                         dialog.done(AuthError);
                     } catch (const UserCancelledException &) {
