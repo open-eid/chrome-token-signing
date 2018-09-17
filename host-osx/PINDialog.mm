@@ -112,24 +112,17 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         return @{@"result": @"invalid_argument"};
     }
 
+    CFDataRef data = CFDataCreateWithBytesNoCopy(nil, selected.cert.data(), selected.cert.size(), kCFAllocatorNull);
+    SecCertificateRef x509 = SecCertificateCreateWithData(nil, data);
+    CFRelease(data);
+    NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(x509, nil, nil));
+    CFRelease(x509);
+
     bool isInitialCheck = true;
     for (int retriesLeft = selected.retry; retriesLeft > 0; )
     {
-        CFDataRef data = CFDataCreateWithBytesNoCopy(nil, selected.cert.data(), selected.cert.size(), kCFAllocatorNull);
-        SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
-        CFRelease(data);
-        NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, nil, nil));
-        CFRelease(cert);
-
-        NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
-        NSString *cn = [NSString string];
-        for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
-            if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDCommonName]) {
-                cn = item[(__bridge NSString*)kSecPropertyKeyValue];
-            }
-        }
-
         NSString *label;
+        NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
         if (ku.unsignedIntValue & kSecKeyUsageNonRepudiation) {
             label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
         }
@@ -141,7 +134,11 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
             return @{@"result": @"technical_error"};
         }
         dialog->minPinLen = selected.minPinLen;
-        dialog->nameLabel.stringValue = cn;
+        for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
+            if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDCommonName]) {
+                dialog->nameLabel.stringValue = item[(__bridge NSString*)kSecPropertyKeyValue];
+            }
+        }
 
         NSDictionary *pinpadresult;
         std::future<void> future;
@@ -151,7 +148,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
             [NSRunLoop.currentRunLoop addTimer:timer forMode:NSModalPanelRunLoopMode];
             future = std::async(std::launch::async, [&] {
                 try {
-                    pinpadresult = @{@"signature": @(BinaryUtils::bin2hex(pkcs11->sign(selected, hash, nullptr)).c_str())};
+                    pinpadresult = @{@"signature": @(BinaryUtils::bin2hex(pkcs11->sign(selected, hash, nullptr)).c_str()), @"result": @"ok"};
                     [NSApp stopModal];
                 }
                 catch(const UserCancelledException &) {
@@ -159,6 +156,10 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
                 }
                 catch(const AuthenticationError &) {
                     --retriesLeft;
+                    [NSApp stopModal];
+                }
+                catch(const PinBlockedException &) {
+                    retriesLeft = 0;
                     [NSApp stopModal];
                 }
                 catch(const AuthenticationBadInput &) {
@@ -202,12 +203,15 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         else {
             try {
                 std::vector<unsigned char> signature = pkcs11->sign(selected, hash, dialog->pinField.stringValue.UTF8String);
-                return @{@"signature":@(BinaryUtils::bin2hex(signature).c_str())};
+                return @{@"signature": @(BinaryUtils::bin2hex(signature).c_str()), @"result": @"ok"};
             }
             catch(const AuthenticationBadInput &) {
             }
             catch(const AuthenticationError &) {
                 --retriesLeft;
+            }
+            catch(const PinBlockedException &) {
+                retriesLeft = 0;
             }
             catch(const BaseException &e) {
                 _log("Exception: %s", e.what());

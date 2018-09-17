@@ -51,7 +51,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest)
 	}
 	if (selected.retry <= 0) {
 		_log("PIN retry count is zero");
-		MessageBox(NULL, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
+		MessageBox(nullptr, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
 		throw PinBlockedException();
 	}
 
@@ -92,12 +92,16 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest)
 			_log("Wrong pin");
 			pinTriesLeft--;
 		}
+		catch (const PinBlockedException &) {
+			_log("PIN blocked");
+			pinTriesLeft = 0;
+		}
 		catch (const AuthenticationBadInput &) {
 			_log("Bad pin input");
 		}
 		isInitialCheck = false;
 	}
 	_log("PIN retry count is zero");
-	MessageBox(NULL, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
+	MessageBox(nullptr, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
 	throw PinBlockedException();
 }
