@@ -114,6 +114,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string belPath("/usr/local/lib/beid-pkcs11.bundle/Contents/MacOS/libbeidpkcs11.dylib");
     static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
+    static const std::string ocsPath("/Library/AWP/lib/libOcsCryptoki.dylib");
 #else
     static const std::string openscPath("opensc-pkcs11.so");
     static const std::string estPath = openscPath;
@@ -124,6 +125,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string belPath("libbeidpkcs11.so.0");
     static const std::string eTokenPath("/usr/local/lib/libeTPkcs11.dylib");
+    static const std::string ocsPath("/usr/local/AWP/lib/libOcsCryptoki.so");
 #endif
     static const std::map<std::string, Params> m = {
 #ifdef _WIN32
@@ -144,6 +146,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 
         {"3BD5180081313A7D8073C8211030", {eTokenPath, "PIN", "PIN"}},
         {"3BD518008131FE7D8073C82110F4", {eTokenPath, "PIN", "PIN"}},
+
+        {"3BDB960080B1FE451F830012233F536549440F9000F1", {ocsPath, "PIN1", "PIN2"}},
 #endif
         {"3BF81300008131FE45536D617274417070F8", {litPath, "PIN", "PIN"}},
         {"3B7D94000080318065B08311C0A983009000", {litPath, "PIN", "PIN"}},
