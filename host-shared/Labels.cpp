@@ -163,7 +163,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Действительный до"),
         T("Galioja iki"),
         T("Derīgs līdz"),
-		T("İçin geçerlidir"),
+		T("Geçerlilik"),
     } },
     { "cert info", {
         T("Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale."),
@@ -171,7 +171,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."),
         T("Pasirinkdama(s) sertifikatą, aš sutinku, kad mano vardas, pavardė ir asmens kodas būtų perduoti e. paslaugos teikėjui."),
         T("Izvēloties sertifikātu, es apstiprinu, ka mans vārds un personas kods tiks nosūtīts pakalpojuma sniedzējam."),
-		T("Bir sertifika seçerek ismimin ve kişisel kimlik kodumun servis sağlayıcıya gönderileceğini kabul ediyorum."),
+		T("Bir sertifika seçerek ismimin ve kimlik numaramın servis sağlayıcıya gönderileceğini kabul ediyorum."),
     } }
     };
     return labels.at(labelKey).at(selectedLanguage);
