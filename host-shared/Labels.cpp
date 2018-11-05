@@ -83,7 +83,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Для подписания введите @PIN@ с PIN-клавиатуры"),
         T("Norėdami pasirašyti, įveskite PIN kodą @PIN@ klaviatūros pagalba"),
         T("Lai parakstītu, ievadi @PIN@ paredzētajā PIN ievades ierīcē"),
-		T("İmzalamak için PIN pad'den @PIN@ girin"),
+	T("İmzalamak için PIN pad'den @PIN@ girin"),
     } },
     { "tries left", {
         T("Katseid jäänud:"),
@@ -91,7 +91,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Возможных попыток:"),
         T("Liko bandymų:"),
         T("Atlikuši mēģinājumi:"),
-		T("Kalan deneme sayısı:"),
+	T("Kalan deneme sayısı:"),
     } },
     { "incorrect PIN2", {
         T("Vale PIN! "),
@@ -99,7 +99,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Неправильный PIN! "),
         T("Neteisingas PIN! "),
         T("Nepareizs PIN! "),
-		T("Yanlış PIN! "),
+	T("Yanlış PIN! "),
     } },
     { "PIN2 blocked", {
         T("PIN2 blokeeritud, ei saa allkirjastada!"),
@@ -163,7 +163,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Действительный до"),
         T("Galioja iki"),
         T("Derīgs līdz"),
-		T("Geçerlilik"),
+	T("Geçerlilik"),
     } },
     { "cert info", {
         T("Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale."),
@@ -171,7 +171,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
         T("Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."),
         T("Pasirinkdama(s) sertifikatą, aš sutinku, kad mano vardas, pavardė ir asmens kodas būtų perduoti e. paslaugos teikėjui."),
         T("Izvēloties sertifikātu, es apstiprinu, ka mans vārds un personas kods tiks nosūtīts pakalpojuma sniedzējam."),
-		T("Bir sertifika seçerek ismimin ve kimlik numaramın servis sağlayıcıya gönderileceğini kabul ediyorum."),
+	T("Bir sertifika seçerek ismimin ve kimlik numaramın servis sağlayıcıya gönderileceğini kabul ediyorum."),
     } }
     };
     return labels.at(labelKey).at(selectedLanguage);
