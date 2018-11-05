@@ -1,3 +1,12 @@
+Chrome Token Signing [1.0.8](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.8) release notes
+--------------------------------------------
+- Add hardware token filter on Windows (#114)
+- Sign macOS policy profile (#112)
+- Handle PKCS11 CKR_PIN_LOCKED error code (#115)
+- Add IDEMIA driver paths
+
+[Full Changelog](https://github.com/open-eid/chrome-token-signing/compare/v1.0.7...v1.0.8)
+
 Chrome Token Signing [1.0.7](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.7) release notes
 --------------------------------------------
 - Use OpenSC driver with unkown ATR on OSX/Linux (#75)
