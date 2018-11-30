@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     <MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
     <Icon Id="Icon.ico" SourceFile="host-windows\ID.ico"/>
     <Property Id="ARPPRODUCTICON" Value="Icon.ico"/>
+    <Property Id="FORCEINSTALL" Value="1"/>
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage=
       "A newer version of [ProductName] is already installed. If you are trying to downgrade, please uninstall the newer version first."/>
     <Condition Message="[ProductName] requires Windows 7 or higher.">
@@ -71,11 +72,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
             <RegistryValue Root='HKLM' Type='string' Name="update_url"
                 Key='SOFTWARE\Google\Chrome\Extensions\ckjefchnfjhjfedoccjbhjpbncimppeg'
                 Value='https://clients2.google.com/service/update2/crx'/>
+            <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"
+                Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
+          </Component>
+          <Component Id="ForceInstall" Guid="b02ebb46-a515-4821-82af-29f8c6073544" Win64="no">
+            <Condition><![CDATA[(FORCEINSTALL = 1)]]></Condition>
             <RegistryValue Root='HKLM' Type='string' Name="56789"
                 Key='SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist'
                 Value='ckjefchnfjhjfedoccjbhjpbncimppeg;https://clients2.google.com/service/update2/crx'/>
-            <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"
-                Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
           </Component>
         </Directory>
       </Directory>
@@ -93,6 +97,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
     <Feature Id="Install" Level="1" Title="Chrome Token Signing" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
       <ComponentRef Id="Application"/>
+      <ComponentRef Id="ForceInstall"/>
       <ComponentRef Id="Firefox"/>
 <?if $(var.Platform) = "x64" ?>
       <ComponentRef Id="Firefox_X64"/>
