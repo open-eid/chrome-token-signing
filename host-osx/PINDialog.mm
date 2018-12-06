@@ -122,7 +122,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     for (int retriesLeft = selected.retry; retriesLeft > 0; )
     {
         NSString *label;
-        NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
+        NSNumber *ku = dict[(__bridge id)kSecOIDKeyUsage][(__bridge id)kSecPropertyKeyValue];
         if (ku.unsignedIntValue & kSecKeyUsageNonRepudiation) {
             label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
         }
@@ -134,9 +134,9 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
             return @{@"result": @"technical_error"};
         }
         dialog->minPinLen = selected.minPinLen;
-        for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
-            if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDCommonName]) {
-                dialog->nameLabel.stringValue = item[(__bridge NSString*)kSecPropertyKeyValue];
+        for (NSDictionary *item in dict[(__bridge id)kSecOIDX509V1SubjectName][(__bridge id)kSecPropertyKeyValue]) {
+            if ([item[(__bridge id)kSecPropertyKeyLabel] isEqualToString:(__bridge id)kSecOIDCommonName]) {
+                dialog->nameLabel.stringValue = item[(__bridge id)kSecPropertyKeyValue];
             }
         }
 

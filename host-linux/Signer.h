@@ -65,14 +65,14 @@ public:
         if(selected.cert.empty())
             return {{"result", "invalid_argument"}};
 
-        QSslCertificate c(QByteArray::fromRawData((const char*)data.data(), data.size()), QSsl::Der);
+        QSslCertificate c(QByteArray::fromRawData((const char*)data.data(), int(data.size())), QSsl::Der);
         bool isNonRepudiation = false;
         for(const QSslCertificateExtension &ex: c.extensions())
         {
-            if(ex.name() == "keyUsage")
+            if(ex.name() == QStringLiteral("keyUsage"))
             {
                 for(const QVariant &item: ex.value().toList())
-                    if(item.toString() == "Non Repudiation")
+                    if(item.toString() == QStringLiteral("Non Repudiation"))
                         isNonRepudiation = true;
             }
         }
@@ -91,7 +91,7 @@ public:
             Signer dialog(label, selected.minPinLen, selected.pinpad);
             if (retriesLeft < 3) {
                 dialog.errorLabel->show();
-                dialog.errorLabel->setText(QString("<font color='red'><b>%1%2 %3</b></font>")
+                dialog.errorLabel->setText(QStringLiteral("<font color='red'><b>%1%2 %3</b></font>")
                      .arg((!isInitialCheck ? Labels::l10n.get("incorrect PIN2") : "").c_str())
                      .arg(Labels::l10n.get("tries left").c_str())
                      .arg(retriesLeft));
@@ -161,7 +161,7 @@ public:
 private:
     static QByteArray toHex(const std::vector<unsigned char> &data)
     {
-        return QByteArray::fromRawData((const char*)data.data(), data.size()).toHex();
+        return QByteArray::fromRawData((const char*)data.data(), int(data.size())).toHex();
     }
 
     static std::vector<unsigned char> fromHex(const QString &data)

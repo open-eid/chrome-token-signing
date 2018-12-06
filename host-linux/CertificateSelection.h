@@ -41,17 +41,28 @@ public:
             QList<QStringList> certs;
             PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
             for (const PKCS11CardManager::Token &token : PKCS11CardManager(p11.path).tokens()) {
-                QByteArray data = QByteArray::fromRawData((const char*)token.cert.data(), token.cert.size());
+                QByteArray data = QByteArray::fromRawData((const char*)token.cert.data(), int(token.cert.size()));
                 QSslCertificate cert(data, QSsl::Der);
 
+                QString type = cert.subjectInfo(QSslCertificate::Organization).join(QString());
                 bool isNonRepudiation = false;
                 for(const QSslCertificateExtension &ex: cert.extensions())
                 {
-                    if(ex.name() == "keyUsage")
+                    if(ex.name() == QStringLiteral("keyUsage"))
                     {
                         for(const QVariant &item: ex.value().toList())
-                            if(item.toString() == "Non Repudiation")
+                            if(item.toString() == QStringLiteral("Non Repudiation"))
                                 isNonRepudiation = true;
+                    }
+                    else if(type.isEmpty() && ex.name() == QStringLiteral("certificatePolicies"))
+                    {
+                        QByteArray data = ex.value().toByteArray();
+                        if(data.contains("1.3.6.1.4.1.51361.1.1.3") || data.contains("1.3.6.1.4.1.51361.1.2.3"))
+                            type = QStringLiteral("ESTEID (DIGI-ID)");
+                        else if(data.contains("1.3.6.1.4.1.51361.1.1.4") || data.contains("1.3.6.1.4.1.51361.1.2.4"))
+                            type = QStringLiteral("ESTEID (DIGI-ID E-RESIDENT)");
+                        else if(data.contains("1.3.6.1.4.1.51361.1") || data.contains("1.3.6.1.4.1.51455.1"))
+                            type = QStringLiteral("ESTEID");
                     }
                 }
 
@@ -61,11 +72,8 @@ public:
                 }
 
                 if (QDateTime::currentDateTime() < cert.expiryDate() && !isDuplicate(certs, data.toHex())) {
-                    certs << (QStringList()
-                        << cert.subjectInfo(QSslCertificate::CommonName).join("")
-                        << cert.subjectInfo(QSslCertificate::Organization).join("")
-                        << cert.expiryDate().toString("dd.MM.yyyy")
-                        << data.toHex());
+                    certs << QStringList({ cert.subjectInfo(QSslCertificate::CommonName).join(QString()), type,
+                        cert.expiryDate().toString(QStringLiteral("dd.MM.yyyy")), data.toHex() });
                 }
             }
             if (certs.empty())

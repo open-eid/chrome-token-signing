@@ -128,7 +128,7 @@ void Application::write(QVariantMap &resp, const QString &nonce) const
         resp["result"] = "ok";
 
     QByteArray response =  QJsonDocument::fromVariant(resp).toJson();
-    uint32_t responseLength = response.size();
+    uint32_t responseLength = uint32_t(response.size());
     _log("Response(%u) %s", responseLength, response.constData());
     QFile out;
     out.open(stdout, QFile::WriteOnly);
