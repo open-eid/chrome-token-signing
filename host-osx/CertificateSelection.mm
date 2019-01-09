@@ -72,14 +72,14 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
             NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(cert, nil, nil));
             CFRelease(cert);
 
-            NSNumber *ku = dict[(__bridge NSString*)kSecOIDKeyUsage][(__bridge NSString*)kSecPropertyKeyValue];
+            NSNumber *ku = dict[(__bridge id)kSecOIDKeyUsage][(__bridge id)kSecPropertyKeyValue];
             const bool isNonRepudiation = ku.unsignedIntValue & kSecKeyUsageNonRepudiation;
             if (forSigning != isNonRepudiation) {
                 _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
                 continue;
             }
 
-            NSNumber *na = dict[(__bridge NSString*)kSecOIDX509V1ValidityNotAfter][(__bridge NSString*)kSecPropertyKeyValue];
+            NSNumber *na = dict[(__bridge id)kSecOIDX509V1ValidityNotAfter][(__bridge id)kSecPropertyKeyValue];
             NSDate *date = [NSDate dateWithTimeInterval:na.intValue sinceDate:[NSCalendar.currentCalendar dateFromComponents:components]];
             NSString *hex = @(BinaryUtils::bin2hex(token.cert).c_str());
             if ([date compare:NSDate.date] <= 0 || [self isDuplicate:hex]) {
@@ -90,12 +90,30 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
             _log("token has valid signing certificate, adding it to selection");
             NSString *cn = [NSString string];
             NSString *type = [NSString string];
-            for (NSDictionary *item in dict[(__bridge NSString*)kSecOIDX509V1SubjectName][(__bridge NSString*)kSecPropertyKeyValue]) {
-                if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDCommonName]) {
-                    cn = item[(__bridge NSString*)kSecPropertyKeyValue];
+            for (NSDictionary *item in dict[(__bridge id)kSecOIDX509V1SubjectName][(__bridge id)kSecPropertyKeyValue]) {
+                if ([item[(__bridge id)kSecPropertyKeyLabel] isEqualToString:(__bridge id)kSecOIDCommonName]) {
+                    cn = item[(__bridge id)kSecPropertyKeyValue];
                 }
-                if ([item[(__bridge NSString*)kSecPropertyKeyLabel] isEqualToString:(__bridge NSString*)kSecOIDOrganizationName]) {
-                    type = item[(__bridge NSString*)kSecPropertyKeyValue];
+                if ([item[(__bridge id)kSecPropertyKeyLabel] isEqualToString:(__bridge id)kSecOIDOrganizationName]) {
+                    type = item[(__bridge id)kSecPropertyKeyValue];
+                }
+            }
+
+            if (type.length == 0) {
+                for (NSDictionary *item in dict[(__bridge id)kSecOIDCertificatePolicies][(__bridge id)kSecPropertyKeyValue]) {
+                    if (![item[(__bridge id)kSecPropertyKeyValue] isKindOfClass:[NSString class]]) {
+                        continue;
+                    }
+                    NSString *value = item[(__bridge id)kSecPropertyKeyValue];
+                    if ([value isEqual:@"1.3.6.1.4.1.51361.1.1.3"] || [value isEqual:@"1.3.6.1.4.1.51361.1.2.3"]) {
+                        type = @"ESTEID (DIGI-ID)";
+                    }
+                    else if ([value isEqual:@"1.3.6.1.4.1.51361.1.1.4"] || [value isEqual:@"1.3.6.1.4.1.51361.1.2.4"]) {
+                        type = @"ESTEID (DIGI-ID E-RESIDENT)";
+                    }
+                    else if ([value hasPrefix:@"1.3.6.1.4.1.51361.1"] || [value hasPrefix:@"1.3.6.1.4.1.51455.1"]) {
+                        type = @"ESTEID";
+                    }
                 }
             }
 

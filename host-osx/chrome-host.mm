@@ -34,10 +34,10 @@ static void write(NSDictionary *data, NSString *nonce)
     NSError *error;
     NSData *json = [NSJSONSerialization dataWithJSONObject:resp options:0 error:&error];
 
-    uint32_t size = (uint32_t)json.length;
+    uint32_t size = uint32_t(json.length);
     _log("Response(%u) %.*s", size, json.length, (const char*)json.bytes);
 
-    NSData *sizeout = [NSData dataWithBytes:&size length:sizeof(size)];
+    NSData *sizeout = [NSData dataWithBytesNoCopy:&size length:sizeof(size) freeWhenDone:NO];
     [NSFileHandle.fileHandleWithStandardOutput writeData:sizeout];
     [NSFileHandle.fileHandleWithStandardOutput writeData:json];
 }
@@ -84,7 +84,7 @@ int main(int argc, const char * argv[]) {
                     write(@{@"result": @"invalid_argument"}, nil);
                     return exit(1);
                 }
-                else if (data.length < pos + size) {
+                if (data.length < pos + size) {
                     _log("Size (%u) exceeds available data (%u), waiting more", size, data.length - pos);
                     buf = [NSMutableData dataWithData:[data subdataWithRange:NSMakeRange(pos, data.length - pos)]];
                     return;
@@ -98,7 +98,7 @@ int main(int argc, const char * argv[]) {
                 NSError *error;
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
                 NSDictionary *result;
-                if (error) {
+                if (dict == nil || error) {
                     write(@{@"result": @"invalid_argument"}, nil);
                     return exit(1);
                 }
