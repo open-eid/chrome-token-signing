@@ -21,8 +21,11 @@
 !IF !DEFINED(BUILD_NUMBER)
 BUILD_NUMBER=0
 !ENDIF
-!IF "$(VISUALSTUDIOVERSION)" == "14.0"
-BUILDPARAMS = ;VisualStudioVersion=14;PlatformToolset=v140
+!IF "$(VISUALSTUDIOVERSION)" == "15.0"
+BUILDPARAMS = ;VisualStudioVersion=15;PlatformToolset=v141;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)
+!ENDIF
+!IF "$(VISUALSTUDIOVERSION)" == "12.0"
+BUILDPARAMS = ;VisualStudioVersion=12;PlatformToolset=v120
 !ENDIF
 !include VERSION.mk
 SIGN = signtool sign /v /a /s MY /n "RIIGI INFOSUSTEEMI AMET" /fd SHA256 /du http://installer.id.ee /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp /td SHA256
