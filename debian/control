@@ -5,7 +5,6 @@ Maintainer: RIA <info@ria.ee>
 Build-Depends:
  qtbase5-dev,
  debhelper (>= 7),
- pkg-config,
  libpcsclite-dev,
  python,
  xvfb,
