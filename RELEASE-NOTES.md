@@ -1,3 +1,11 @@
+Chrome Token Signing [1.0.9](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.9) release notes
+--------------------------------------------
+- Use OpenSC for IDEMIA cards
+- Use OID for card type (#122)
+- Build with Visual Studio 2017 (#124)
+
+[Full Changelog](https://github.com/open-eid/chrome-token-signing/compare/v1.0.8...v1.0.9)
+
 Chrome Token Signing [1.0.8](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.8) release notes
 --------------------------------------------
 - Add hardware token filter on Windows (#114)
