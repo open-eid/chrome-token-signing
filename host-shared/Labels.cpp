@@ -153,7 +153,7 @@ Labels::lstring Labels::get(const std::string &labelKey) const {
     { "cert info", {
         T("Sertifikaadi valikuga nõustun oma nime ja isikukoodi edastamisega teenusepakkujale."),
         T("By selecting a certificate I accept that my name and personal ID code will be sent to service provider."),
-        T("Выбирая сертификат, я соглащаюсь с тем, что мое имя и личный код будут переданы представителю услуг."),
+        T("Выбирая сертификат, я соглашаюсь с тем, что мое имя и личный код будут переданы представителю услуг."),
         T("Pasirinkdama(s) sertifikatą, aš sutinku, kad mano vardas, pavardė ir asmens kodas būtų perduoti e. paslaugos teikėjui."),
         T("Izvēloties sertifikātu, es apstiprinu, ka mans vārds un personas kods tiks nosūtīts pakalpojuma sniedzējam."),
     } }
