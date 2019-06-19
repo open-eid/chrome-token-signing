@@ -26,8 +26,11 @@ include ../VERSION.mk
 
 SIGNER ?= Riigi Infosüsteemi Amet
 TMPROOT = $(PWD)/tmp
+POLICYROOT = $(PWD)/tmp2
+POLICYSIGNED = $(PWD)/tmpsigned
 TARGET = $(TMPROOT)/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app
 PKG = chrome-token-signing.pkg
+POLICY = chrome-token-signing-policy.pkg
 
 PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
 
@@ -35,7 +38,7 @@ $(TARGET): *.mm
 	$(PROJ) install DSTROOT=$(TMPROOT)
 
 codesign: $(TARGET)
-	codesign -f --entitlements chrome-token-signing.entitlements --options=runtime -s "Developer ID Application: $(SIGNER)" "$(TARGET)"
+	codesign -f --entitlements chrome-token-signing.entitlements --options=runtime -s "Developer ID Application: $(SIGNER)" $<
 
 clean:
 	$(PROJ) clean
@@ -46,22 +49,35 @@ $(PKG): $(TARGET)
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
 		--install-location / \
-		--scripts scripts \
-		$(PKG)
+		$@
 
-pkg: $(PKG)
+$(POLICY):
+	mkdir -p $(POLICYROOT)
+	pkgbuild --version $(VERSION) \
+		--root $(POLICYROOT) \
+		--identifier ee.ria.chrome-token-signing-policy \
+		--install-location / \
+		--scripts scripts \
+		$@
+
+pkg: $(PKG) $(POLICY)
 
 signed: codesign
-	security cms -S -N "Developer ID Application: $(SIGNER)" -i scripts/force-install.plist -o scripts/force-install.plist-signed
-	mv scripts/force-install.plist-signed scripts/force-install.plist
 	pkgbuild --version $(VERSION) \
 		--root $(TMPROOT) \
 		--identifier ee.ria.chrome-token-signing \
 		--install-location / \
-		--scripts scripts \
 		--sign "Developer ID Installer: $(SIGNER)" \
 		$(PKG)
-
+	mkdir -p $(POLICYROOT) $(POLICYSIGNED)
+	security cms -S -N "Developer ID Application: $(SIGNER)" -i scripts/force-install.plist -o $(POLICYSIGNED)/force-install.plist
+	pkgbuild --version $(VERSION) \
+		--root $(POLICYROOT) \
+		--identifier ee.ria.chrome-token-signing-policy \
+		--install-location / \
+		--scripts $(POLICYSIGNED) \
+		--sign "Developer ID Installer: $(SIGNER)" \
+		$(POLICY)
 
 # helpers
 
