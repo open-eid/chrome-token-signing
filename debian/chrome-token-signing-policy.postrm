@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+# Workaround postrm when folder is missing
+mkdir -p /etc/opt/chrome/policies/managed
+
+rm -f /etc/opt/chrome/policies/managed/ee.ria.chrome-token-signing.policy.json
+rmdir -p --ignore-fail-on-non-empty /etc/opt/chrome/policies/managed
+
+#DEBHELPER#

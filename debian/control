@@ -17,3 +17,9 @@ Architecture: any
 Depends: opensc, ${shlibs:Depends}, ${misc:Depends}
 Description: Estonian ID Card signing for Chrome and Firefox
  Chrome and Firefox extension and native messaging client.
+
+Package: chrome-token-signing-policy
+Architecture: all
+Depends: chrome-token-signing, ${shlibs:Depends}, ${misc:Depends}
+Description: Estonian ID Card signing for Chrome and Firefox
+ Chrome and Firefox extension and native messaging client.

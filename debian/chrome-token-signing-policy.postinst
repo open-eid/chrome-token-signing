@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+mkdir -p /etc/opt/chrome/policies/managed
+ln -sf /usr/share/chrome-token-signing/ee.ria.chrome-token-signing.policy.json \
+	/etc/opt/chrome/policies/managed/ee.ria.chrome-token-signing.policy.json
+
+#DEBHELPER#

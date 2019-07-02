@@ -1,0 +1,2 @@
+/usr/share/chrome-token-signing/ee.ria.chrome-token-signing.policy.json /etc/chromium/policies/managed/ee.ria.chrome-token-signing.policy.json
+/usr/share/chrome-token-signing/ee.ria.chrome-token-signing.policy.json /etc/chromium-browser/policies/managed/ee.ria.chrome-token-signing.policy.json
