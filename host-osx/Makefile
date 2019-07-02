@@ -70,6 +70,7 @@ signed: codesign
 		--sign "Developer ID Installer: $(SIGNER)" \
 		$(PKG)
 	mkdir -p $(POLICYROOT) $(POLICYSIGNED)
+	cp scripts/postinstall $(POLICYSIGNED)
 	security cms -S -N "Developer ID Application: $(SIGNER)" -i scripts/force-install.plist -o $(POLICYSIGNED)/force-install.plist
 	pkgbuild --version $(VERSION) \
 		--root $(POLICYROOT) \
