@@ -39,9 +39,24 @@
         git clone --recursive https://github.com/open-eid/chrome-token-signing
         cd chrome-token-signing
 
-3. Build
+3. Build locally
 
+    3.1 Ubuntu
+
+        cd host-linux
+        make 
+        make debian
+
+    3.2 Windows
+
+        nmake
+        nmake pkg-unsigned
+
+    3.3 OSX
+
+        cd host-osx
         make
+        make pkg
 
 ## Support
 Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds.

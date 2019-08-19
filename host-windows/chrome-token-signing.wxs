@@ -53,6 +53,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     <Icon Id="Icon.ico" SourceFile="host-windows\ID.ico"/>
     <Property Id="ARPPRODUCTICON" Value="Icon.ico"/>
     <Property Id="FORCEINSTALL" Value="1"/>
+    <Property Id="CHROMEINSTALL" Value="1"/>
+    <Property Id="FIREFOXINSTALL" Value="1"/>
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage=
       "A newer version of [ProductName] is already installed. If you are trying to downgrade, please uninstall the newer version first."/>
     <Condition Message="[ProductName] requires Windows 7 or higher.">
@@ -67,18 +69,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
             <File Source="$(var.VCP)"/>
             <File Source="$(var.VCRT)"/>
             <File Source="host-windows/Release/chrome-token-signing.exe"/>
+          </Component>
+          <Component Id="Chrome" Transitive="yes" >
+            <Condition><![CDATA[(CHROMEINSTALL = 1)]]></Condition>
             <File Source="host-windows/ee.ria.esteid.json"/>
-            <File Source="host-windows/ee.ria.esteid.firefox.json"/>
-            <File Source="{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"/>
             <RegistryValue Root='HKLM' Type='string' Value='[APPLICATIONFOLDER]ee.ria.esteid.json'
                 Key='SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.ria.esteid'/>
             <RegistryValue Root='HKLM' Type='string' Name="update_url"
                 Key='SOFTWARE\Google\Chrome\Extensions\ckjefchnfjhjfedoccjbhjpbncimppeg'
                 Value='https://clients2.google.com/service/update2/crx'/>
-            <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"
+          </Component>
+          <Component Id="FirefoxApplication" Guid="8c52d631-7da9-46d3-89c6-8248f94fa25c" Transitive="yes" >
+            <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
+            <File Source="host-windows/ee.ria.esteid.firefox.json"/>
+            <File Source="{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"/>
+            <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"	
                 Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
           </Component>
-          <Component Id="ForceInstall" Guid="b02ebb46-a515-4821-82af-29f8c6073544" Win64="no">
+          <Component Id="ForceInstall" Guid="b02ebb46-a515-4821-82af-29f8c6073544" Win64="no" Transitive="yes">
             <Condition><![CDATA[(FORCEINSTALL = 1)]]></Condition>
             <RegistryValue Root='HKLM' Type='string' Name="56789"
                 Key='SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist'
@@ -87,12 +95,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
         </Directory>
       </Directory>
 <?if $(var.Platform) = "x64" ?>
-      <Component Id="Firefox_X64" Win64="yes">
+      <Component Id="Firefox_X64" Win64="yes" Transitive="yes" >
+        <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
         <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"
             Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
       </Component>
 <?endif ?>
-      <Component Id="Firefox" Guid="60c6e502-529b-4d28-9e92-4cdbf1176afb" Win64="$(var.Win64)">
+      <Component Id="Firefox" Guid="60c6e502-529b-4d28-9e92-4cdbf1176afb" Win64="$(var.Win64)" Transitive="yes" >
+        <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
         <RegistryValue Root='HKLM' Type='string' Value='[APPLICATIONFOLDER]ee.ria.esteid.firefox.json'
             Key='SOFTWARE\Mozilla\NativeMessagingHosts\ee.ria.esteid' />
       </Component>
@@ -102,6 +112,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
       <ComponentRef Id="Application"/>
       <ComponentRef Id="ForceInstall"/>
       <ComponentRef Id="Firefox"/>
+      <ComponentRef Id="FirefoxApplication"/>
+      <ComponentRef Id="Chrome"/>
 <?if $(var.Platform) = "x64" ?>
       <ComponentRef Id="Firefox_X64"/>
 <?endif ?>

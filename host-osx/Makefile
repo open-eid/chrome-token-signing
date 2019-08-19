@@ -21,66 +21,70 @@ NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
 FIREFOX_PATH = /Library/Application\ Support/Mozilla/NativeMessagingHosts
 FFEXTENSION_PATH = /Library/Application\ Support/Mozilla/Extensions/\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}
 
+CHROME_EXTERNAL = $(TMP_CHROME)/Library/Application\ Support/Google/Chrome/
+CHROME_NATIVE = $(TMP_CHROME)/Library/Google/Chrome/
+FIREFOX_NATIVE = $(TMP_FIREFOX)/Library/Google/Chrome/
+FIREFOX_NATIVEHOSTS = $(TMP_FIREFOX)/Library/Application\ Support/Mozilla/
+FIREFOX_EXTENSIONS = $(TMP_FIREFOX)/Library/Application\ Support/Mozilla/Extensions
+
 BUILD_NUMBER ?= 0
 include ../VERSION.mk
 
 SIGNER ?= Riigi Infosüsteemi Amet
 TMPROOT = $(PWD)/tmp
+TMP_CHROME = $(PWD)/tmp_chrome
+TMP_FIREFOX = $(PWD)/tmp_firefox
 POLICYROOT = $(PWD)/tmp2
 POLICYSIGNED = $(PWD)/tmpsigned
 TARGET = $(TMPROOT)/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app
-PKG = chrome-token-signing.pkg
-POLICY = chrome-token-signing-policy.pkg
+PKG_CHROME = token-signing-chrome.pkg
+PKG_FIREFOX = token-signing-firefox.pkg
+POLICY = token-signing-chrome-policy.pkg
 
 PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
+PKG_BUILD = pkgbuild --version $(VERSION) --install-location / 
+PKG_BUILD_SIGNED = $(PKG_BUILD) --sign "Developer ID Installer: $(SIGNER)"
 
 $(TARGET): *.mm
 	$(PROJ) install DSTROOT=$(TMPROOT)
+	$(MAKE) separate
 
-codesign: $(TARGET)
+codesign: $(TARGET) 
 	codesign -f --entitlements chrome-token-signing.entitlements --options=runtime -s "Developer ID Application: $(SIGNER)" $<
 
 clean:
 	$(PROJ) clean
 	git clean -dfx
 
-$(PKG): $(TARGET)
-	pkgbuild --version $(VERSION) \
-		--root $(TMPROOT) \
-		--identifier ee.ria.chrome-token-signing \
-		--install-location / \
-		$@
+$(PKG_CHROME): $(TARGET)
+	$(PKG_BUILD) --root $(TMP_CHROME) --identifier ee.ria.token-signing-chrome $@
+
+$(PKG_FIREFOX): $(TARGET)
+	$(PKG_BUILD) --root $(TMP_FIREFOX) --identifier ee.ria.token-signing-firefox $@
 
 $(POLICY):
 	mkdir -p $(POLICYROOT)
-	pkgbuild --version $(VERSION) \
-		--root $(POLICYROOT) \
-		--identifier ee.ria.chrome-token-signing-policy \
-		--install-location / \
-		--scripts scripts \
-		$@
+	$(PKG_BUILD) --root $(POLICYROOT) --identifier ee.ria.token-signing-chrome-policy --scripts scripts $@
 
-pkg: $(PKG) $(POLICY)
+pkg: $(PKG_CHROME) $(PKG_FIREFOX) $(POLICY)
 
 signed: codesign
-	pkgbuild --version $(VERSION) \
-		--root $(TMPROOT) \
-		--identifier ee.ria.chrome-token-signing \
-		--install-location / \
-		--sign "Developer ID Installer: $(SIGNER)" \
-		$(PKG)
+	$(PKG_BUILD_SIGNED) --root $(TMP_CHROME) --identifier ee.ria.token-signing-chrome $(PKG_CHROME)
+	$(PKG_BUILD_SIGNED) --root $(TMP_FIREFOX) --identifier ee.ria.token-signing-firefox $(PKG_FIREFOX)
 	mkdir -p $(POLICYROOT) $(POLICYSIGNED)
 	cp scripts/postinstall $(POLICYSIGNED)
 	security cms -S -N "Developer ID Application: $(SIGNER)" -i scripts/force-install.plist -o $(POLICYSIGNED)/force-install.plist
-	pkgbuild --version $(VERSION) \
-		--root $(POLICYROOT) \
-		--identifier ee.ria.chrome-token-signing-policy \
-		--install-location / \
-		--scripts $(POLICYSIGNED) \
-		--sign "Developer ID Installer: $(SIGNER)" \
-		$(POLICY)
+	$(PKG_BUILD_SIGNED) --root $(POLICYROOT) --identifier ee.ria.token-signing-chrome-policy --scripts $(POLICYSIGNED) $(POLICY)
 
 # helpers
+
+separate:
+	mkdir -p $(CHROME_EXTERNAL) $(CHROME_NATIVE) $(FIREFOX_NATIVEHOSTS) $(FIREFOX_EXTENSIONS) $(FIREFOX_NATIVE)
+	cp -R $(TMPROOT)$(EXTERNAL_PATH)  $(CHROME_EXTERNAL)
+	cp -R $(TMPROOT)$(NATIVE_PATH) $(CHROME_NATIVE)
+	cp -R $(TMPROOT)$(FIREFOX_PATH)  $(FIREFOX_NATIVEHOSTS)
+	cp -R $(TMPROOT)$(FFEXTENSION_PATH) $(FIREFOX_EXTENSIONS)
+	cp -R $(TMPROOT)$(NATIVE_PATH)/chrome-token-signing.app $(FIREFOX_NATIVE)
 
 install:
 	mkdir -p $(NATIVE_PATH) $(FIREFOX_PATH) $(FFEXTENSION_PATH) $(EXTERNAL_PATH)
