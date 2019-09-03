@@ -8,18 +8,37 @@ Build-Depends:
  libpcsclite-dev,
  python,
  xvfb,
- xauth
+ xauth,
+ pkg-config
 Standards-Version: 3.9.8
 Homepage: https://github.com/open-eid/chrome-token-signing
 
 Package: chrome-token-signing
+Architecture: all
+Depends: token-signing-chrome (= ${binary:Version}), token-signing-firefox (= ${binary:Version})
+Description: Estonian ID Card signing for Chrome and Firefox
+ Chrome and Firefox extension and native messaging client metapackage.
+
+Package: token-signing-native
 Architecture: any
 Depends: opensc, ${shlibs:Depends}, ${misc:Depends}
-Description: Estonian ID Card signing for Chrome and Firefox
- Chrome and Firefox extension and native messaging client.
+Description: Estonian ID Card native messaging client
+ Native messaging client for Chrome and Firefox extensions.
+
+Package: token-signing-firefox
+Architecture: all
+Depends: token-signing-native (= ${binary:Version})
+Description: Estonian ID Card signing for Firefox
+ Firefox extension for native messaging client.
+
+Package: token-signing-chrome
+Architecture: all
+Depends: token-signing-native (= ${binary:Version})
+Description: Estonian ID Card signing for Chrome
+ Chrome extension for native messaging client.
 
 Package: chrome-token-signing-policy
 Architecture: all
-Depends: chrome-token-signing, ${shlibs:Depends}, ${misc:Depends}
-Description: Estonian ID Card signing for Chrome and Firefox
- Chrome and Firefox extension and native messaging client.
+Depends: token-signing-chrome (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Estonian ID Card signing for Chrome policy
+ Chrome for enabling extension by default.
