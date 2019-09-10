@@ -27,9 +27,9 @@
 
 using namespace std;
 
-Pkcs11Signer::Pkcs11Signer(const string &pkcs11ModulePath, const vector<unsigned char> &cert)
-	: Signer(cert)
-	, pkcs11Path(pkcs11ModulePath)
+Pkcs11Signer::Pkcs11Signer(string pkcs11ModulePath, vector<unsigned char> cert)
+	: Signer(std::move(cert))
+	, pkcs11Path(std::move(pkcs11ModulePath))
 {
 }
 

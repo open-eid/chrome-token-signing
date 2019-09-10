@@ -20,9 +20,9 @@
 #include "PKCS11CardManager.h"
 #include "Logger.h"
 
-PKCS11CertificateSelector::PKCS11CertificateSelector(const std::string &_driverPath)
+PKCS11CertificateSelector::PKCS11CertificateSelector(std::string _driverPath)
 	: CertificateSelector()
-	, driverPath(_driverPath)
+	, driverPath(std::move(_driverPath))
 {}
 
 std::vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {

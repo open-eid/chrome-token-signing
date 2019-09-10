@@ -1,3 +1,9 @@
+Chrome Token Signing [1.1.0](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.1.0) release notes
+--------------------------------------------
+- Packages allow now install extension to only Firefox or Chrome browser (#141)
+
+[Full Changelog](https://github.com/open-eid/chrome-token-signing/compare/v1.0.9...v1.1.0)
+
 Chrome Token Signing [1.0.9](https://github.com/open-eid/chrome-token-signing/releases/tag/v1.0.9) release notes
 --------------------------------------------
 - Use OpenSC for IDEMIA cards

@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <MAJOR_VERSION>1</MAJOR_VERSION>
-    <MINOR_VERSION>0</MINOR_VERSION>
-    <RELEASE_VERSION>9</RELEASE_VERSION>
+    <MINOR_VERSION>1</MINOR_VERSION>
+    <RELEASE_VERSION>0</RELEASE_VERSION>
     <BUILD_NUMBER>0</BUILD_NUMBER>
   </PropertyGroup>
   <PropertyGroup>

@@ -28,7 +28,7 @@
 #define T(X) X
 #endif
 
-Labels Labels::l10n = Labels();
+Labels Labels::l10n {};
 
 Labels::Labels() {
     setLanguage("en");

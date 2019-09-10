@@ -34,17 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
   <?define Win64 = "no" ?>
 <?endif ?>
 
-<?if $(env.VisualStudioVersion) = "15.0" ?>
-  <?define VCRT = "$(env.VCTOOLSREDISTDIR)\x86\Microsoft.VC141.CRT\vcruntime140.dll"?>
-  <?define VCP = "$(env.VCTOOLSREDISTDIR)\x86\Microsoft.VC141.CRT\msvcp140.dll"?>
-<?elseif $(env.VisualStudioVersion) = "14.0" ?>
-  <?define VCRT = "$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC140.CRT\vcruntime140.dll" ?>
-  <?define VCP = "$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC140.CRT\msvcp140.dll"?>
-<?else?>
-  <?define VCRT = "$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcr120.dll" ?>
-  <?define VCP = "$(env.VCINSTALLDIR)\redist\x86\Microsoft.VC120.CRT\msvcp120.dll"?>
-<?endif?>
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Name="Chrome Token Signing" UpgradeCode="3e52954d-eee4-4dd8-a4f2-318521e3dbd9"
       Id="*" Language="1033" Version="$(var.VERSION)" Codepage="1251" Manufacturer="RIA">
@@ -66,8 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
       <Directory Id='ProgramFilesFolder'>
         <Directory Id="APPLICATIONFOLDER" Name="Chrome Token Signing">
           <Component Id="Application" Guid="85baa771-7c73-49bb-b546-ab6a4520d258" Win64="no">
-            <File Source="$(var.VCP)"/>
-            <File Source="$(var.VCRT)"/>
             <File Source="host-windows/Release/chrome-token-signing.exe"/>
           </Component>
           <Component Id="Chrome" Transitive="yes" >
