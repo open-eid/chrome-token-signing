@@ -21,12 +21,6 @@ NATIVE_PATH = /Library/Google/Chrome/NativeMessagingHosts
 FIREFOX_PATH = /Library/Application\ Support/Mozilla/NativeMessagingHosts
 FFEXTENSION_PATH = /Library/Application\ Support/Mozilla/Extensions/\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}
 
-CHROME_EXTERNAL = $(TMP_CHROME)/Library/Application\ Support/Google/Chrome/
-CHROME_NATIVE = $(TMP_CHROME)/Library/Google/Chrome/
-FIREFOX_NATIVE = $(TMP_FIREFOX)/Library/Google/Chrome/
-FIREFOX_NATIVEHOSTS = $(TMP_FIREFOX)/Library/Application\ Support/Mozilla/
-FIREFOX_EXTENSIONS = $(TMP_FIREFOX)/Library/Application\ Support/Mozilla/Extensions
-
 BUILD_NUMBER ?= 0
 include ../VERSION.mk
 
@@ -34,7 +28,7 @@ SIGNER ?= Riigi Infosüsteemi Amet
 TMPROOT = $(PWD)/tmp
 TMP_CHROME = $(PWD)/tmp_chrome
 TMP_FIREFOX = $(PWD)/tmp_firefox
-POLICYROOT = $(PWD)/tmp2
+POLICYROOT = $(PWD)/tmp_policy
 POLICYSIGNED = $(PWD)/tmpsigned
 TARGET = $(TMPROOT)/Library/Google/Chrome/NativeMessagingHosts/chrome-token-signing.app
 PKG_CHROME = token-signing-chrome.pkg
@@ -79,12 +73,14 @@ signed: codesign
 # helpers
 
 separate:
-	mkdir -p $(CHROME_EXTERNAL) $(CHROME_NATIVE) $(FIREFOX_NATIVEHOSTS) $(FIREFOX_EXTENSIONS) $(FIREFOX_NATIVE)
-	cp -R $(TMPROOT)$(EXTERNAL_PATH)  $(CHROME_EXTERNAL)
-	cp -R $(TMPROOT)$(NATIVE_PATH) $(CHROME_NATIVE)
-	cp -R $(TMPROOT)$(FIREFOX_PATH)  $(FIREFOX_NATIVEHOSTS)
-	cp -R $(TMPROOT)$(FFEXTENSION_PATH) $(FIREFOX_EXTENSIONS)
-	cp -R $(TMPROOT)$(NATIVE_PATH)/chrome-token-signing.app $(FIREFOX_NATIVE)
+	mkdir -p $(TMP_CHROME)/$(NATIVE_PATH) $(TMP_CHROME)/$(EXTERNAL_PATH)
+	cp -R $(TARGET) $(TMP_CHROME)/$(NATIVE_PATH)
+	cp -v ee.ria.esteid.json $(TMP_CHROME)/$(NATIVE_PATH)
+	cp -v ../ckjefchnfjhjfedoccjbhjpbncimppeg.json $(TMP_CHROME)/$(EXTERNAL_PATH)
+	mkdir -p $(TMP_FIREFOX)/$(NATIVE_PATH) $(TMP_FIREFOX)/$(FIREFOX_PATH) $(TMP_FIREFOX)/$(FFEXTENSION_PATH)
+	cp -R $(TARGET) $(TMP_FIREFOX)/$(NATIVE_PATH)
+	cp -v ee.ria.esteid.firefox.json $(TMP_FIREFOX)/$(FIREFOX_PATH)/ee.ria.esteid.json
+	cp -v ../{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi $(TMP_FIREFOX)/$(FFEXTENSION_PATH)
 
 install:
 	mkdir -p $(NATIVE_PATH) $(FIREFOX_PATH) $(FFEXTENSION_PATH) $(EXTERNAL_PATH)
