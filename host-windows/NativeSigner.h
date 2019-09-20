@@ -22,6 +22,6 @@
 
 class NativeSigner : public Signer {
 public:
-	NativeSigner(const std::vector<unsigned char> &cert) : Signer(cert) {}
+	NativeSigner(std::vector<unsigned char> cert) : Signer(std::move(cert)) {}
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
 };

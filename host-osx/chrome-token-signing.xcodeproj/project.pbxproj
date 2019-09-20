@@ -223,7 +223,7 @@
 			};
 			buildConfigurationList = 4E532CDB1A96379500D28E40 /* Build configuration list for PBXProject "chrome-token-signing" */;
 			compatibilityVersion = "Xcode 8.0";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -337,7 +337,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				VERSION = 1.0.9;
+				VERSION = 1.1.0;
 			};
 			name = Debug;
 		};
@@ -386,7 +386,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp --options=runtime";
 				SDKROOT = macosx;
-				VERSION = 1.0.9;
+				VERSION = 1.1.0;
 			};
 			name = Release;
 		};

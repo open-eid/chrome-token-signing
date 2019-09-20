@@ -31,11 +31,11 @@ public:
 		if (store)
 			CertCloseStore(store, 0);
 	}
-	virtual std::vector<unsigned char> getCert(bool forSigning) const throw(UserCancelledException, TechnicalException) = 0;
+	virtual std::vector<unsigned char> getCert(bool forSigning) const = 0;
 
 protected:
 	CertificateSelector() = default;
 	bool isValid(PCCERT_CONTEXT cert, bool forSigning) const;
 	std::vector<unsigned char> showDialog() const;
-	HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, NULL);
+	HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, nullptr);
 };

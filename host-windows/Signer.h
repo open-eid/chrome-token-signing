@@ -30,7 +30,7 @@ public:
 	virtual std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) = 0;
 
 protected:
-	Signer(const std::vector<unsigned char> &_cert) : cert(_cert) {}
+	Signer(std::vector<unsigned char> _cert) : cert(std::move(_cert)) {}
 
 	std::vector<unsigned char> cert;
 };

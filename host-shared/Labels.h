@@ -22,14 +22,14 @@
 
 class Labels {
 private:
-	int selectedLanguage;
+	int selectedLanguage = 0;
     Labels();
 
 public:
 #ifdef _WIN32
-	typedef std::wstring lstring;
+	using lstring = std::wstring;
 #else
-	typedef std::string lstring;
+	using lstring = std::string;
 #endif
 
     static Labels l10n;

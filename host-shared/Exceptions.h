@@ -54,7 +54,7 @@ public:
 		return ESTEID_UNKNOWN_ERROR;
 	}
 protected:
-	BaseException(const std::string &code, const std::string &msg) : runtime_error(msg), errorCode(code) {}
+	BaseException(std::string code, const std::string &msg) : runtime_error(msg), errorCode(std::move(code)) {}
 };
 
 class TechnicalException : public BaseException {
