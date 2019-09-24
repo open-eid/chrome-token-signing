@@ -55,8 +55,16 @@ private:
 void Application::parse()
 {
     uint32_t messageLength = 0;
+    QVariantMap resp;
+
+    if (in.atEnd()) {
+      qDebug() << "Invalid empty message";
+      resp = {{"result", "invalid_argument"}};
+      write(resp);
+      return exit(EXIT_FAILURE);
+    }
+
     while (in.peek((char*)&messageLength, sizeof(messageLength)) > 0) {
-        QVariantMap resp;
         in.read((char*)&messageLength, sizeof(messageLength));
         _log("Message size: %u", messageLength);
         if (messageLength > 1024*8)
