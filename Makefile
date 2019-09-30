@@ -24,6 +24,9 @@ BUILD_NUMBER=0
 !IF "$(VISUALSTUDIOVERSION)" == "15.0"
 BUILDPARAMS = ;VisualStudioVersion=15;PlatformToolset=v141;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)
 !ENDIF
+!IF "$(VISUALSTUDIOVERSION)" == "14.0"
+BUILDPARAMS = ;VisualStudioVersion=14;PlatformToolset=v140;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)
+!ENDIF
 !IF "$(VISUALSTUDIOVERSION)" == "12.0"
 BUILDPARAMS = ;VisualStudioVersion=12;PlatformToolset=v120
 !ENDIF
