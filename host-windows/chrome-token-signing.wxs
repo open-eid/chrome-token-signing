@@ -74,7 +74,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
                 Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
           </Component>
           <Component Id="ForceInstall" Guid="b02ebb46-a515-4821-82af-29f8c6073544" Win64="no" Transitive="yes">
-            <Condition><![CDATA[(FORCEINSTALL = 1)]]></Condition>
+            <Condition><![CDATA[(FORCEINSTALL = 1 AND CHROMEINSTALL = 1)]]></Condition>
             <RegistryValue Root='HKLM' Type='string' Name="56789"
                 Key='SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist'
                 Value='ckjefchnfjhjfedoccjbhjpbncimppeg;https://clients2.google.com/service/update2/crx'/>
