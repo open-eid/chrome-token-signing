@@ -70,6 +70,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 + (NSDictionary *)show:(NSDictionary*)params cert:(NSString *)cert
 {
+    int hashcount = 1;
     if (!params[@"hash"] || !params[@"cert"] || [params[@"hash"] length] % 2 == 1) {
         return @{@"result": @"invalid_argument"};
     }
@@ -78,6 +79,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         if ([params[@"info"] length] > 500) {
             return @{@"result": @"technical_error"};
         }
+        
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
         [alert addButtonWithTitle:@"Cancel"];
@@ -88,7 +90,24 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
             return @{@"result": @"user_cancel"};
         }
     }
-
+    
+    /* Get the number of hashes in the hash bytes */
+    if (params[@"hashcount"] && [params[@"hashcount"] length] > 0) {
+        try{
+            int value = std::stoi( [params[@"hashcount"] UTF8String] );
+            if( value > 0 && value < MAX_HASH_COUNT ){
+                hashcount = value;
+            } else {
+                _log("Hash count is not within limits");
+                return @{@"result": @"invalid_argument"};
+            }
+        }
+        catch( ... ){
+            _log("Invalid hash count value");
+            return @{@"result": @"invalid_argument"};
+        }
+    }
+    
     PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
     std::unique_ptr<PKCS11CardManager> pkcs11;
     PKCS11CardManager::Token selected;
@@ -148,7 +167,12 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
             [NSRunLoop.currentRunLoop addTimer:timer forMode:NSModalPanelRunLoopMode];
             future = std::async(std::launch::async, [&] {
                 try {
-                    pinpadresult = @{@"signature": @(BinaryUtils::bin2hex(pkcs11->sign(selected, hash, nullptr)).c_str()), @"result": @"ok"};
+                    if( hashcount == 1 ){
+                        pinpadresult = @{@"signature": @(BinaryUtils::bin2hex(pkcs11->sign(selected, hash, nullptr)).c_str()), @"result": @"ok"};
+                    } else {
+                        pinpadresult = @{@"signature": @(BinaryUtils::bin2hex(pkcs11->multisign(selected, hash, nullptr, hashcount)).c_str()), @"result": @"ok"};
+                    }
+                
                     [NSApp stopModal];
                 }
                 catch(const UserCancelledException &) {
@@ -202,8 +226,21 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         }
         else {
             try {
-                std::vector<unsigned char> signature = pkcs11->sign(selected, hash, dialog->pinField.stringValue.UTF8String);
-                return @{@"signature": @(BinaryUtils::bin2hex(signature).c_str()), @"result": @"ok"};
+                if(hashcount == 1){
+                    std::vector<unsigned char> signature = pkcs11->sign(selected, hash, dialog->pinField.stringValue.UTF8String);
+                    return @{@"signature": @(BinaryUtils::bin2hex(signature).c_str()), @"result": @"ok"};
+                }
+                else{
+                    /* for debugging purposes
+                     std::vector<unsigned char> hashes {};
+                     for( int i= 0; i< 5; i++ ){
+                     hashes.insert( hashes.end(), hash.begin(), hash.end() );
+                     }
+                     */
+                    std::vector<unsigned char> signature = pkcs11->multisign(selected, hash, dialog->pinField.stringValue.UTF8String, hashcount);
+                    return @{@"signature": @(BinaryUtils::bin2hex(signature).c_str()), @"result": @"ok"};
+                }
+                
             }
             catch(const AuthenticationBadInput &) {
             }

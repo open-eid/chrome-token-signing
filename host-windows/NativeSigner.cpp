@@ -29,6 +29,8 @@
 
 using namespace std;
 
+
+
 vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 {
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
@@ -159,5 +161,19 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 	default:
 		throw TechnicalException("Signing failed");
 	}
+}
+
+vector<unsigned char> NativeSigner::multisign(const vector<unsigned char> &hashes, int hashCount) {
+	std::vector<unsigned char> signatures;
+	unsigned long hashSize = hashes.size() / hashCount;
+	for (int i = 0; i < hashCount; i++) {
+
+		std::vector<unsigned char> hash(hashes.begin() + hashSize * i, hashes.begin() + hashSize * (i + 1));
+
+		std::vector<unsigned char> signature = sign(hash);
+		signatures.insert(signatures.end(), signature.begin(), signature.end());
+	}
+
+	return signatures;
 }
 

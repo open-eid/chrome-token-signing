@@ -98,11 +98,49 @@ int main(int argc, char **argv)
 				if (cert != selectedCert)
 					throw NotSelectedCertificateException();
 
+				string info;
+				string hashcountStr = "";
+				if (jsonRequest.has<string>("info")) {
+
+
+					info = jsonRequest.get<string>("info");
+
+					if (info.compare(0, 10, "hashcount=") == 0) { // info starts with hashcount
+						size_t firstSpace = info.find_first_of(" ", 0);
+						hashcountStr = info.substr(10, firstSpace);
+						info.erase(0, firstSpace);
+					}
+				}
 				unique_ptr<Signer> signer(Signer::createSigner(cert));
-				if (!signer->showInfo(jsonRequest.get<string>("info", string())))
+				if (!signer->showInfo(info))
 					throw UserCancelledException();
 
-				jsonResponse << "signature" << BinaryUtils::bin2hex(signer->sign(digest));
+				if (hashcountStr.compare("") == 0) { //single signing
+					
+					jsonResponse << "signature" << BinaryUtils::bin2hex(signer->sign(digest));
+				}
+				else { //multiple signing
+					int hashcount = 1;
+					/* Get the number of hashes in the hash bytes */
+					if (hashcountStr.length() > 0) {
+						try {
+							int value = std::stoi ( hashcountStr );
+							if (value > 0 && value < 100) {
+								hashcount = value;
+							}
+							else {
+								_log("Hash count is not within limits");
+								throw InvalidArgumentException();
+							}
+						}
+						catch (...) {
+							_log("Invalid hash count value");
+							throw InvalidArgumentException();
+						}
+					}
+					jsonResponse << "signature" << BinaryUtils::bin2hex(signer->multisign(digest, hashcount ));
+				}
+				
 			}
 			else
 				throw InvalidArgumentException();
@@ -111,7 +149,8 @@ int main(int argc, char **argv)
 		catch (const InvalidArgumentException &e)
 		{
 			_log("Handling exception: %s", e.getErrorCode());
-			sendMessage((Object() << "result" << e.getErrorCode() << "message" << e.what()).json());
+			jsonResponse << "result" << e.getErrorCode() << "message" << e.what();
+			sendMessage(jsonResponse.json());
 			return EXIT_FAILURE;
 		}
 		catch (const BaseException &e) {

@@ -105,3 +105,93 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest)
 	MessageBox(nullptr, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
 	throw PinBlockedException();
 }
+
+
+vector<unsigned char> Pkcs11Signer::multisign(const vector<unsigned char> &hashes, int hashCount) {
+	_log("Signing using PKCS#11 module");
+
+	std::vector<unsigned char> signatures;
+	unsigned long hashSize = hashes.size() / hashCount;
+	PKCS11CardManager::Token selected;
+	PKCS11CardManager pkcs11(pkcs11Path);
+	for (const PKCS11CardManager::Token &token : pkcs11.tokens()) {
+		if (token.cert == cert) {
+			selected = token;
+			break;
+		}
+	}
+	if (selected.cert.empty()) {
+		_log("No card manager found for this certificate");
+		throw InvalidArgumentException("No card manager found for this certificate");
+	}
+	if (selected.retry <= 0) {
+		_log("PIN retry count is zero");
+		MessageBox(nullptr, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
+		throw PinBlockedException();
+	}
+
+	wstring label = Labels::l10n.get("sign PIN");
+	if (PCCERT_CONTEXT certificate = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert.data(), cert.size())) {
+		BYTE keyUsage = 0;
+		CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificate->pCertInfo, &keyUsage, 1);
+		if (!(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE))
+			label = Labels::l10n.get("auth PIN");
+		CertFreeCertificateContext(certificate);
+	}
+	size_t start_pos = 0;
+	while ((start_pos = label.find(L"@PIN@", start_pos)) != std::string::npos) {
+		label.replace(start_pos, 5, L"PIN");
+		start_pos += 3;
+	}
+
+	bool isInitialCheck = true;
+	for (int pinTriesLeft = selected.retry; pinTriesLeft > 0;)
+	{
+		try {
+			wstring msg;
+			if (pinTriesLeft < 3)
+			{
+				if (!isInitialCheck)
+					msg = Labels::l10n.get("incorrect PIN2");
+				msg += Labels::l10n.get("tries left") + L" " + to_wstring(pinTriesLeft);
+			}
+			_log("Showing pin entry dialog");
+			std::string pin = PinDialog::getPin(label, msg);
+			if (pin.empty()) {
+				_log("User cancelled");
+				throw UserCancelledException();
+			}
+
+			for (int i = 0; i < hashCount; i++) {
+
+				std::vector<CK_BYTE> hash(hashes.begin() + hashSize * i, hashes.begin() + hashSize * (i + 1));
+				
+				std::vector<unsigned char> signature = pkcs11.sign(selected, hash, pin.c_str());
+				signatures.insert(signatures.end(), signature.begin(), signature.end());
+			}
+
+			return signatures;
+		}
+		catch (const AuthenticationError &) {
+			_log("Wrong pin");
+			pinTriesLeft--;
+		}
+		catch (const PinBlockedException &) {
+			_log("PIN blocked");
+			pinTriesLeft = 0;
+		}
+		catch (const AuthenticationBadInput &) {
+			_log("Bad pin input");
+		}
+		isInitialCheck = false;
+	}
+	_log("PIN retry count is zero");
+	MessageBox(nullptr, Labels::l10n.get("PIN2 blocked").c_str(), L"PIN Blocked", MB_OK | MB_ICONERROR);
+	throw PinBlockedException();
+	
+	
+	
+	
+
+	return signatures;
+}

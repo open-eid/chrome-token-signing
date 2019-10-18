@@ -130,7 +130,16 @@ int main(int argc, const char * argv[]) {
                     cert = (NSString*)result[@"cert"];
                 }
                 else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
-                    result = [PINPanel show:dict cert:cert];
+                    NSMutableDictionary *mutableDictionary = [dict mutableCopy];
+                    /* Get hashcount from info parameter until extension is ready */
+                    NSArray<NSString *> *infos =  [dict[@"info"] componentsSeparatedByString:@" "];
+                    if(infos.count >= 1 && [[ infos objectAtIndex:0 ] hasPrefix:@"hashcount=" ] ){
+                        //NSUInteger hashStringSize = [[ infos objectAtIndex:0 ] length ];
+                        NSString *hashCountStr = [[ infos objectAtIndex:0 ] substringFromIndex:10 ];
+                        mutableDictionary[@"hashcount"] = hashCountStr;
+                        
+                    }
+                    result = [PINPanel show:mutableDictionary cert:cert];
                 }
                 else {
                     result = @{@"result": @"invalid_argument"};
