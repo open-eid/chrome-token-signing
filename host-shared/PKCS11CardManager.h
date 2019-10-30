@@ -32,6 +32,7 @@
 #include <dlfcn.h>
 #endif
 
+#define MAX_HASH_COUNT 100
 #define C(API, ...) Call(__FILE__, __LINE__, "C_"#API, fl->C_##API, __VA_ARGS__)
 
 class PKCS11CardManager {
@@ -246,4 +247,19 @@ public:
 
         return signature;
     }
+
+    std::vector<CK_BYTE> multisign(const Token &token, const std::vector<CK_BYTE> &hashes, const char *pin, int hashCount) const {
+        std::vector<CK_BYTE> signatures {};
+        unsigned long hashSize = hashes.size() / hashCount;
+        for ( int i=0; i< hashCount; i++){
+
+                std::vector<CK_BYTE> hash(hashes.begin()+ hashSize * i, hashes.begin()+ hashSize * (i + 1) );
+
+                std::vector<unsigned char> signature = sign(token, hash, pin);
+                signatures.insert( signatures.end(), signature.begin(), signature.end() );
+        }
+
+        return signatures;
+    }
+
 };
