@@ -114,6 +114,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string belPath("/usr/local/lib/beid-pkcs11.bundle/Contents/MacOS/libbeidpkcs11.dylib");
     static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
+    static const std::string acsPath("/usr/local/lib/libacos5pkcs11.dylib");
+    static const std::string akisPath("/usr/local/lib/libakisp11.dylib");
 #else
     static const std::string openscPath("opensc-pkcs11.so");
     static const std::string estPath = openscPath;
@@ -124,10 +126,13 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string belPath("libbeidpkcs11.so.0");
     static const std::string eTokenPath("/usr/lib/libeTPkcs11.so");
+    static const std::string acsPath("/lib/libacospkcs11.so");
+    static const std::string akisPath("/usr/lib/libpkcs11wrapper.so");
 #endif
     static const std::map<std::string, Params> m = {
 #ifdef _WIN32
         {"3BFD1800008031FE4553434536302D43443134352D46CD", {"C:\\Windows\\System32\\aetpkss1.dll", "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451293318073B3A1806B", {"C:\\Windows\\System32\\akisp11.dll", "PIN", "PIN"}},
 #else
         {"3BFE1800008031FE454573744549442076657220312E30A8", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3_COLD_DEV1_ATR
         {"3BFE1800008031FE45803180664090A4561B168301900086", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV1_ATR
@@ -145,6 +150,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 
         {"3BD5180081313A7D8073C8211030", {eTokenPath, "PIN", "PIN"}},
         {"3BD518008131FE7D8073C82110F4", {eTokenPath, "PIN", "PIN"}},
+        {"3BBE9600004105200000000000000000009000", {acsPath, "PIN", "PIN" }},
+        {"3B9F968131FE45806755454B41451293318073B3A1806B", {akisPath, "PIN", "PIN"}},
 #endif
         {"3BF81300008131FE45536D617274417070F8", {litPath, "PIN", "PIN"}},
         {"3B7D94000080318065B08311C0A983009000", {litPath, "PIN", "PIN"}},
