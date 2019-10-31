@@ -104,7 +104,6 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         WideCharToMultiByte(CP_UTF8, 0, path.c_str(), DWORD(path.size()), &result[0], size, nullptr, nullptr);
         return result;
     }();
-	static const std::string eTokenPath("C:\\Windows\\System32\\eTPKCS11.dll");
 #elif defined __APPLE__
     static const std::string openscPath("/Library/OpenSC/lib/opensc-pkcs11.so");
     static const std::string estPath = openscPath;
