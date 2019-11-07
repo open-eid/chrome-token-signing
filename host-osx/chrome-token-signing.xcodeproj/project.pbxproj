@@ -264,7 +264,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "EXTERNAL_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions\nNATIVE_PATH=${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts\nFIREFOX_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts\nFFEXTENSION_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}\nmkdir -p \"${NATIVE_PATH}\" \"${EXTERNAL_PATH}\" \"${FIREFOX_PATH}\" \"${FFEXTENSION_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.json \"${NATIVE_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.firefox.json \"${FIREFOX_PATH}/ee.ria.esteid.json\"\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json \"${EXTERNAL_PATH}\"\ncp ${SRCROOT}/../{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi \"${FFEXTENSION_PATH}\"";
+			shellScript = "EXTERNAL_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions\nNATIVE_PATH=${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts\nFIREFOX_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts\nPREFERENCES_PATH=${INSTALL_ROOT}/Library/Preferences\nmkdir -p \"${NATIVE_PATH}\" \"${EXTERNAL_PATH}\" \"${FIREFOX_PATH}\" \"${PREFERENCES_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.json \"${NATIVE_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.firefox.json \"${FIREFOX_PATH}/ee.ria.esteid.json\"\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json \"${EXTERNAL_PATH}\"\ncp ${SRCROOT}/org.mozilla.firefox.plist \"${PREFERENCES_PATH}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -316,6 +316,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 0;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -370,6 +371,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CURRENT_PROJECT_VERSION = 0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

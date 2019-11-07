@@ -1,0 +1,8 @@
+#!/bin/sh
+
+PLIST=/Library/Preferences/org.mozilla.firefox.plist
+UUID="{443830f0-1fff-4f9a-aa1e-444bafbc7319}"
+URL=https://addons.mozilla.org/firefox/downloads/latest/token-signing2/latest.xpi
+
+defaults write ${PLIST} EnterprisePoliciesEnabled -bool true
+defaults write ${PLIST} ExtensionSettings -dict-add "'${UUID}'" "{ 'installation_mode' = 'normal_installed'; 'install_url' = '${URL}'; }"
