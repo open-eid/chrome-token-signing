@@ -35,7 +35,7 @@ PKG_CHROME = token-signing-chrome.pkg
 PKG_FIREFOX = token-signing-firefox.pkg
 POLICY = token-signing-chrome-policy.pkg
 
-PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release VERSION=$(VERSION) BUILD_NUMBER=$(BUILD_NUMBER)
+PROJ = xcodebuild -project chrome-token-signing.xcodeproj -configuration Release MARKETING_VERSION=$(VERSION) CURRENT_PROJECT_VERSION=$(BUILD_NUMBER)
 PKG_BUILD = pkgbuild --version $(VERSION) --install-location / 
 PKG_BUILD_SIGNED = $(PKG_BUILD) --sign "Developer ID Installer: $(SIGNER)"
 
