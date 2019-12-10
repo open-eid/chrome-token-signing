@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnterprisePoliciesEnabled</key>
+	<true/>
+	<key>Extensions</key>
+	<dict>
+		<key>Install</key>
+		<array>
+			<string>https://addons.mozilla.org/firefox/downloads/file/3441541/token_signing-0.0.31-fx.xpi</string>
+		</array>
+	</dict>
+</dict>
+</plist>

@@ -44,6 +44,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     <Property Id="FORCEINSTALL" Value="1"/>
     <Property Id="CHROMEINSTALL" Value="1"/>
     <Property Id="FIREFOXINSTALL" Value="1"/>
+    <!-- https://github.com/open-eid/windows-installer/blob/master/FirefoxActionWix/README.md -->
+    <Binary Id="FirefoxAction.CA.dll" SourceFile="host-windows\FirefoxAction.CA.dll" />
+    <CustomAction Id="ExtensionSettingsInstall" Return="check" Execute="firstSequence"
+      BinaryKey="FirefoxAction.CA.dll" DllEntry="ExtensionSettingsInstall" />
+    <CustomAction Id="ExtensionSettingsRemove" Return="check" Execute="firstSequence"
+      BinaryKey="FirefoxAction.CA.dll" DllEntry="ExtensionSettingsRemove" />
+    <Property Id="EXTENSIONSETTINGS_URL" Value="https://addons.mozilla.org/firefox/downloads/latest/token-signing2/latest.xpi" />
+    <Property Id="EXTENSIONSETTINGS_UUID" Value="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage=
       "A newer version of [ProductName] is already installed. If you are trying to downgrade, please uninstall the newer version first."/>
     <Condition Message="[ProductName] requires Windows 7 or higher.">
@@ -69,9 +77,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
           <Component Id="FirefoxApplication" Guid="8c52d631-7da9-46d3-89c6-8248f94fa25c" Transitive="yes" >
             <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
             <File Source="host-windows/ee.ria.esteid.firefox.json"/>
-            <File Source="{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"/>
-            <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"	
-                Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
           </Component>
           <Component Id="ForceInstall" Guid="b02ebb46-a515-4821-82af-29f8c6073544" Win64="no" Transitive="yes">
             <Condition><![CDATA[(FORCEINSTALL = 1 AND CHROMEINSTALL = 1)]]></Condition>
@@ -81,13 +86,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
           </Component>
         </Directory>
       </Directory>
-<?if $(var.Platform) = "x64" ?>
-      <Component Id="Firefox_X64" Win64="yes" Transitive="yes" >
-        <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
-        <RegistryValue Root="HKLM" Type="string" Value="[APPLICATIONFOLDER]\{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi"
-            Key="SOFTWARE\Mozilla\Firefox\Extensions" Name="{443830f0-1fff-4f9a-aa1e-444bafbc7319}" />
-      </Component>
-<?endif ?>
       <Component Id="Firefox" Guid="60c6e502-529b-4d28-9e92-4cdbf1176afb" Win64="$(var.Win64)" Transitive="yes" >
         <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
         <RegistryValue Root='HKLM' Type='string' Value='[APPLICATIONFOLDER]ee.ria.esteid.firefox.json'
@@ -95,15 +93,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
       </Component>
     </Directory>
 
+    <InstallExecuteSequence>
+      <Custom Action="ExtensionSettingsInstall" Before="WriteRegistryValues">NOT Installed</Custom>
+      <Custom Action="ExtensionSettingsRemove" Before="InstallFinalize">Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
+    </InstallExecuteSequence>
+
     <Feature Id="Install" Level="1" Title="Chrome Token Signing" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
       <ComponentRef Id="Application"/>
       <ComponentRef Id="ForceInstall"/>
       <ComponentRef Id="Firefox"/>
       <ComponentRef Id="FirefoxApplication"/>
       <ComponentRef Id="Chrome"/>
-<?if $(var.Platform) = "x64" ?>
-      <ComponentRef Id="Firefox_X64"/>
-<?endif ?>
     </Feature>
   </Product>
 </Wix>

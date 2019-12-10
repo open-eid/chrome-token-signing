@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -207,7 +207,7 @@
 		4E532CD81A96379500D28E40 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1120;
 				ORGANIZATIONNAME = RIA;
 				TargetAttributes = {
 					4E532CDF1A96379500D28E40 = {
@@ -222,7 +222,7 @@
 				};
 			};
 			buildConfigurationList = 4E532CDB1A96379500D28E40 /* Build configuration list for PBXProject "chrome-token-signing" */;
-			compatibilityVersion = "Xcode 8.0";
+			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -264,7 +264,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "EXTERNAL_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions\nNATIVE_PATH=${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts\nFIREFOX_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts\nFFEXTENSION_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/Extensions/\\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\\}\nmkdir -p \"${NATIVE_PATH}\" \"${EXTERNAL_PATH}\" \"${FIREFOX_PATH}\" \"${FFEXTENSION_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.json \"${NATIVE_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.firefox.json \"${FIREFOX_PATH}/ee.ria.esteid.json\"\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json \"${EXTERNAL_PATH}\"\ncp ${SRCROOT}/../{443830f0-1fff-4f9a-aa1e-444bafbc7319}.xpi \"${FFEXTENSION_PATH}\"";
+			shellScript = "EXTERNAL_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Google/Chrome/External\\ Extensions\nNATIVE_PATH=${INSTALL_ROOT}/Library/Google/Chrome/NativeMessagingHosts\nFIREFOX_PATH=${INSTALL_ROOT}/Library/Application\\ Support/Mozilla/NativeMessagingHosts\nPREFERENCES_PATH=${INSTALL_ROOT}/Library/Preferences\nmkdir -p \"${NATIVE_PATH}\" \"${EXTERNAL_PATH}\" \"${FIREFOX_PATH}\" \"${PREFERENCES_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.json \"${NATIVE_PATH}\"\ncp ${SRCROOT}/ee.ria.esteid.firefox.json \"${FIREFOX_PATH}/ee.ria.esteid.json\"\ncp ${SRCROOT}/../ckjefchnfjhjfedoccjbhjpbncimppeg.json \"${EXTERNAL_PATH}\"\ncp ${SRCROOT}/org.mozilla.firefox.plist \"${PREFERENCES_PATH}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -290,7 +290,6 @@
 		4E532CFB1A96379500D28E40 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUILD_NUMBER = 0;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -317,7 +316,9 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 0;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -335,16 +336,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MARKETING_VERSION = 1.1.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				VERSION = 1.1.0;
 			};
 			name = Debug;
 		};
 		4E532CFC1A96379500D28E40 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUILD_NUMBER = 0;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -371,7 +371,9 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CURRENT_PROJECT_VERSION = 0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -384,9 +386,9 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MARKETING_VERSION = 1.1.1;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp --options=runtime";
 				SDKROOT = macosx;
-				VERSION = 1.1.0;
 			};
 			name = Release;
 		};
