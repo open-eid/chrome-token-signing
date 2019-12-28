@@ -27,7 +27,7 @@
 
    1.2 Windows
 
-     * [Visual Studio Community 2013/2015/2017](https://www.visualstudio.com/downloads/)
+     * [Visual Studio Community 2015/2017/2019](https://www.visualstudio.com/downloads/)
 
    1.3 OSX
 

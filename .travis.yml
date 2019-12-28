@@ -1,13 +1,14 @@
-sudo: true
-dist: trusty
-osx_image: xcode10
 language: c
-
+matrix:
+  include:
+  - os: linux
+    dist: xenial
+  - os: linux
+    dist: bionic
+  - os: osx
+    osx_image: xcode11.3
 script:
 - make test
-os:
-- linux
-- osx
 env:
   global:
   - BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
