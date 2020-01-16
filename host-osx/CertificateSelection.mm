@@ -48,14 +48,6 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
 @implementation CertificateSelection
 
-- (bool)isDuplicate:(NSString*)certificate {
-    for (NSDictionary *cert in certificates) {
-        if ([cert[@"cert"] isEqualToString:certificate])
-            return true;
-    }
-    return false;
-}
-
 - (instancetype)init:(bool)forSigning
 {
     if (self = [super init]) {
@@ -81,9 +73,8 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
             NSNumber *na = dict[(__bridge id)kSecOIDX509V1ValidityNotAfter][(__bridge id)kSecPropertyKeyValue];
             NSDate *date = [NSDate dateWithTimeInterval:na.intValue sinceDate:[NSCalendar.currentCalendar dateFromComponents:components]];
-            NSString *hex = @(BinaryUtils::bin2hex(token.cert).c_str());
-            if ([date compare:NSDate.date] <= 0 || [self isDuplicate:hex]) {
-                _log("token has expired or is duplicate");
+            if ([date compare:NSDate.date] <= 0) {
+                _log("token has expired");
                 continue;
             }
 
@@ -117,7 +108,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
                 }
             }
 
-            [certificates addObject: @{@"cert": hex, @"validTo": [df stringFromDate:date], @"CN": cn, @"type": type}];
+            [certificates addObject: @{@"cert": @(BinaryUtils::bin2hex(token.cert).c_str()), @"validTo": [df stringFromDate:date], @"CN": cn, @"type": type}];
         }
 
         if (![[NSBundle bundleForClass:CertificateSelection.class] loadNibNamed:@"CertificateSelection" owner:self topLevelObjects:nil]) {
@@ -125,9 +116,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
             return self;
         }
 
-        if (@available(macOS 10_12_2, *)) {
-            window.touchBar = [self makeTouchBar];
-        }
+        window.touchBar = [self makeTouchBar];
         window.title = _L("select certificate");
         cancelButton.title = _L("cancel");
         okButton.title = _L("select");
@@ -212,7 +201,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
 #pragma mark - NSTouchBarProvider
 
-- (NSTouchBar *)makeTouchBar NS_AVAILABLE_MAC(10_12_2)
+- (NSTouchBar *)makeTouchBar
 {
     NSTouchBar *touchBar = [[NSTouchBar alloc] init];
     touchBar.delegate = self;
@@ -223,7 +212,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
 #pragma mark - NSTouchBarDelegate
 
-- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier NS_AVAILABLE_MAC(10_12_2)
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
 {
     if ([identifier isEqualToString:touchBarItemGroupId])
     {

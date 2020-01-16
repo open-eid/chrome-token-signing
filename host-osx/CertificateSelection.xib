@@ -32,7 +32,7 @@
                             <rect key="frame" x="1" y="0.0" width="438" height="148"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="firstColumnOnly" multipleSelection="NO" autosaveColumns="NO" headerView="61" id="60">
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" headerView="61" id="60">
                                     <rect key="frame" x="0.0" y="0.0" width="438" height="125"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -41,7 +41,7 @@
                                     <tableColumns>
                                         <tableColumn identifier="CN" editable="NO" width="247" minWidth="40" maxWidth="1000" id="62">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Certificate">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="palette"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
                                             <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="65">
@@ -53,7 +53,7 @@
                                         </tableColumn>
                                         <tableColumn identifier="type" editable="NO" width="93" minWidth="40" maxWidth="1000" id="63">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Type">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="palette"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
                                             <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="64">
@@ -65,7 +65,7 @@
                                         </tableColumn>
                                         <tableColumn identifier="validTo" editable="NO" width="89" minWidth="10" maxWidth="3.4028234663852886e+38" id="82">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Valid To">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="palette"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
                                             <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="83">
