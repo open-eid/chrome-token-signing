@@ -21,20 +21,20 @@
 !IF !DEFINED(BUILD_NUMBER)
 BUILD_NUMBER=0
 !ENDIF
+!IF "$(VISUALSTUDIOVERSION)" == "16.0"
+BUILDPARAMS = ;VisualStudioVersion=16;PlatformToolset=v142
+!ENDIF
 !IF "$(VISUALSTUDIOVERSION)" == "15.0"
-BUILDPARAMS = ;VisualStudioVersion=15;PlatformToolset=v141;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)
+BUILDPARAMS = ;VisualStudioVersion=15;PlatformToolset=v141
 !ENDIF
 !IF "$(VISUALSTUDIOVERSION)" == "14.0"
-BUILDPARAMS = ;VisualStudioVersion=14;PlatformToolset=v140;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)
-!ENDIF
-!IF "$(VISUALSTUDIOVERSION)" == "12.0"
-BUILDPARAMS = ;VisualStudioVersion=12;PlatformToolset=v120
+BUILDPARAMS = ;VisualStudioVersion=14;PlatformToolset=v140
 !ENDIF
 !include VERSION.mk
 SIGN = signtool sign /v /a /s MY /n "RIIGI INFOSUSTEEMI AMET" /fd SHA256 /du http://installer.id.ee /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp /td SHA256
 
 build:
-	msbuild /p:Configuration=Release;Platform=Win32$(BUILDPARAMS) /p:MAJOR_VERSION=$(MAJOR_VERSION);MINOR_VERSION=$(MINOR_VERSION);RELEASE_VERSION=$(RELEASE_VERSION);BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
+	msbuild /p:Configuration=Release;Platform=Win32;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)$(BUILDPARAMS);MAJOR_VERSION=$(MAJOR_VERSION);MINOR_VERSION=$(MINOR_VERSION);RELEASE_VERSION=$(RELEASE_VERSION);BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln
 
 build-signed: build
 	$(SIGN) host-windows/Release/chrome-token-signing.exe
