@@ -60,9 +60,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         else {
             cancelButton.title = _L("cancel");
         }
-        if (@available(macOS 10_12_2, *)) {
-            window.touchBar = [self makeTouchBar];
-        }
+        window.touchBar = [self makeTouchBar];
         pinFieldLabel.stringValue = label;
     }
     return self;
@@ -82,7 +80,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         [alert addButtonWithTitle:@"OK"];
         [alert addButtonWithTitle:@"Cancel"];
         alert.messageText = params[@"info"];
-        alert.alertStyle = NSInformationalAlertStyle;
+        alert.alertStyle = NSAlertStyleInformational;
         alert.icon = [[NSImage alloc] initByReferencingFile:@"/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns"];
         if ([alert runModal] != NSAlertFirstButtonReturn) {
             return @{@"result": @"user_cancel"};
@@ -241,9 +239,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     if (okButton.enabled != pinField.stringValue.length >= minPinLen)
     {
         okButton.enabled = pinField.stringValue.length >= minPinLen;
-        if (@available(macOS 10_12_2, *)) {
-            window.touchBar = [self makeTouchBar];
-        }
+        window.touchBar = [self makeTouchBar];
     }
 }
 
@@ -258,7 +254,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 #pragma mark - NSTouchBarProvider
 
-- (NSTouchBar *)makeTouchBar NS_AVAILABLE_MAC(10_12_2)
+- (NSTouchBar *)makeTouchBar
 {
     NSTouchBar *touchBar = [[NSTouchBar alloc] init];
     touchBar.delegate = self;
@@ -269,7 +265,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 #pragma mark - NSTouchBarDelegate
 
-- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier NS_AVAILABLE_MAC(10_12_2)
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
 {
     if ([identifier isEqualToString:touchBarItemGroupId])
     {

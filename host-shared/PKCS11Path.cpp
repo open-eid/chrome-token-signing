@@ -39,30 +39,30 @@
 #include <map>
 
 std::vector<std::string> PKCS11Path::atrList() {
-	SCARDCONTEXT hContext = 0;
-	std::vector<std::string> result;
-	LONG err = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hContext);
-	if (err != SCARD_S_SUCCESS) {
-		_log("SCardEstablishContext ERROR: %x", err);
-		return result;
-	}
+    SCARDCONTEXT hContext = 0;
+    std::vector<std::string> result;
+    LONG err = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hContext);
+    if (err != SCARD_S_SUCCESS) {
+        _log("SCardEstablishContext ERROR: %x", err);
+        return result;
+    }
 
-	DWORD size = 0;
-	err = SCardListReaders(hContext, nullptr, nullptr, &size);
-	if (err != SCARD_S_SUCCESS || !size) {
-		_log("SCardListReaders || !size ERROR: %x", err);
-		SCardReleaseContext(hContext);
-		return result;
-	}
+    DWORD size = 0;
+    err = SCardListReaders(hContext, nullptr, nullptr, &size);
+    if (err != SCARD_S_SUCCESS || !size) {
+        _log("SCardListReaders || !size ERROR: %x", err);
+        SCardReleaseContext(hContext);
+        return result;
+    }
 
-	std::string readers(size, 0);
-	err = SCardListReaders(hContext, nullptr, &readers[0], &size);
-	readers.resize(size);
-	if (err != SCARD_S_SUCCESS) {
-		_log("SCardListReaders ERROR: %x", err);
-		SCardReleaseContext(hContext);
-		return result;
-	}
+    std::string readers(size, 0);
+    err = SCardListReaders(hContext, nullptr, &readers[0], &size);
+    readers.resize(size);
+    if (err != SCARD_S_SUCCESS) {
+        _log("SCardListReaders ERROR: %x", err);
+        SCardReleaseContext(hContext);
+        return result;
+    }
 
     std::vector<SCARD_READERSTATE> list;
     for (const char *name = readers.c_str(); *name; name += strlen(name) + 1) {
@@ -107,7 +107,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #elif defined __APPLE__
     static const std::string openscPath("/Library/OpenSC/lib/opensc-pkcs11.so");
     static const std::string estPath = openscPath;
-    static const std::string latPath("/Library/latvia-eid/lib/otlv-pkcs11.so");
+    static const std::string latPath("/Library/latvia-eid/lib/eidlv-pkcs11.bundle/Contents/MacOS/eidlv-pkcs11");
     static const std::string finPath("/Library/mPolluxDigiSign/libcryptoki.dylib");
     static const std::string lit1Path("/Library/Security/tokend/CCSuite.tokend/Contents/Frameworks/libccpkip11.dylib");
     static const std::string lit2Path("/Library/PWPW-Card/pwpw-card-pkcs11.so");
@@ -119,7 +119,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #else
     static const std::string openscPath("opensc-pkcs11.so");
     static const std::string estPath = openscPath;
-    static const std::string latPath("otlv-pkcs11.so");
+    static const std::string latPath("/opt/latvia-eid/lib/eidlv-pkcs11.so");
     static const std::string finPath("libcryptoki.so");
     static const std::string lit1Path("/usr/lib/ccs/libccpkip11.so");
     static const std::string lit2Path("pwpw-card-pkcs11.so");
@@ -142,6 +142,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         {"3BDB960080B1FE451F830012233F536549440F9000F1", {estPath, "PIN1", "PIN2"}}, // IDEMIA 2018
 
         {"3BDD18008131FE45904C41545649412D65494490008C", {latPath, "PIN1", "PIN2"}},
+        {"3BDB960080B1FE451F830012428F536549440F900020", {latPath, "PIN1", "PIN2"}},
 
         {"3B7B940000806212515646696E454944", {finPath, "PIN1", "PIN2"}},
         {"3B7F9600008031B865B0850300EF1200F6829000", {finPath, "PIN1", "PIN2"}},
@@ -162,8 +163,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 
     const std::vector<std::string> list = atrList();
     for (const std::string &atr : list) {
-        auto it = m.find(atr);
-        if (it != m.end())
+        const auto it = m.find(atr);
+        if (it != m.cend())
             return it->second;
     }
 #ifdef _WIN32
