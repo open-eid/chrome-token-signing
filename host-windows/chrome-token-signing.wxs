@@ -46,8 +46,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     <Property Id="FIREFOXINSTALL" Value="1"/>
     <!-- https://github.com/open-eid/windows-installer/blob/master/FirefoxActionWix/README.md -->
     <Binary Id="FirefoxAction.CA.dll" SourceFile="host-windows\FirefoxAction.CA.dll" />
-    <CustomAction Id="ExtensionSettingsInstall" Return="check" Execute="firstSequence"
+    <CustomAction Id="ExtensionSettingsFirefox" Return="check" Execute="firstSequence"
       BinaryKey="FirefoxAction.CA.dll" DllEntry="ExtensionSettingsInstall" />
+    <CustomAction Id="ExtensionSettingsNoFirefox" Return="check" Execute="firstSequence"
+      BinaryKey="FirefoxAction.CA.dll" DllEntry="ExtensionSettingsRemove" />
     <CustomAction Id="ExtensionSettingsRemove" Return="check" Execute="firstSequence"
       BinaryKey="FirefoxAction.CA.dll" DllEntry="ExtensionSettingsRemove" />
     <Property Id="EXTENSIONSETTINGS_URL" Value="https://addons.mozilla.org/firefox/downloads/latest/token-signing2/latest.xpi" />
@@ -94,8 +96,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     </Directory>
 
     <InstallExecuteSequence>
-      <Custom Action="ExtensionSettingsInstall" Before="WriteRegistryValues">NOT Installed</Custom>
-      <Custom Action="ExtensionSettingsRemove" Before="InstallFinalize">Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
+      <!-- Install/Upgrade/Modify/Repair with FIREFOX support -->
+      <Custom Action="ExtensionSettingsFirefox" Before="WriteRegistryValues">FIREFOXINSTALL=1 AND NOT ((REMOVE="ALL") AND (NOT UPGRADINGPRODUCTCODE))</Custom>
+      <!-- Install/Upgrade/Modify/Repair without FIREFOX support -->
+      <Custom Action="ExtensionSettingsNoFirefox" Before="InstallFinalize">NOT (FIREFOXINSTALL=1) AND NOT ((REMOVE="ALL") AND (NOT UPGRADINGPRODUCTCODE))</Custom>
+      <!-- Package remove -->
+      <Custom Action="ExtensionSettingsRemove" Before="InstallFinalize">(REMOVE="ALL") AND (NOT UPGRADINGPRODUCTCODE)</Custom>
     </InstallExecuteSequence>
 
     <Feature Id="Install" Level="1" Title="Chrome Token Signing" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
