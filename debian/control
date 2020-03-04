@@ -29,7 +29,7 @@ Description: Estonian ID Card native messaging client
 
 Package: token-signing-firefox
 Architecture: all
-Depends: token-signing-native (= ${binary:Version})
+Depends: jq, token-signing-native (= ${binary:Version})
 Replaces: chrome-token-signing (<< 1:1.1.0)
 Breaks: chrome-token-signing (<< 1:1.1.0)
 Description: Estonian ID Card signing for Firefox
