@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     <Property Id="ARPPRODUCTICON" Value="Icon.ico"/>
     <Property Id="FORCEINSTALL" Value="1"/>
     <Property Id="CHROMEINSTALL" Value="1"/>
+    <Property Id="EDGEINSTALL" Value="1"/>
+    <Property Id="EDGEFORCEINSTALL" Value="1"/>
     <Property Id="FIREFOXINSTALL" Value="1"/>
     <!-- https://github.com/open-eid/windows-installer/blob/master/FirefoxActionWix/README.md -->
     <Binary Id="FirefoxAction.CA.dll" SourceFile="host-windows\FirefoxAction.CA.dll" />
@@ -67,14 +69,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
           <Component Id="Application" Guid="85baa771-7c73-49bb-b546-ab6a4520d258" Win64="no">
             <File Source="host-windows/Release/chrome-token-signing.exe"/>
           </Component>
-          <Component Id="Chrome" Transitive="yes" >
-            <Condition><![CDATA[(CHROMEINSTALL = 1)]]></Condition>
+          <Component Id="ChromeEdge" Transitive="yes" >
+            <Condition><![CDATA[(CHROMEINSTALL = 1 OR EDGEINSTALL = 1)]]></Condition>
             <File Source="host-windows/ee.ria.esteid.json"/>
             <RegistryValue Root='HKLM' Type='string' Value='[APPLICATIONFOLDER]ee.ria.esteid.json'
                 Key='SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.ria.esteid'/>
+          </Component>
+          <Component Id="Chrome" Transitive="yes" >
+            <Condition><![CDATA[(CHROMEINSTALL = 1)]]></Condition>
             <RegistryValue Root='HKLM' Type='string' Name="update_url"
                 Key='SOFTWARE\Google\Chrome\Extensions\ckjefchnfjhjfedoccjbhjpbncimppeg'
                 Value='https://clients2.google.com/service/update2/crx'/>
+          </Component>
+          <Component Id="Edge" Transitive="yes" >
+            <Condition><![CDATA[(EDGEINSTALL = 1)]]></Condition>
+            <RegistryValue Root='HKLM' Type='string' Name="update_url"
+                Key='Software\Microsoft\Edge\Extensions\fofaekogmodbjplbmlbmjiglndceaajh'
+                Value='https://edge.microsoft.com/extensionwebstorebase/v1/crx'/>
           </Component>
           <Component Id="FirefoxApplication" Guid="8c52d631-7da9-46d3-89c6-8248f94fa25c" Transitive="yes" >
             <Condition><![CDATA[(FIREFOXINSTALL = 1)]]></Condition>
@@ -84,7 +95,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
             <Condition><![CDATA[(FORCEINSTALL = 1 AND CHROMEINSTALL = 1)]]></Condition>
             <RegistryValue Root='HKLM' Type='string' Name="56789"
                 Key='SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist'
-                Value='ckjefchnfjhjfedoccjbhjpbncimppeg;https://clients2.google.com/service/update2/crx'/>
+                Value='ckjefchnfjhjfedoccjbhjpbncimppeg'/>
+          </Component>
+          <Component Id="EdgeForceInstall" Guid="00ced5f1-1b35-4b76-be1e-cbe1784aac88" Win64="no" Transitive="yes">
+            <Condition><![CDATA[(EDGEFORCEINSTALL = 1 AND EDGEINSTALL = 1)]]></Condition>
+            <RegistryValue Root='HKLM' Type='string' Name="56789"
+                Key='SOFTWARE\Policies\Microsoft\Edge\ExtensionInstallForcelist'
+                Value='fofaekogmodbjplbmlbmjiglndceaajh'/>
           </Component>
         </Directory>
       </Directory>
@@ -109,7 +126,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
       <ComponentRef Id="ForceInstall"/>
       <ComponentRef Id="Firefox"/>
       <ComponentRef Id="FirefoxApplication"/>
+      <ComponentRef Id="ChromeEdge"/>
       <ComponentRef Id="Chrome"/>
+      <ComponentRef Id="Edge"/>
+      <ComponentRef Id="EdgeForceInstall"/>
     </Feature>
   </Product>
 </Wix>
