@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+POLICIES=/usr/lib/firefox/distribution
+mkdir -p ${POLICIES}
+if [ ! -f ${POLICIES}/policies.json ]; then
+    JQARGS=-n;
+else
+    JQARGS=${POLICIES}/policies.json;
+fi
+jq '.policies.ExtensionSettings["{443830f0-1fff-4f9a-aa1e-444bafbc7319}"] = {"installation_mode": "blocked"}' ${JQARGS} > ${POLICIES}/policies.tmp
+mv ${POLICIES}/policies.tmp ${POLICIES}/policies.json
+
+#DEBHELPER#
