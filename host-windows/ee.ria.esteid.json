@@ -4,6 +4,7 @@
     "path": "chrome-token-signing.exe",
     "type": "stdio",
     "allowed_origins": [
-        "chrome-extension://ckjefchnfjhjfedoccjbhjpbncimppeg/"
+        "chrome-extension://ckjefchnfjhjfedoccjbhjpbncimppeg/",
+        "chrome-extension://fofaekogmodbjplbmlbmjiglndceaajh/"
     ]
 }
