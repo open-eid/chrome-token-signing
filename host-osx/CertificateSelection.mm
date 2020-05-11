@@ -48,6 +48,14 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
 @implementation CertificateSelection
 
+- (bool)isDuplicate:(NSString*)certificate {
+    for (NSDictionary *cert in certificates) {
+        if ([cert[@"cert"] isEqualToString:certificate])
+            return true;
+    }
+    return false;
+}
+
 - (instancetype)init:(bool)forSigning
 {
     if (self = [super init]) {
@@ -73,8 +81,9 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
             NSNumber *na = dict[(__bridge id)kSecOIDX509V1ValidityNotAfter][(__bridge id)kSecPropertyKeyValue];
             NSDate *date = [NSDate dateWithTimeInterval:na.intValue sinceDate:[NSCalendar.currentCalendar dateFromComponents:components]];
-            if ([date compare:NSDate.date] <= 0) {
-                _log("token has expired");
+            NSString *hex = @(BinaryUtils::bin2hex(token.cert).c_str());
+            if ([date compare:NSDate.date] <= 0 || [self isDuplicate:hex]) {
+                _log("token has expired or is duplicate");
                 continue;
             }
 
@@ -108,7 +117,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
                 }
             }
 
-            [certificates addObject: @{@"cert": @(BinaryUtils::bin2hex(token.cert).c_str()), @"validTo": [df stringFromDate:date], @"CN": cn, @"type": type}];
+            [certificates addObject: @{@"cert": hex, @"validTo": [df stringFromDate:date], @"CN": cn, @"type": type}];
         }
 
         if (![[NSBundle bundleForClass:CertificateSelection.class] loadNibNamed:@"CertificateSelection" owner:self topLevelObjects:nil]) {
