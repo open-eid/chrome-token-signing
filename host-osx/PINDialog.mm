@@ -27,6 +27,77 @@
 
 #define _L(KEY) @(Labels::l10n.get(KEY).c_str())
 
+@interface MaxNumberFormatter : NSFormatter
+@property NSInteger maxLength;
+@end
+
+@implementation MaxNumberFormatter
+- (id)init
+{
+    if(self = [super init]) {
+        self.maxLength = INT_MAX;
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    // support Nib based initialisation
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.maxLength = INT_MAX;
+    }
+    return self;
+}
+
+- (NSString *)stringForObjectValue:(id)object
+{
+    if ([object isKindOfClass:[NSString class]]) {
+        // A new NSString is perhaps not required here
+        // but generically a new object would be generated
+        return [NSString stringWithString:object];
+    }
+    return nil;
+}
+
+- (BOOL)getObjectValue:(id *)object forString:(NSString *)string errorDescription:(NSString **)error
+{
+    // Be sure to generate a new object here or binding woe ensues
+    // when continuously updating bindings are enabled.
+    *object = [NSString stringWithString:string];
+    return YES;
+}
+
+- (BOOL)isPartialStringValid:(NSString **)partialStringPtr
+       proposedSelectedRange:(NSRangePointer)proposedSelRangePtr
+              originalString:(NSString *)origString
+       originalSelectedRange:(NSRange)origSelRange
+            errorDescription:(NSString **)error
+{
+    NSString *proposedString = *partialStringPtr;
+    if ([proposedString length] > self.maxLength) {
+        // The original string has been modified by one or more characters (via pasting).
+        // Either way compute how much of the proposed string can be accommodated.
+        NSInteger origLength = origString.length;
+        NSInteger insertLength = self.maxLength - origLength;
+        // If a range is selected then characters in that range will be removed
+        // so adjust the insert length accordingly
+        insertLength += origSelRange.length;
+        // Get the string components
+        NSString *prefix = [origString substringToIndex:origSelRange.location];
+        NSString *suffix = [origString substringFromIndex:origSelRange.location + origSelRange.length];
+        NSString *insert = [proposedString substringWithRange:NSMakeRange(origSelRange.location, insertLength)];
+        // Assemble the final string
+        *partialStringPtr = [NSString stringWithFormat:@"%@%@%@", prefix, insert, suffix];
+        // Fix-up the proposed selection range
+        proposedSelRangePtr->location = origSelRange.location + insertLength;
+        proposedSelRangePtr->length = 0;
+        return NO;
+    }
+    return YES;
+}
+@end
+
 static NSTouchBarItemIdentifier touchBarItemGroupId = @"ee.ria.chrome-token-signing.touchbar.group";
 static NSTouchBarItemIdentifier touchBarItemOkId = @"ee.ria.chrome-token-signing.touchbar.ok";
 static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-signing.touchbar.cancel";
