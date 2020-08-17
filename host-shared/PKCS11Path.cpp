@@ -123,7 +123,11 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string latPath("/opt/latvia-eid/lib/eidlv-pkcs11.so");
     static const std::string finPath("libcryptoki.so");
     static const std::string lit1Path("/usr/lib/ccs/libccpkip11.so");
+#ifdef __LP64__
+    static const std::string lit2Path("/usr/lib64/pwpw-card-pkcs11.so");
+#else
     static const std::string lit2Path("pwpw-card-pkcs11.so");
+#endif
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string belPath("libbeidpkcs11.so.0");
     static const std::string eTokenPath("/usr/lib/libeTPkcs11.so");
