@@ -77,6 +77,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ConformanceMode>true</ConformanceMode>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -85,6 +86,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>ncrypt.lib;crypt32.lib;cryptui.lib;winscard.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
+      <AdditionalOptions>$(AdditionalLinkerFlags) %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -130,7 +132,9 @@
     <None Include="..\extension\content.js" />
     <None Include="..\extension\manifest.json" />
     <None Include="..\extension\page.js" />
+    <None Include="..\LICENSE.LGPL" />
     <None Include="..\Makefile" />
+    <None Include="..\README.md" />
     <None Include="..\VERSION.mk" />
     <None Include="chrome-token-signing.wxs">
       <SubType>Designer</SubType>

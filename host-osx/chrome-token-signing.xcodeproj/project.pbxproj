@@ -31,6 +31,7 @@
 		4E2EF6CB1DCE9F22000CD2CC /* ee.ria.esteid.firefox.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ee.ria.esteid.firefox.json; sourceTree = "<group>"; };
 		4E30B911203C5A2100FA22B5 /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exceptions.h; sourceTree = "<group>"; };
 		4E30B912203C5A2100FA22B5 /* pkcs11.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pkcs11.h; sourceTree = "<group>"; };
+		4E3B326824A6035200104515 /* LICENSE.LGPL */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE.LGPL; path = ../LICENSE.LGPL; sourceTree = "<group>"; };
 		4E46FD1F1A979DA400D0F3C8 /* PINDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINDialog.xib; sourceTree = "<group>"; };
 		4E46FD211A979DA400D0F3C8 /* PINPadDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PINPadDialog.xib; sourceTree = "<group>"; };
 		4E46FD251A97A07000D0F3C8 /* PINDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PINDialog.mm; sourceTree = "<group>"; };
@@ -50,6 +51,7 @@
 		4E532D211A96848400D28E40 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
 		4E532D231A97941800D28E40 /* BinaryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinaryUtils.cpp; sourceTree = "<group>"; };
 		4E532D241A97941800D28E40 /* BinaryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinaryUtils.h; sourceTree = "<group>"; };
+		4E66C0A324A601E300496521 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		4E775F271AB04E9600A48B78 /* longrunning-test.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "longrunning-test.py"; sourceTree = "<group>"; };
 		4E775F281AB04E9600A48B78 /* pipe-test.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "pipe-test.py"; sourceTree = "<group>"; };
 		4E775F291AB04E9600A48B78 /* testconf.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = testconf.py; sourceTree = "<group>"; };
@@ -100,6 +102,8 @@
 		4E532CD71A96379500D28E40 = {
 			isa = PBXGroup;
 			children = (
+				4E66C0A324A601E300496521 /* README.md */,
+				4E3B326824A6035200104515 /* LICENSE.LGPL */,
 				4E532D111A96421900D28E40 /* Extension */,
 				4E46FD371A9B546700D0F3C8 /* Host-shared */,
 				4E532CE21A96379500D28E40 /* Host-OSX */,
