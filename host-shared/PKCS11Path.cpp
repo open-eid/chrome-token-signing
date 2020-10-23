@@ -43,14 +43,14 @@ std::vector<std::string> PKCS11Path::atrList() {
     std::vector<std::string> result;
     LONG err = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hContext);
     if (err != SCARD_S_SUCCESS) {
-        _log("SCardEstablishContext ERROR: %x", err);
+        _log("SCardEstablishContext ERROR: %x", (unsigned int)err);
         return result;
     }
 
     DWORD size = 0;
     err = SCardListReaders(hContext, nullptr, nullptr, &size);
     if (err != SCARD_S_SUCCESS || !size) {
-        _log("SCardListReaders || !size ERROR: %x", err);
+        _log("SCardListReaders || !size ERROR: %x", (unsigned int)err);
         SCardReleaseContext(hContext);
         return result;
     }
@@ -59,7 +59,7 @@ std::vector<std::string> PKCS11Path::atrList() {
     err = SCardListReaders(hContext, nullptr, &readers[0], &size);
     readers.resize(size);
     if (err != SCARD_S_SUCCESS) {
-        _log("SCardListReaders ERROR: %x", err);
+        _log("SCardListReaders ERROR: %x", (unsigned int)err);
         SCardReleaseContext(hContext);
         return result;
     }
@@ -72,7 +72,7 @@ std::vector<std::string> PKCS11Path::atrList() {
 
     err = SCardGetStatusChange(hContext, 0, list.data(), DWORD(list.size()));
     if (err != SCARD_S_SUCCESS)
-        _log("SCardGetStatusChange ERROR: %x", err);
+        _log("SCardGetStatusChange ERROR: %x", (unsigned int)err);
     for(const SCARD_READERSTATE &state: list)
     {
         if (state.dwEventState & SCARD_STATE_PRESENT)
