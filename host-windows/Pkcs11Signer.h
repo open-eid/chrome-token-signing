@@ -24,6 +24,7 @@ class Pkcs11Signer : public Signer {
 public:
 	Pkcs11Signer(std::string pkcs11ModulePath, std::vector<unsigned char> cert);
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
+	std::vector<unsigned char> multisign(const std::vector<unsigned char> &digests, int digestCount);
 private:
 	std::string pkcs11Path;
 };
