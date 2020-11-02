@@ -27,14 +27,14 @@ std::vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) c
 		throw TechnicalException("Failed to open Cert Store");
 
 	PCCERT_CONTEXT cert = nullptr;
-	while (cert = CertEnumCertificatesInStore(sys, cert)) {
+	while ((cert = CertEnumCertificatesInStore(sys, cert)) != nullptr) {
 		if (!isValid(cert, forSigning))
 			continue;
 		DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG | CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
 		HCRYPTPROV_OR_NCRYPT_KEY_HANDLE key = 0;
 		DWORD spec = 0;
 		BOOL freeKey = FALSE;
-		CryptAcquireCertificatePrivateKey(cert, flags, 0, &key, &spec, &freeKey);
+		CryptAcquireCertificatePrivateKey(cert, flags, nullptr, &key, &spec, &freeKey);
 		if (!key)
 			continue;
 		switch (spec)

@@ -81,7 +81,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest)
 				msg += Labels::l10n.get("tries left") + L" " + to_wstring(pinTriesLeft);
 			}
 			_log("Showing pin entry dialog");
-			std::string pin = PinDialog::getPin(label, msg);
+			std::string pin = PinDialog::getPin(label, msg, nullptr, WORD(selected.minPinLen), WORD(selected.maxPinLen));
 			if (pin.empty()) {
 				_log("User cancelled");
 				throw UserCancelledException();
