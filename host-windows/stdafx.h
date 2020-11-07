@@ -27,6 +27,7 @@
 #include <WinCrypt.h>
 
 #include <algorithm>
+#include <codecvt>
 #include <map>
 #include <memory>
 #include <stdexcept>
