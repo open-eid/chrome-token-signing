@@ -48,7 +48,7 @@ private:
     void Call(const char *file, int line, const char *function, Func func, Args... args) const
     {
         CK_RV rv = func(args...);
-        Logger::writeLog(function, file, line, "return value %u", rv);
+        Logger::writeLog(function, file, line, "return value %lu", rv);
         switch (rv) {
             case CKR_OK:
                 break;
@@ -105,14 +105,14 @@ public:
         library = LoadLibraryA(module.c_str());
         if (library)
             C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
-		else
-		{
-			LPSTR msg = nullptr;
-			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-				nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LPSTR(&msg), 0, nullptr);
-			error = msg;
-			LocalFree(msg);
-		}
+        else
+        {
+            LPSTR msg = nullptr;
+            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LPSTR(&msg), 0, nullptr);
+            error = msg;
+            LocalFree(msg);
+        }
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
@@ -133,7 +133,11 @@ public:
     ~PKCS11CardManager() {
         if (!library)
             return;
-        C(Finalize, nullptr);
+        try {
+            C(Finalize, nullptr);
+        } catch(...) {
+            // Do not throw in destructor
+        }
 #ifdef _WIN32
         FreeLibrary(library);
 #else
@@ -155,9 +159,9 @@ public:
             throw DriverException();
         CK_ULONG slotCount = 0;
         C(GetSlotList, CK_TRUE, nullptr, &slotCount);
-        _log("slotCount = %i", slotCount);
+        _log("slotCount = %lu", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount);
-        C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
+        C(GetSlotList, CK_BBOOL(CK_TRUE), slotIDs.data(), &slotCount);
 
         std::vector<Token> result;
         for (CK_SLOT_ID slotID : slotIDs)
@@ -166,7 +170,7 @@ public:
             try {
                 C(GetTokenInfo, slotID, &tokenInfo);
             } catch(const BaseException &e) {
-                _log("Failed to get slot info at SLOT ID %u '%s', skiping", slotID, e.what());
+                _log("Failed to get slot info at SLOT ID %lu '%s', skiping", slotID, e.what());
                 continue;
             }
             CK_SESSION_HANDLE session = 0;
@@ -206,13 +210,13 @@ public:
             throw PKCS11Exception("Could not read private key. Key not found");
         if (privateKeyHandle.size() > 1)
             throw PKCS11Exception("Could not read private key. Found multiple keys");
-        _log("found %i private keys in slot, using key ID %x", privateKeyHandle.size(), token.certID.data());
+        _log("found %lu private keys in slot, using key ID %x", privateKeyHandle.size(), token.certID.data());
 
         CK_KEY_TYPE keyType = CKK_RSA;
         CK_ATTRIBUTE attribute = { CKA_KEY_TYPE, &keyType, sizeof(keyType) };
         C(GetAttributeValue, session, privateKeyHandle[0], &attribute, 1);
-        
-        CK_MECHANISM mechanism = {keyType == CKK_ECDSA ? CKM_ECDSA : CKM_RSA_PKCS, 0, 0};
+
+        CK_MECHANISM mechanism = {keyType == CKK_ECDSA ? CKM_ECDSA : CKM_RSA_PKCS, nullptr, 0};
         C(SignInit, session, &mechanism, privateKeyHandle[0]);
         std::vector<CK_BYTE> hashWithPadding;
         if (keyType == CKK_RSA) {

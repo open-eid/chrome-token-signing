@@ -31,7 +31,7 @@ BUILDPARAMS = ;VisualStudioVersion=15;PlatformToolset=v141
 BUILDPARAMS = ;VisualStudioVersion=14;PlatformToolset=v140
 !ENDIF
 !include VERSION.mk
-SIGN = signtool sign /v /a /s MY /n "RIIGI INFOSUSTEEMI AMET" /fd SHA256 /du http://installer.id.ee /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp /td SHA256
+SIGN = signtool sign /v /a /s MY /n "RIIGI INFOSUSTEEMI AMET" /fd SHA256 /du http://installer.id.ee /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp /td SHA256 $(ADDITIONALSIGNINGFLAGS)
 
 build:
 	msbuild /p:Configuration=Release;Platform=Win32;WindowsTargetPlatformVersion=$(WINDOWSSDKVERSION)$(BUILDPARAMS);MAJOR_VERSION=$(MAJOR_VERSION);MINOR_VERSION=$(MINOR_VERSION);RELEASE_VERSION=$(RELEASE_VERSION);BUILD_NUMBER=$(BUILD_NUMBER) host-windows\host-windows.sln

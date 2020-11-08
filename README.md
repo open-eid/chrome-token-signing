@@ -11,7 +11,7 @@
  * &copy; Estonian Information System Authority
 
 ## Building
-[![Build Status](https://travis-ci.org/open-eid/chrome-token-signing.svg?branch=master)](https://travis-ci.org/open-eid/chrome-token-signing)
+[![Build Status](https://travis-ci.com/open-eid/chrome-token-signing.svg?branch=master)](https://travis-ci.com/open-eid/chrome-token-signing)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/open-eid/chrome-token-signing?branch=master&svg=true)](https://ci.appveyor.com/project/open-eid/chrome-token-signing)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2449/badge.svg)](https://scan.coverity.com/projects/2449)
 
@@ -60,7 +60,7 @@
         make pkg
 
 ## Support
-Official builds are provided through official distribution point [installer.id.ee](https://installer.id.ee). If you want support, you need to be using official builds.
+Official builds are provided through official distribution point [id.ee](https://www.id.ee/en/article/install-id-software/). If you want support, you need to be using official builds.
 
 Source code is provided on "as is" terms with no warranty (see license for more information). Do not file Github issues with generic support requests.
 Contact our support via [www.id.ee](http://www.id.ee) for assistance.

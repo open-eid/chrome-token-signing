@@ -142,6 +142,8 @@
     <None Include="..\extension\page.js">
       <Filter>Extension</Filter>
     </None>
+    <None Include="..\LICENSE.LGPL" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="chrome-token-signing.rc">
