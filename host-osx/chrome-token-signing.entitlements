@@ -8,5 +8,15 @@
 	<true/>
 	<key>com.apple.security.smartcard</key>
 	<true/>
+	<key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
+	<array>
+		<string>/private/etc/eToken.conf</string>
+		<string>/private/etc/eToken.common.conf</string>
+	</array>
+	<key>com.apple.security.temporary-exception.files.absolute-path.read-write</key>
+	<array>
+		<string>/private/tmp/eToken.lock/</string>
+		<string>/private/var/tmp/eToken.cache/</string>
+	</array>
 </dict>
 </plist>

@@ -24,4 +24,5 @@ class NativeSigner : public Signer {
 public:
 	NativeSigner(std::vector<unsigned char> cert) : Signer(std::move(cert)) {}
 	std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) override;
+	std::vector<unsigned char> multisign(const std::vector<unsigned char> &digest, int hashcount) override;
 };

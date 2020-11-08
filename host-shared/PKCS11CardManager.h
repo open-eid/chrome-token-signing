@@ -32,6 +32,7 @@
 #include <dlfcn.h>
 #endif
 
+#define MAX_HASH_COUNT 100
 #define C(API, ...) Call(__FILE__, __LINE__, "C_"#API, fl->C_##API, __VA_ARGS__)
 
 class PKCS11CardManager {
@@ -104,14 +105,14 @@ public:
         library = LoadLibraryA(module.c_str());
         if (library)
             C_GetFunctionList = CK_C_GetFunctionList(GetProcAddress(library, "C_GetFunctionList"));
-		else
-		{
-			LPSTR msg = nullptr;
-			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-				nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LPSTR(&msg), 0, nullptr);
-			error = msg;
-			LocalFree(msg);
-		}
+        else
+        {
+            LPSTR msg = nullptr;
+            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LPSTR(&msg), 0, nullptr);
+            error = msg;
+            LocalFree(msg);
+        }
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
@@ -160,7 +161,7 @@ public:
         C(GetSlotList, CK_TRUE, nullptr, &slotCount);
         _log("slotCount = %lu", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount);
-        C(GetSlotList, CK_TRUE, slotIDs.data(), &slotCount);
+        C(GetSlotList, CK_BBOOL(CK_TRUE), slotIDs.data(), &slotCount);
 
         std::vector<Token> result;
         for (CK_SLOT_ID slotID : slotIDs)
@@ -214,8 +215,8 @@ public:
         CK_KEY_TYPE keyType = CKK_RSA;
         CK_ATTRIBUTE attribute = { CKA_KEY_TYPE, &keyType, sizeof(keyType) };
         C(GetAttributeValue, session, privateKeyHandle[0], &attribute, 1);
-        
-        CK_MECHANISM mechanism = {keyType == CKK_ECDSA ? CKM_ECDSA : CKM_RSA_PKCS, 0, 0};
+
+        CK_MECHANISM mechanism = {keyType == CKK_ECDSA ? CKM_ECDSA : CKM_RSA_PKCS, nullptr, 0};
         C(SignInit, session, &mechanism, privateKeyHandle[0]);
         std::vector<CK_BYTE> hashWithPadding;
         if (keyType == CKK_RSA) {
@@ -250,4 +251,19 @@ public:
 
         return signature;
     }
+
+    std::vector<CK_BYTE> multisign(const Token &token, const std::vector<CK_BYTE> &hashes, const char *pin, int hashCount) const {
+        std::vector<CK_BYTE> signatures {};
+        unsigned long hashSize = hashes.size() / hashCount;
+        for ( int i=0; i< hashCount; i++){
+
+                std::vector<CK_BYTE> hash(hashes.begin()+ hashSize * i, hashes.begin()+ hashSize * (i + 1) );
+
+                std::vector<unsigned char> signature = sign(token, hash, pin);
+                signatures.insert( signatures.end(), signature.begin(), signature.end() );
+        }
+
+        return signatures;
+    }
+
 };
