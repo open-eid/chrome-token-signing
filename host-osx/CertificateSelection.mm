@@ -171,8 +171,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
     CFDataRef data = CFDataCreateWithBytesNoCopy(nil, der.data(), der.size(), kCFAllocatorNull);
     id cert = CFBridgingRelease(SecCertificateCreateWithData(nil, data));
     CFRelease(data);
-    SFCertificatePanel *panel = [[SFCertificatePanel alloc] init];
-    [panel beginSheetForWindow:window modalDelegate:nil didEndSelector:nil contextInfo:nil certificates:@[cert] showGroup:NO];
+    [SFCertificatePanel.sharedCertificatePanel beginSheetForWindow:window modalDelegate:nil didEndSelector:nil contextInfo:nil certificates:@[cert] showGroup:NO];
 }
 
 - (IBAction)okClicked:(id)sender
