@@ -166,7 +166,7 @@ public:
         if (!fl)
             throw DriverException();
         CK_ULONG slotCount = 0;
-        C(GetSlotList, CK_TRUE, nullptr, &slotCount);
+        C(GetSlotList, CK_BBOOL(CK_TRUE), nullptr, &slotCount);
         _log("slotCount = %lu", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount);
         C(GetSlotList, CK_BBOOL(CK_TRUE), slotIDs.data(), &slotCount);

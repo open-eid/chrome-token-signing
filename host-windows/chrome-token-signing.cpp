@@ -52,7 +52,7 @@ void sendMessage(const string &message)
 	cout << message;
 }
 
-int main(int argc, char **argv)
+int main(int /* argc */, char ** /* argv */)
 {
 	//Necessary for sending correct message length to stout (in Windows)
 	_setmode(_fileno(stdin), O_BINARY);
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 		// Only catch terminating exceptions here
 		catch (const InvalidArgumentException &e)
 		{
-			_log("Handling exception: %s", e.getErrorCode());
+			_log("Handling exception: %s", e.getErrorCode().c_str());
 			sendMessage((Object() << "result" << e.getErrorCode() << "message" << e.what()).json());
 			return EXIT_FAILURE;
 		}
