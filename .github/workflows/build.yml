@@ -1,0 +1,73 @@
+name: CI
+on: [push, pull_request]
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
+jobs:
+  macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build
+      run: |
+        make test
+        cd host-osx
+        make pkg
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: pkg
+        path: host-osx/*.pkg
+  ubuntu:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+    env:
+      MAKEFLAGS: -j3
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt-get update -qq && sudo apt-get install -y make g++ qttools5-dev qttools5-dev-tools libpcsclite-dev pkg-config xvfb
+    - name: Build
+      run: make test
+  windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: 'true'
+    - name: Set ENV
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Build
+      run: |
+        nmake /nologo test
+        nmake /nologo pkg-unsigned
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: msi
+        path: ./*.msi
+  coverity:
+    name: Run Coverity tests
+    if: contains(github.repository, 'open-eid/chrome-token-signing') && contains(github.ref, 'coverity_scan')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt-get update -qq && sudo apt-get install -y qttools5-dev qttools5-dev-tools libpcsclite-dev
+    - name: Build and send to Coverity
+      continue-on-error: true
+      run: |
+        export TRAVIS_BRANCH=${GITHUB_REF##*/}
+        wget -O - https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh | bash
+      env:
+        COVERITY_SCAN_PROJECT_NAME: 'open-eid/chrome-token-signing'
+        COVERITY_SCAN_NOTIFICATION_EMAIL: 'eid-teenusehaldus@ria.ee'
+        COVERITY_SCAN_BRANCH_PATTERN: 'coverity_scan'
+        COVERITY_SCAN_BUILD_COMMAND: 'make'
+        COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
