@@ -35,7 +35,7 @@
 
 class CertificateSelection: public QDialog {
 public:
-    static QVariantMap getCert(bool forSigning)
+    static QVariantMap getCert()
     {
         try {
             QList<QStringList> certs;
@@ -66,8 +66,8 @@ public:
                     }
                 }
 
-                if (forSigning != isNonRepudiation) {
-                    _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
+                if (!isNonRepudiation) {
+                    _log("certificate is not non-repu: moving on to next token...");
                     continue;
                 }
 
@@ -78,10 +78,10 @@ public:
             }
             if (certs.empty())
                 return {{"result", "no_certificates"}};
-            CertificateSelection dialog(certs);
-            if (dialog.exec() == 0)
+            int result = CertificateSelection(certs).exec();
+            if (result == -1)
                 return {{"result", "user_cancel"}};
-            return {{"cert", certs.at(dialog.table->currentIndex().row())[3]}};
+            return {{"cert", certs.at(result)[3]}};
         } catch (const BaseException &e) {
             qDebug() << e.what();
             return {{"result", QString::fromStdString(e.getErrorCode())}};
@@ -98,25 +98,21 @@ private:
     }
 
     CertificateSelection(const QList<QStringList> &certs)
-        : message(new QLabel(this))
-        , table(new QTreeWidget(this))
-        , buttons(new QDialogButtonBox(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->addWidget(message);
-        layout->addWidget(table);
-        layout->addWidget(buttons);
+        layout->addWidget(new QLabel(Labels::l10n.get("cert info").c_str()));
 
         setWindowFlags(Qt::WindowStaysOnTopHint);
         setWindowTitle(Labels::l10n.get("select certificate").c_str());
-        message->setText(Labels::l10n.get("cert info").c_str());
 
+        QTreeWidget *table = new QTreeWidget(this);
+        layout->addWidget(table);
         table->setColumnCount(3);
         table->setRootIsDecorated(false);
-        table->setHeaderLabels(QStringList()
-            << Labels::l10n.get("certificate").c_str()
-            << Labels::l10n.get("type").c_str()
-            << Labels::l10n.get("valid to").c_str());
+        table->setHeaderLabels({
+            Labels::l10n.get("certificate").c_str(),
+            Labels::l10n.get("type").c_str(),
+            Labels::l10n.get("valid to").c_str()});
         table->header()->setStretchLastSection(false);
         table->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
         table->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -124,22 +120,17 @@ private:
             table->insertTopLevelItem(0, new QTreeWidgetItem(table, row));
         table->setCurrentIndex(table->model()->index(0, 0));
 
-        ok = buttons->addButton(Labels::l10n.get("select").c_str(), QDialogButtonBox::AcceptRole);
-        cancel = buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
-        connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-        connect(table, &QTreeWidget::clicked, [&]{
-            ok->setEnabled(true);
-        });
+        QDialogButtonBox *buttons = new QDialogButtonBox(this);
+        layout->addWidget(buttons);
+        QPushButton *ok = buttons->addButton(Labels::l10n.get("select").c_str(), QDialogButtonBox::AcceptRole);
+        buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
+        connect(buttons, &QDialogButtonBox::accepted, this, [this, table] { done(table->currentIndex().row()); });
+        connect(buttons, &QDialogButtonBox::rejected, this, [this] { done(-1); });
+        connect(table, &QTreeWidget::clicked, [ok] { ok->setEnabled(true); });
 
         show();
         // Make sure window is in foreground and focus
         raise();
         activateWindow();
     }
-
-    QLabel *message;
-    QTreeWidget *table;
-    QDialogButtonBox *buttons;
-    QPushButton *ok = nullptr, *cancel = nullptr;
 };

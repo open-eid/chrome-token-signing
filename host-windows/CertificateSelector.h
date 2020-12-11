@@ -20,22 +20,24 @@
 
 #include "Exceptions.h"
 #include "stdafx.h"
-#include <wincrypt.h>
+
+#include <memory>
 #include <vector>
+#include <wincrypt.h>
 
 class CertificateSelector {
 public:
-	static CertificateSelector* createCertificateSelector();
+	static std::unique_ptr<CertificateSelector> createCertificateSelector();
 
 	virtual ~CertificateSelector() {
 		if (store)
 			CertCloseStore(store, 0);
 	}
-	virtual std::vector<unsigned char> getCert(bool forSigning) const = 0;
+	virtual std::vector<unsigned char> getCert() const = 0;
 
 protected:
 	CertificateSelector() = default;
-	bool isValid(PCCERT_CONTEXT cert, bool forSigning) const;
+	bool isValid(PCCERT_CONTEXT cert) const;
 	std::vector<unsigned char> showDialog() const;
 	HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, nullptr);
 };

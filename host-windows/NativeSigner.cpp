@@ -34,7 +34,7 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 	BCRYPT_PKCS1_PADDING_INFO padInfo;
 	DWORD obtainKeyStrategy = CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
 
-	ALG_ID alg = 0;	
+	ALG_ID alg = 0;
 	switch (digest.size())
 	{
 	case 20: //BINARY_SHA1_LENGTH:
@@ -160,4 +160,3 @@ vector<unsigned char> NativeSigner::sign(const vector<unsigned char> &digest)
 		throw TechnicalException("Signing failed");
 	}
 }
-
