@@ -29,7 +29,7 @@ extern "C" {
 		__in  PCCERT_CONTEXT pCertContext,
 		__in  HWND hWndSelCertDlg,
 		__in  void *pvCallbackData
-		);
+	);
 
 	typedef struct _CRYPTUI_SELECTCERTIFICATE_STRUCT {
 		DWORD               dwSize;
@@ -55,28 +55,28 @@ extern "C" {
 
 	PCCERT_CONTEXT WINAPI CryptUIDlgSelectCertificateW(
 		__in  PCCRYPTUI_SELECTCERTIFICATE_STRUCT pcsc
-		);
+	);
 
 #define CryptUIDlgSelectCertificate CryptUIDlgSelectCertificateW
 
 }  // extern "C"
 
-CertificateSelector* CertificateSelector::createCertificateSelector()
+std::unique_ptr<CertificateSelector> CertificateSelector::createCertificateSelector()
 {
 	PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
 	if (!p11.path.empty())
-		return new PKCS11CertificateSelector(p11.path);
+		return std::unique_ptr<CertificateSelector>(new PKCS11CertificateSelector(p11.path));
 	else
-		return new NativeCertificateSelector();
+		return std::unique_ptr<CertificateSelector>(new NativeCertificateSelector());
 }
 
-bool CertificateSelector::isValid(PCCERT_CONTEXT cert, bool forSigning) const
+bool CertificateSelector::isValid(PCCERT_CONTEXT cert) const
 {
 	if (CertVerifyTimeValidity(nullptr, cert->pCertInfo) > 0)
 		return false;
 	BYTE keyUsage = 0;
 	CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert->pCertInfo, &keyUsage, 1);
-	return forSigning == (keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) > 0;
+	return (keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) > 0;
 }
 
 std::vector<unsigned char> CertificateSelector::showDialog() const
@@ -88,8 +88,6 @@ std::vector<unsigned char> CertificateSelector::showDialog() const
 	std::wstring title = Labels::l10n.get("select certificate");
 	std::wstring text = Labels::l10n.get("cert info");
 	CRYPTUI_SELECTCERTIFICATE_STRUCT pcsc = { sizeof(pcsc) };
-	pcsc.pFilterCallback = nullptr;
-	pcsc.pvCallbackData = nullptr;
 	pcsc.szTitle = title.c_str();
 	pcsc.szDisplayString = text.c_str();
 	pcsc.cDisplayStores = 1;

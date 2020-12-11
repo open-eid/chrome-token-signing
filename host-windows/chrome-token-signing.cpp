@@ -83,8 +83,10 @@ int main(int /* argc */, char ** /* argv */)
 				throw NotAllowedException("Origin doesn't contain https");
 			else if (type == "CERT")
 			{
-				unique_ptr<CertificateSelector> certificateSelector(CertificateSelector::createCertificateSelector());
-				selectedCert = certificateSelector->getCert(!jsonRequest.has<string>("filter") || jsonRequest.get<string>("filter") != "AUTH");
+				if (jsonRequest.get<string>("filter", {}) == "AUTH")
+					throw InvalidArgumentException();
+
+				selectedCert = CertificateSelector::createCertificateSelector()->getCert();
 				jsonResponse << "cert" << BinaryUtils::bin2hex(selectedCert);
 			}
 			else if (type == "SIGN")
@@ -98,7 +100,7 @@ int main(int /* argc */, char ** /* argv */)
 				if (cert != selectedCert)
 					throw NotSelectedCertificateException();
 
-				unique_ptr<Signer> signer(Signer::createSigner(cert));
+				unique_ptr<Signer> signer = Signer::createSigner(cert);
 				if (!signer->showInfo(jsonRequest.get<string>("info", string())))
 					throw UserCancelledException();
 
@@ -111,7 +113,10 @@ int main(int /* argc */, char ** /* argv */)
 		catch (const InvalidArgumentException &e)
 		{
 			_log("Handling exception: %s", e.getErrorCode().c_str());
-			sendMessage((Object() << "result" << e.getErrorCode() << "message" << e.what()).json());
+			jsonResponse << "result" << e.getErrorCode() << "message" << e.what();
+			if (jsonRequest.has<string>("nonce"))
+				jsonResponse << "nonce" << jsonRequest.get<string>("nonce");
+			sendMessage(jsonResponse.json());
 			return EXIT_FAILURE;
 		}
 		catch (const BaseException &e) {

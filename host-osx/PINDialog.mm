@@ -131,7 +131,9 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         else {
             cancelButton.title = _L("cancel");
         }
-        window.touchBar = [self makeTouchBar];
+        if (@available(macOS 10_12_2, *)) {
+            window.touchBar = [self makeTouchBar];
+        }
         pinFieldLabel.stringValue = label;
     }
     return self;
@@ -186,18 +188,15 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     CFRelease(data);
     NSDictionary *dict = CFBridgingRelease(SecCertificateCopyValues(x509, nil, nil));
     CFRelease(x509);
+    NSNumber *ku = dict[(__bridge id)kSecOIDKeyUsage][(__bridge id)kSecPropertyKeyValue];
+    if ((ku.unsignedIntValue & kSecKeyUsageNonRepudiation) == 0) {
+        return @{@"result": @"invalid_argument"};
+    }
 
     bool isInitialCheck = true;
     for (int retriesLeft = selected.retry; retriesLeft > 0; )
     {
-        NSString *label;
-        NSNumber *ku = dict[(__bridge id)kSecOIDKeyUsage][(__bridge id)kSecPropertyKeyValue];
-        if (ku.unsignedIntValue & kSecKeyUsageNonRepudiation) {
-            label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
-        }
-        else {
-            label = [_L(selected.pinpad ? "auth PIN pinpad" : "auth PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.authPINLabel.c_str())];
-        }
+        NSString *label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
         PINPanel *dialog = [[PINPanel alloc] init:label pinpad:selected.pinpad];
         if (!dialog) {
             return @{@"result": @"technical_error"};
@@ -310,7 +309,9 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     if (okButton.enabled != pinField.stringValue.length >= minPinLen)
     {
         okButton.enabled = pinField.stringValue.length >= minPinLen;
-        window.touchBar = [self makeTouchBar];
+        if (@available(macOS 10_12_2, *)) {
+            window.touchBar = [self makeTouchBar];
+        }
     }
 }
 
@@ -325,7 +326,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 #pragma mark - NSTouchBarProvider
 
-- (NSTouchBar *)makeTouchBar
+- (NSTouchBar *)makeTouchBar NS_AVAILABLE_MAC(10_12_2)
 {
     NSTouchBar *touchBar = [[NSTouchBar alloc] init];
     touchBar.delegate = self;
@@ -336,7 +337,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 #pragma mark - NSTouchBarDelegate
 
-- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier NS_AVAILABLE_MAC(10_12_2)
 {
     if ([identifier isEqualToString:touchBarItemGroupId])
     {
