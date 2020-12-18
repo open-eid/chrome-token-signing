@@ -111,7 +111,10 @@ int main(int /* argc */, char ** /* argv */)
 		catch (const InvalidArgumentException &e)
 		{
 			_log("Handling exception: %s", e.getErrorCode().c_str());
-			sendMessage((Object() << "result" << e.getErrorCode() << "message" << e.what()).json());
+			jsonResponse << "result" << e.getErrorCode() << "message" << e.what();
+			if (jsonRequest.has<string>("nonce"))
+				jsonResponse << "nonce" << jsonRequest.get<string>("nonce");
+			sendMessage(jsonResponse.json());
 			return EXIT_FAILURE;
 		}
 		catch (const BaseException &e) {
