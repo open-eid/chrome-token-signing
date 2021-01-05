@@ -98,7 +98,7 @@ private:
     }
 
 public:
-    PKCS11CardManager(const std::string &module) {
+    PKCS11CardManager(const std::string &module, const std::string &function = {}) {
         CK_C_GetFunctionList C_GetFunctionList = nullptr;
         std::string error;
 #ifdef _WIN32
@@ -116,7 +116,7 @@ public:
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
-            C_GetFunctionList = CK_C_GetFunctionList(dlsym(library, "C_GetFunctionList"));
+            C_GetFunctionList = CK_C_GetFunctionList(dlsym(library, function.empty() ? "C_GetFunctionList" : function.c_str()));
         else
             error = dlerror();
 #endif

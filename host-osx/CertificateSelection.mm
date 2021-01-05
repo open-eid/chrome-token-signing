@@ -65,7 +65,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
         NSDateComponents *components = [[NSDateComponents alloc] init];
         components.year = 2001;
         PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
-        for (const PKCS11CardManager::Token &token : PKCS11CardManager(p11.path).tokens()) {
+        for (const PKCS11CardManager::Token &token : PKCS11CardManager(p11.path, p11.function).tokens()) {
             CFDataRef data = CFDataCreateWithBytesNoCopy(nil, token.cert.data(), token.cert.size(), kCFAllocatorNull);
             SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
             CFRelease(data);

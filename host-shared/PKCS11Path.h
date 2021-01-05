@@ -27,7 +27,7 @@ private:
 public:
     struct Params
     {
-        std::string path;
+        std::string path, function;
         std::string authPINLabel, signPINLabel;
     };
     static Params getPkcs11ModulePath();
