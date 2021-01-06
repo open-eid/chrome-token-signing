@@ -11,8 +11,7 @@
  * &copy; Estonian Information System Authority
 
 ## Building
-[![Build Status](https://travis-ci.com/open-eid/chrome-token-signing.svg?branch=master)](https://travis-ci.com/open-eid/chrome-token-signing)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/open-eid/chrome-token-signing?branch=master&svg=true)](https://ci.appveyor.com/project/open-eid/chrome-token-signing)
+[![Build Status](https://github.com/open-eid/chrome-token-signing/workflows/CI/badge.svg?branch=master)](https://github.com/open-eid/chrome-token-signing/actions)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2449/badge.svg)](https://scan.coverity.com/projects/2449)
 
 1. Install dependencies
