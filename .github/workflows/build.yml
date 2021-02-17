@@ -16,7 +16,7 @@ jobs:
         make pkg
         cd -
         cd SafariAppExtension
-        xcodebuild -target package CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO MARKETING_VERSION=${BUILD_NUMBER} install
+        xcodebuild -target package CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CURRENT_PROJECT_VERSION=${BUILD_NUMBER} install
     - name: Archive artifacts
       uses: actions/upload-artifact@v2
       with:
