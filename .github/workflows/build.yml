@@ -35,6 +35,9 @@ jobs:
   windows:
     name: Build on Windows
     runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x86, x64]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -42,6 +45,8 @@ jobs:
         submodules: 'true'
     - name: Set ENV
       uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
     - name: Build
       run: |
         nmake /nologo test
@@ -55,19 +60,32 @@ jobs:
     name: Run Coverity tests
     if: contains(github.repository, 'open-eid/chrome-token-signing') && contains(github.ref, 'coverity_scan')
     runs-on: ubuntu-latest
+    env:
+      MAKEFLAGS: -j3
+      TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+      PROJECTNAME: 'open-eid/chrome-token-signing'
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install dependencies
       run: sudo apt-get update -qq && sudo apt-get install -y qttools5-dev qttools5-dev-tools libpcsclite-dev
-    - name: Build and send to Coverity
-      continue-on-error: true
+    - name: Download Coverity Build Tool
       run: |
-        export TRAVIS_BRANCH=${GITHUB_REF##*/}
-        wget -O - https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh | bash
-      env:
-        COVERITY_SCAN_PROJECT_NAME: 'open-eid/chrome-token-signing'
-        COVERITY_SCAN_NOTIFICATION_EMAIL: 'eid-teenusehaldus@ria.ee'
-        COVERITY_SCAN_BRANCH_PATTERN: 'coverity_scan'
-        COVERITY_SCAN_BUILD_COMMAND: 'make'
-        COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=$PROJECTNAME" -O cov-analysis-linux64.tar.gz
+        mkdir cov-analysis-linux64
+        tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+    - name: Build
+      run: |
+        export PATH=$PWD/cov-analysis-linux64/bin:$PATH
+        cov-build --dir cov-int make
+    - name: Submit the result to Coverity Scan
+      run: |
+        tar czvf upload.tgz cov-int
+        curl --silent \
+          --form project=$PROJECTNAME \
+          --form token=$TOKEN \
+          --form email=eid-teenusehaldus@ria.ee \
+          --form file=@upload.tgz \
+          --form version=master \
+          --form description="Github Actions CI build" \
+          https://scan.coverity.com/builds?project=$PROJECTNAME

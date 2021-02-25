@@ -166,7 +166,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     std::vector<unsigned char> hash;
     try {
         hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
-        pkcs11.reset(new PKCS11CardManager(p11.path));
+        pkcs11.reset(new PKCS11CardManager(p11.path, p11.function));
         for (const PKCS11CardManager::Token &token : pkcs11->tokens()) {
             if (BinaryUtils::hex2bin(cert.UTF8String) == token.cert) {
                 selected = token;
