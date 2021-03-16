@@ -23,7 +23,7 @@ import json
 
 
 def send(msg):
-    sys.stdout.write(struct.pack("=I", len(msg)))
+    sys.stdout.buffer.write(struct.pack("=I", len(msg)))
     sys.stdout.write(msg)
     sys.stdout.flush()
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     while True:
         try:
             # read input length
-            lenbytes = sys.stdin.read(4)
+            lenbytes = sys.stdin.buffer.read(4)
             length = struct.unpack("=I", lenbytes)[0]
             if length == 0 or length > 8 * 1024:
                 fail("Bad length")
@@ -74,5 +74,5 @@ if __name__ == "__main__":
             else:
                 invalid_argument("unknown type")
         except Exception as e:
-            print >> sys.stderr, "Exception", e
+            print("Exception", e, file=sys.stderr)
             fail("Unhandled exception")

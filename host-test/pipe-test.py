@@ -32,8 +32,9 @@ import testconf
 class TestHostPipe(unittest.TestCase):
 
     def get_response(self):
+        self.p.stdin.flush()
         response_length = struct.unpack("=I", self.p.stdout.read(4))[0]
-        response = str(self.p.stdout.read(response_length))
+        response = self.p.stdout.read(response_length)
         # make it into "oneline" json before printing
         response_print = json.dumps(json.loads(response))
         print("RECV: %s" % response_print)
@@ -43,30 +44,33 @@ class TestHostPipe(unittest.TestCase):
         # send like described in
         print("SEND: %s" % msg)
         self.p.stdin.write(struct.pack("=I", len(msg)))
-        self.p.stdin.write(msg)
+        self.p.stdin.write(msg.encode())
         # now read the input
         return self.get_response()
 
     def setUp(self):
-        should_close_fds = sys.platform.startswith('win32') == False;
+        should_close_fds = sys.platform.startswith('win32') is False
         self.p = subprocess.Popen(testconf.get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                   close_fds=should_close_fds, stderr=None)
         print("\nRunning native component on PID %d" % self.p.pid)
 
     def tearDown(self):
-        if self.p.poll() == None:
+        self.p.stdin.close()
+        self.p.stdout.close()
+        if self.p.poll() is None:
             self.p.terminate()
+        self.p.wait()
 
     def test_random_string(self):
         cmd = "BLAH"
         resp = self.transceive(cmd)
-        self.assertEquals(resp["result"], "invalid_argument")
+        self.assertEqual(resp["result"], "invalid_argument")
         self.assertEqual(self.p.wait(), 1)
 
     def test_plain_string(self):
-        self.p.stdin.write("Hello World!")
+        self.p.stdin.write(b"Hello World!")
         resp = self.get_response()
-        self.assertEquals(resp["result"], "invalid_argument")
+        self.assertEqual(resp["result"], "invalid_argument")
         self.assertEqual(self.p.wait(), 1)
 
     def test_empty_json(self):
@@ -78,17 +82,17 @@ class TestHostPipe(unittest.TestCase):
     def test_utopic_length(self):
         # write big bumber and little data
         self.p.stdin.write(struct.pack("=I", 0xFFFFFFFF))
-        self.p.stdin.write("Hello World!")
+        self.p.stdin.write(b"Hello World!")
         resp = self.get_response()
-        self.assertEquals(resp["result"], "invalid_argument")
+        self.assertEqual(resp["result"], "invalid_argument")
         self.assertEqual(self.p.wait(), 1)
 
     #  def test_length_exceeds_data(self):
     #      # write length > data size
     #      self.p.stdin.write(struct.pack("=I", 0x0000000F))
-    #      self.p.stdin.write("Hello World!")
+    #      self.p.stdin.write(b"Hello World!")
     #      resp = self.get_response()
-    #      self.assertEquals(resp["result"], "invalid_argument")
+    #      self.assertEqual(resp["result"], "invalid_argument")
     #      self.assertEqual(self.p.wait(), 1)
 
     def test_inconsistent_origin(self):
