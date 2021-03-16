@@ -27,6 +27,7 @@ import uuid
 import re
 import testconf
 
+
 # The protocol datagram is described here:
 # https://developer.chrome.com/extensions/nativeMessaging#native-messaging-host-protocol
 #
@@ -37,12 +38,14 @@ import testconf
 def instruct(msg):
     raw_input('>>>>>> %s\n[press ENTER to continue]' % msg)
 
+
 class TestLongrunningHost(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         should_close_fds = sys.platform.startswith('win32') == False
-        cls.p = subprocess.Popen(testconf.get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=should_close_fds, stderr=None)
+        cls.p = subprocess.Popen(testconf.get_exe(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 close_fds=should_close_fds, stderr=None)
         print('Running native component on PID %d' % cls.p.pid)
 
     @classmethod
@@ -77,7 +80,8 @@ class TestLongrunningHost(unittest.TestCase):
     def test_version(self):
         cmd = json.dumps(self.complete_msg({'type': 'VERSION'}))
         resp = self.transceive(cmd)
-        self.assertTrue(resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp['version']))
+        self.assertTrue(
+            resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp['version']))
 
     def test_version_file(self):
         msg = self.complete_msg({'type': 'VERSION'})
@@ -85,7 +89,8 @@ class TestLongrunningHost(unittest.TestCase):
         cmd = json.dumps(msg)
         resp = self.transceive(cmd)
         self.assertEquals(resp['result'], 'ok')
-        self.assertTrue(resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp['version']))
+        self.assertTrue(
+            resp['version'] == 'LOCAL_BUILD' or re.compile("^\d\.\d+\.\d+\.\d{1,3}$").match(resp['version']))
 
     def test_get_certificate_cancel(self):
         instruct('Insert card and press CANCEL in dialog')
@@ -123,7 +128,8 @@ class TestLongrunningHost(unittest.TestCase):
         resp = self.transceive(cmd)
         self.assertEquals(resp['result'], 'ok')
         self.assertTrue(len(resp['cert']) > 100)
-        cmd2 = json.dumps(self.complete_msg({'type': 'SIGN', 'hash': '0102030405060708090a0b0c0d0e0f0102030405', 'cert': resp['cert']}))
+        cmd2 = json.dumps(self.complete_msg(
+            {'type': 'SIGN', 'hash': '0102030405060708090a0b0c0d0e0f0102030405', 'cert': resp['cert']}))
         resp2 = self.transceive(cmd2)
         self.assertEquals(resp2['result'], 'ok')
         self.assertTrue('signature' in resp2)
@@ -134,7 +140,8 @@ class TestLongrunningHost(unittest.TestCase):
         resp = self.transceive(cmd)
         self.assertEquals(resp['result'], 'ok')
         self.assertTrue(len(resp['cert']) > 100)
-        cmd2 = json.dumps(self.complete_msg({'type': 'SIGN', 'hash': '0102030405060708090a0b0c0d0e0f010203', 'cert': resp['cert']}))
+        cmd2 = json.dumps(
+            self.complete_msg({'type': 'SIGN', 'hash': '0102030405060708090a0b0c0d0e0f010203', 'cert': resp['cert']}))
         resp2 = self.transceive(cmd2)
         self.assertEquals(resp2['result'], 'invalid_argument')
 
@@ -145,7 +152,8 @@ class TestLongrunningHost(unittest.TestCase):
         resp = self.transceive(cmd)
         self.assertEquals(resp['result'], 'ok')
         self.assertTrue(len(resp['cert']) > 100)
-        cmd2 = json.dumps(self.complete_msg({'type': 'SIGN', 'hash': '0102030405060708090a0b0c0d0e0f0102030405', 'cert': wrongCert}))
+        cmd2 = json.dumps(
+            self.complete_msg({'type': 'SIGN', 'hash': '0102030405060708090a0b0c0d0e0f0102030405', 'cert': wrongCert}))
         resp2 = self.transceive(cmd2)
         self.assertEquals(resp2['result'], 'invalid_argument')
 
