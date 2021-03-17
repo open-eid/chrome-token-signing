@@ -19,10 +19,11 @@
 import sys
 import os.path
 
+
 def get_exe():
     if sys.platform == 'darwin':
         return "host-osx/build/Release/chrome-token-signing.app/Contents/MacOS/chrome-token-signing"
-    elif sys.platform == "linux2":
+    elif sys.platform == "linux" or sys.platform == "linux2":
         return "host-linux/chrome-token-signing"
     elif sys.platform == 'win32':
         if os.path.isfile("host-windows\\Debug\\chrome-token-signing.exe"):
@@ -32,5 +33,3 @@ def get_exe():
     else:
         print("Unsupported platform: %s" % sys.platform)
         sys.exit(1)
-
-                                                        
