@@ -2,10 +2,11 @@
 
 ![European Regional Development Fund](https://github.com/open-eid/DigiDoc4-Client/blob/master/client/images/EL_Regionaalarengu_Fond.png "European Regional Development Fund - DO NOT REMOVE THIS IMAGE BEFORE 05.03.2020")
 
-**NB! Updated Web-eid(https://github.com/web-eid) project is in development, which will replace Chrome token signing in the near future.**
+**NB! A new Web eID project is in development, which will replace Chrome Token Signing in the near future.
+More information about the Web eID solution is available [here](https://github.com/web-eid).**
 
 **Now available from [Chrome Web Store](https://chrome.google.com/webstore/detail/ckjefchnfjhjfedoccjbhjpbncimppeg)**
-**Now available from [Windows Store](https://microsoftedge.microsoft.com/addons/detail/fofaekogmodbjplbmlbmjiglndceaajh)**
+**Now available from [Microsoft Edge add-ons store](https://microsoftedge.microsoft.com/addons/detail/fofaekogmodbjplbmlbmjiglndceaajh)**
 
 **Info: Firefox version 50 supports Chrome extensions and is implemented in version 1.0.4.**
 
