@@ -5,7 +5,7 @@
 **NB! A new Web eID project is in development, which will replace Chrome Token Signing in the near future.
 More information about the Web eID solution is available [here](https://github.com/web-eid).**
 
-Now available from [Chrome Web Store](https://chrome.google.com/webstore/detail/ckjefchnfjhjfedoccjbhjpbncimppeg) and [Microsoft Edge add-ons store](https://microsoftedge.microsoft.com/addons/detail/fofaekogmodbjplbmlbmjiglndceaajh)
+Chrome Token signing is available from [Chrome Web Store](https://chrome.google.com/webstore/detail/ckjefchnfjhjfedoccjbhjpbncimppeg) and [Microsoft Edge add-ons store](https://microsoftedge.microsoft.com/addons/detail/fofaekogmodbjplbmlbmjiglndceaajh)
 
 **Info:** Firefox version 50 supports Chrome extensions and is implemented in version 1.0.4.
 
