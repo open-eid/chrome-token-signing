@@ -1,0 +1,623 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		4E03993C20C7DA1300BAF87E /* package */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4E03993D20C7DA1300BAF87E /* Build configuration list for PBXAggregateTarget "package" */;
+			buildPhases = (
+				4E03994220C7DA5500BAF87E /* Build package */,
+			);
+			dependencies = (
+				4E03994120C7DA2500BAF87E /* PBXTargetDependency */,
+			);
+			name = package;
+			productName = package;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		4E1A1AFB1D21B76000CEB83E /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E1A1AFA1D21B76000CEB83E /* AppDelegate.mm */; };
+		4E1A1AFE1D21B76000CEB83E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E1A1AFD1D21B76000CEB83E /* main.m */; };
+		4E1A1B031D21B76000CEB83E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E1A1B021D21B76000CEB83E /* Assets.xcassets */; };
+		4E1A1B061D21B76000CEB83E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4E1A1B041D21B76000CEB83E /* Main.storyboard */; };
+		4E1A1B1A1D21B77800CEB83E /* TokenSigningExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E1A1B191D21B77800CEB83E /* TokenSigningExtensionHandler.m */; };
+		4E1A1B231D21B77800CEB83E /* script.js in Resources */ = {isa = PBXBuildFile; fileRef = 4E1A1B221D21B77800CEB83E /* script.js */; };
+		4E1A1B281D21B77800CEB83E /* TokenSigningExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4E1A1B111D21B77800CEB83E /* TokenSigningExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4E320CD12060FD1E0047F74F /* BinaryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E320CCF2060FD1E0047F74F /* BinaryUtils.cpp */; };
+		4E320CD52060FD9E0047F74F /* CertificateSelection.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E320CD32060FD9E0047F74F /* CertificateSelection.xib */; };
+		4E320CD62060FD9E0047F74F /* CertificateSelection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E320CD42060FD9E0047F74F /* CertificateSelection.mm */; };
+		4E320CDB2060FDC10047F74F /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E320CD92060FDC10047F74F /* Logger.cpp */; };
+		4E320CDC2060FDC10047F74F /* Labels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E320CDA2060FDC10047F74F /* Labels.cpp */; };
+		4E320CE22060FDFD0047F74F /* PKCS11Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E320CE02060FDFD0047F74F /* PKCS11Path.cpp */; };
+		4E320CE72060FE1F0047F74F /* PINPadDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E320CE42060FE1F0047F74F /* PINPadDialog.xib */; };
+		4E320CE82060FE1F0047F74F /* PINDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E320CE52060FE1F0047F74F /* PINDialog.xib */; };
+		4E320CE92060FE1F0047F74F /* PINDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E320CE62060FE1F0047F74F /* PINDialog.mm */; };
+		4E7B33DB1EF948BB00811030 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E7B33DA1EF948BB00811030 /* SafariServices.framework */; };
+		4E8800201EEAACBA00747AA8 /* PCSC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E88001F1EEAACB900747AA8 /* PCSC.framework */; };
+		4E8C22821EEF370100230620 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E8C22811EEF370100230620 /* SecurityInterface.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4E03994020C7DA2500BAF87E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E1A1AEE1D21B76000CEB83E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E1A1AF51D21B76000CEB83E;
+			remoteInfo = TokenSigningApp;
+		};
+		4E1A1B261D21B77800CEB83E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E1A1AEE1D21B76000CEB83E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E1A1B101D21B77800CEB83E;
+			remoteInfo = SafariExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4E1A1B2C1D21B77800CEB83E /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4E1A1B281D21B77800CEB83E /* TokenSigningExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4E1A1AF61D21B76000CEB83E /* TokenSigningSafariHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenSigningSafariHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E1A1AFA1D21B76000CEB83E /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		4E1A1AFD1D21B76000CEB83E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4E1A1B021D21B76000CEB83E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4E1A1B051D21B76000CEB83E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4E1A1B071D21B76000CEB83E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E1A1B111D21B77800CEB83E /* TokenSigningExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenSigningExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E1A1B171D21B77800CEB83E /* TokenSigningExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TokenSigningExtension.entitlements; sourceTree = "<group>"; };
+		4E1A1B191D21B77800CEB83E /* TokenSigningExtensionHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TokenSigningExtensionHandler.m; sourceTree = "<group>"; };
+		4E1A1B211D21B77800CEB83E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E1A1B221D21B77800CEB83E /* script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = script.js; sourceTree = "<group>"; };
+		4E320CCF2060FD1E0047F74F /* BinaryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BinaryUtils.cpp; path = "../../host-shared/BinaryUtils.cpp"; sourceTree = "<group>"; };
+		4E320CD02060FD1E0047F74F /* BinaryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BinaryUtils.h; path = "../../host-shared/BinaryUtils.h"; sourceTree = "<group>"; };
+		4E320CD22060FD9E0047F74F /* CertificateSelection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CertificateSelection.h; path = "../../host-osx/CertificateSelection.h"; sourceTree = "<group>"; };
+		4E320CD32060FD9E0047F74F /* CertificateSelection.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CertificateSelection.xib; path = "../../host-osx/CertificateSelection.xib"; sourceTree = "<group>"; };
+		4E320CD42060FD9E0047F74F /* CertificateSelection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CertificateSelection.mm; path = "../../host-osx/CertificateSelection.mm"; sourceTree = "<group>"; };
+		4E320CD72060FDC10047F74F /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Logger.h; path = "../../host-shared/Logger.h"; sourceTree = "<group>"; };
+		4E320CD82060FDC10047F74F /* Labels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Labels.h; path = "../../host-shared/Labels.h"; sourceTree = "<group>"; };
+		4E320CD92060FDC10047F74F /* Logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Logger.cpp; path = "../../host-shared/Logger.cpp"; sourceTree = "<group>"; };
+		4E320CDA2060FDC10047F74F /* Labels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Labels.cpp; path = "../../host-shared/Labels.cpp"; sourceTree = "<group>"; };
+		4E320CDD2060FDFD0047F74F /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Exceptions.h; path = "../../host-shared/Exceptions.h"; sourceTree = "<group>"; };
+		4E320CDE2060FDFD0047F74F /* pkcs11.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pkcs11.h; path = "../../host-shared/pkcs11.h"; sourceTree = "<group>"; };
+		4E320CDF2060FDFD0047F74F /* PKCS11CardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PKCS11CardManager.h; path = "../../host-shared/PKCS11CardManager.h"; sourceTree = "<group>"; };
+		4E320CE02060FDFD0047F74F /* PKCS11Path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PKCS11Path.cpp; path = "../../host-shared/PKCS11Path.cpp"; sourceTree = "<group>"; };
+		4E320CE12060FDFD0047F74F /* PKCS11Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PKCS11Path.h; path = "../../host-shared/PKCS11Path.h"; sourceTree = "<group>"; };
+		4E320CE32060FE1F0047F74F /* PINDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PINDialog.h; path = "../../host-osx/PINDialog.h"; sourceTree = "<group>"; };
+		4E320CE42060FE1F0047F74F /* PINPadDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = PINPadDialog.xib; path = "../../host-osx/PINPadDialog.xib"; sourceTree = "<group>"; };
+		4E320CE52060FE1F0047F74F /* PINDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = PINDialog.xib; path = "../../host-osx/PINDialog.xib"; sourceTree = "<group>"; };
+		4E320CE62060FE1F0047F74F /* PINDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PINDialog.mm; path = "../../host-osx/PINDialog.mm"; sourceTree = "<group>"; };
+		4E6C38E11EEEB40D00D891B3 /* TokenSigningApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TokenSigningApp.entitlements; sourceTree = "<group>"; };
+		4E6E93D520C6859800CDD4FF /* TokenSigning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TokenSigning.h; sourceTree = "<group>"; };
+		4E7B33DA1EF948BB00811030 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
+		4E88001F1EEAACB900747AA8 /* PCSC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PCSC.framework; path = System/Library/Frameworks/PCSC.framework; sourceTree = SDKROOT; };
+		4E8C22811EEF370100230620 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = System/Library/Frameworks/SecurityInterface.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4E1A1AF31D21B76000CEB83E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E7B33DB1EF948BB00811030 /* SafariServices.framework in Frameworks */,
+				4E8C22821EEF370100230620 /* SecurityInterface.framework in Frameworks */,
+				4E8800201EEAACBA00747AA8 /* PCSC.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E1A1B0E1D21B77800CEB83E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4E1A1AED1D21B76000CEB83E = {
+			isa = PBXGroup;
+			children = (
+				4E1A1AF81D21B76000CEB83E /* TokenSigningApp */,
+				4E1A1B151D21B77800CEB83E /* TokenSigningExtension */,
+				4E1A1B121D21B77800CEB83E /* Frameworks */,
+				4E1A1AF71D21B76000CEB83E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4E1A1AF71D21B76000CEB83E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4E1A1AF61D21B76000CEB83E /* TokenSigningSafariHelper.app */,
+				4E1A1B111D21B77800CEB83E /* TokenSigningExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4E1A1AF81D21B76000CEB83E /* TokenSigningApp */ = {
+			isa = PBXGroup;
+			children = (
+				4E1A1AFA1D21B76000CEB83E /* AppDelegate.mm */,
+				4E320CCF2060FD1E0047F74F /* BinaryUtils.cpp */,
+				4E320CD02060FD1E0047F74F /* BinaryUtils.h */,
+				4E320CD22060FD9E0047F74F /* CertificateSelection.h */,
+				4E320CD42060FD9E0047F74F /* CertificateSelection.mm */,
+				4E320CD32060FD9E0047F74F /* CertificateSelection.xib */,
+				4E320CDD2060FDFD0047F74F /* Exceptions.h */,
+				4E320CDA2060FDC10047F74F /* Labels.cpp */,
+				4E320CD82060FDC10047F74F /* Labels.h */,
+				4E320CD92060FDC10047F74F /* Logger.cpp */,
+				4E320CD72060FDC10047F74F /* Logger.h */,
+				4E320CDE2060FDFD0047F74F /* pkcs11.h */,
+				4E320CE32060FE1F0047F74F /* PINDialog.h */,
+				4E320CE62060FE1F0047F74F /* PINDialog.mm */,
+				4E320CE52060FE1F0047F74F /* PINDialog.xib */,
+				4E320CE42060FE1F0047F74F /* PINPadDialog.xib */,
+				4E320CDF2060FDFD0047F74F /* PKCS11CardManager.h */,
+				4E320CE02060FDFD0047F74F /* PKCS11Path.cpp */,
+				4E320CE12060FDFD0047F74F /* PKCS11Path.h */,
+				4E1A1B021D21B76000CEB83E /* Assets.xcassets */,
+				4E1A1B041D21B76000CEB83E /* Main.storyboard */,
+				4E1A1B071D21B76000CEB83E /* Info.plist */,
+				4E6C38E11EEEB40D00D891B3 /* TokenSigningApp.entitlements */,
+				4E1A1AFD1D21B76000CEB83E /* main.m */,
+			);
+			path = TokenSigningApp;
+			sourceTree = "<group>";
+		};
+		4E1A1B121D21B77800CEB83E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4E7B33DA1EF948BB00811030 /* SafariServices.framework */,
+				4E8C22811EEF370100230620 /* SecurityInterface.framework */,
+				4E88001F1EEAACB900747AA8 /* PCSC.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4E1A1B151D21B77800CEB83E /* TokenSigningExtension */ = {
+			isa = PBXGroup;
+			children = (
+				4E6E93D520C6859800CDD4FF /* TokenSigning.h */,
+				4E1A1B191D21B77800CEB83E /* TokenSigningExtensionHandler.m */,
+				4E1A1B221D21B77800CEB83E /* script.js */,
+				4E1A1B211D21B77800CEB83E /* Info.plist */,
+				4E1A1B171D21B77800CEB83E /* TokenSigningExtension.entitlements */,
+			);
+			path = TokenSigningExtension;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4E1A1AF51D21B76000CEB83E /* TokenSigningSafariHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E1A1B0A1D21B76000CEB83E /* Build configuration list for PBXNativeTarget "TokenSigningSafariHelper" */;
+			buildPhases = (
+				4E1A1AF21D21B76000CEB83E /* Sources */,
+				4E1A1AF31D21B76000CEB83E /* Frameworks */,
+				4E1A1AF41D21B76000CEB83E /* Resources */,
+				4E1A1B2C1D21B77800CEB83E /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4E1A1B271D21B77800CEB83E /* PBXTargetDependency */,
+			);
+			name = TokenSigningSafariHelper;
+			productName = TokenSigningApp;
+			productReference = 4E1A1AF61D21B76000CEB83E /* TokenSigningSafariHelper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4E1A1B101D21B77800CEB83E /* TokenSigningExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E1A1B291D21B77800CEB83E /* Build configuration list for PBXNativeTarget "TokenSigningExtension" */;
+			buildPhases = (
+				4E1A1B0D1D21B77800CEB83E /* Sources */,
+				4E1A1B0E1D21B77800CEB83E /* Frameworks */,
+				4E1A1B0F1D21B77800CEB83E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TokenSigningExtension;
+			productName = TokenSigningExtension;
+			productReference = 4E1A1B111D21B77800CEB83E /* TokenSigningExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4E1A1AEE1D21B76000CEB83E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				ORGANIZATIONNAME = RIA;
+				TargetAttributes = {
+					4E03993C20C7DA1300BAF87E = {
+						CreatedOnToolsVersion = 9.4;
+						DevelopmentTeam = ET847QJV9F;
+						ProvisioningStyle = Automatic;
+					};
+					4E1A1AF51D21B76000CEB83E = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = ET847QJV9F;
+						ProvisioningStyle = Manual;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
+							com.apple.HardenedRuntime = {
+								enabled = 1;
+							};
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
+					};
+					4E1A1B101D21B77800CEB83E = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = ET847QJV9F;
+						ProvisioningStyle = Manual;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = 4E1A1AF11D21B76000CEB83E /* Build configuration list for PBXProject "TokenSigningApp" */;
+			compatibilityVersion = "Xcode 10.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4E1A1AED1D21B76000CEB83E;
+			productRefGroup = 4E1A1AF71D21B76000CEB83E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E1A1AF51D21B76000CEB83E /* TokenSigningSafariHelper */,
+				4E1A1B101D21B77800CEB83E /* TokenSigningExtension */,
+				4E03993C20C7DA1300BAF87E /* package */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4E1A1AF41D21B76000CEB83E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E320CD52060FD9E0047F74F /* CertificateSelection.xib in Resources */,
+				4E320CE72060FE1F0047F74F /* PINPadDialog.xib in Resources */,
+				4E320CE82060FE1F0047F74F /* PINDialog.xib in Resources */,
+				4E1A1B031D21B76000CEB83E /* Assets.xcassets in Resources */,
+				4E1A1B061D21B76000CEB83E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E1A1B0F1D21B77800CEB83E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E1A1B231D21B77800CEB83E /* script.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4E03994220C7DA5500BAF87E /* Build package */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build package";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CODE_SIGNING_REQUIRED}\" != \"NO\" ]; then\n   SIGN=(--sign \"${DEVELOPMENT_TEAM}\")\nfi\npkgbuild --analyze --root ${DSTROOT} safari-token-signing.plist\nplutil -replace BundleIsRelocatable -bool NO safari-token-signing.plist\npkgbuild --root ${DSTROOT} --install-location / --identifier ee.ria.safari-token-signing --version ${MARKETING_VERSION}.${CURRENT_PROJECT_VERSION} \"${SIGN[@]}\" --component-plist safari-token-signing.plist safari-token-signing_${MARKETING_VERSION}.${CURRENT_PROJECT_VERSION}.pkg\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E1A1AF21D21B76000CEB83E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E320CD62060FD9E0047F74F /* CertificateSelection.mm in Sources */,
+				4E320CDB2060FDC10047F74F /* Logger.cpp in Sources */,
+				4E1A1AFE1D21B76000CEB83E /* main.m in Sources */,
+				4E320CE92060FE1F0047F74F /* PINDialog.mm in Sources */,
+				4E320CD12060FD1E0047F74F /* BinaryUtils.cpp in Sources */,
+				4E320CDC2060FDC10047F74F /* Labels.cpp in Sources */,
+				4E1A1AFB1D21B76000CEB83E /* AppDelegate.mm in Sources */,
+				4E320CE22060FDFD0047F74F /* PKCS11Path.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E1A1B0D1D21B77800CEB83E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E1A1B1A1D21B77800CEB83E /* TokenSigningExtensionHandler.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4E03994120C7DA2500BAF87E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4E1A1AF51D21B76000CEB83E /* TokenSigningSafariHelper */;
+			targetProxy = 4E03994020C7DA2500BAF87E /* PBXContainerItemProxy */;
+		};
+		4E1A1B271D21B77800CEB83E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4E1A1B101D21B77800CEB83E /* TokenSigningExtension */;
+			targetProxy = 4E1A1B261D21B77800CEB83E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4E1A1B041D21B76000CEB83E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4E1A1B051D21B76000CEB83E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4E03993E20C7DA1300BAF87E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4E03993F20C7DA1300BAF87E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		4E1A1B081D21B76000CEB83E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 0;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = ET847QJV9F;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 1.0.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4E1A1B091D21B76000CEB83E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 0;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = ET847QJV9F;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 1.0.6;
+				OTHER_CODE_SIGN_FLAGS = "--timestamp --options=runtime";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4E1A1B0B1D21B76000CEB83E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = TokenSigningApp/TokenSigningApp.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 0;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = TokenSigningApp/Info.plist;
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)/Utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4E1A1B0C1D21B76000CEB83E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = TokenSigningApp/TokenSigningApp.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 0;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = TokenSigningApp/Info.plist;
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)/Utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		4E1A1B2A1D21B77800CEB83E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TokenSigningExtension/TokenSigningExtension.entitlements;
+				INFOPLIST_FILE = TokenSigningExtension/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp.SafariExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		4E1A1B2B1D21B77800CEB83E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TokenSigningExtension/TokenSigningExtension.entitlements;
+				INFOPLIST_FILE = TokenSigningExtension/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp.SafariExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4E03993D20C7DA1300BAF87E /* Build configuration list for PBXAggregateTarget "package" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E03993E20C7DA1300BAF87E /* Debug */,
+				4E03993F20C7DA1300BAF87E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E1A1AF11D21B76000CEB83E /* Build configuration list for PBXProject "TokenSigningApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E1A1B081D21B76000CEB83E /* Debug */,
+				4E1A1B091D21B76000CEB83E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E1A1B0A1D21B76000CEB83E /* Build configuration list for PBXNativeTarget "TokenSigningSafariHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E1A1B0B1D21B76000CEB83E /* Debug */,
+				4E1A1B0C1D21B76000CEB83E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E1A1B291D21B77800CEB83E /* Build configuration list for PBXNativeTarget "TokenSigningExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E1A1B2A1D21B77800CEB83E /* Debug */,
+				4E1A1B2B1D21B77800CEB83E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4E1A1AEE1D21B76000CEB83E /* Project object */;
+}

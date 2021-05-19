@@ -14,6 +14,9 @@ jobs:
         make test
         cd host-osx
         make pkg
+        cd -
+        cd SafariAppExtension
+        xcodebuild -target package CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO MARKETING_VERSION=${BUILD_NUMBER} install
     - name: Archive artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -29,7 +32,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install dependencies
-      run: sudo apt-get update -qq && sudo apt-get install -y make g++ qttools5-dev qttools5-dev-tools libpcsclite-dev pkg-config xvfb
+      run: sudo apt update -qq && sudo apt install --no-install-recommends -y make qttools5-dev qttools5-dev-tools libpcsclite-dev xvfb
     - name: Build
       run: make test
   windows:
@@ -68,7 +71,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install dependencies
-      run: sudo apt-get update -qq && sudo apt-get install -y qttools5-dev qttools5-dev-tools libpcsclite-dev
+      run: sudo apt update -qq && sudo apt install --no-install-recommends -y qttools5-dev qttools5-dev-tools libpcsclite-dev
     - name: Download Coverity Build Tool
       run: |
         wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=$PROJECTNAME" -O cov-analysis-linux64.tar.gz
