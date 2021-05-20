@@ -147,7 +147,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
     try {
         CertificateSelection *dialog = [[CertificateSelection alloc] init];
         if (!dialog) {
-            return @{@"result": @"technical_error"};
+            return @{@"result": @"technical_error", @"message": @"Dialog could not be initialised."};
         }
         if (dialog->certificates.count == 0) {
             return @{@"result": @"no_certificates"};
@@ -161,7 +161,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
         return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
     } catch(const BaseException &e) {
         _log("Exception: %s", e.what());
-        return @{@"result": @(e.getErrorCode().c_str())};
+        return @{@"result": @(e.getErrorCode().c_str()), @"message": @(e.runtime_error::what())};
     }
 }
 

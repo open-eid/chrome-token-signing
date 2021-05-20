@@ -141,13 +141,22 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
 
 + (NSDictionary *)show:(NSDictionary*)params cert:(NSString *)cert
 {
-    if (!params[@"hash"] || !params[@"cert"] || [params[@"hash"] length] % 2 == 1) {
-        return @{@"result": @"invalid_argument"};
+    if (!params[@"hash"]) {
+        return @{@"result": @"invalid_argument", @"message": @"'hash' attribute is missing."};
+    }
+
+    if ([params[@"hash"] length] % 2 == 1) {
+        return @{@"result": @"invalid_argument", @"message": @"'hash' attribute needs an even length."};
+    }
+
+    if (!params[@"cert"]) {
+        return @{@"result": @"invalid_argument", @"message": @"'cert' attribute is missing."};
     }
 
     if (params[@"info"] && [params[@"info"] length] > 0) {
         if ([params[@"info"] length] > 500) {
-            return @{@"result": @"technical_error"};
+            NSString *message = [NSString stringWithFormat:@"'info' attribute length %lu is longer than %d.", [params[@"info"] length], 500];
+            return @{@"result": @"technical_error",@"message": message};
         }
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
@@ -168,7 +177,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         hash = BinaryUtils::hex2bin([params[@"hash"] UTF8String]);
         pkcs11.reset(new PKCS11CardManager(p11.path, p11.function));
         for (const PKCS11CardManager::Token &token : pkcs11->tokens()) {
-            if (BinaryUtils::hex2bin(cert.UTF8String) == token.cert) {
+            if (cert != nil && BinaryUtils::hex2bin(cert.UTF8String) == token.cert) {
                 selected = token;
                 break;
             }
@@ -176,11 +185,11 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     }
     catch(const BaseException &e) {
         _log("Exception: %s", e.what());
-        return @{@"result": @(e.getErrorCode().c_str())};
+        return @{@"result": @(e.getErrorCode().c_str()), @"message": @(e.runtime_error::what())};
     }
 
     if (selected.cert.empty()) {
-        return @{@"result": @"invalid_argument"};
+        return @{@"result": @"invalid_argument", @"message": @"Selected certificate is no longer available."};
     }
 
     CFDataRef data = CFDataCreateWithBytesNoCopy(nil, selected.cert.data(), selected.cert.size(), kCFAllocatorNull);
@@ -190,7 +199,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
     CFRelease(x509);
     NSNumber *ku = dict[(__bridge id)kSecOIDKeyUsage][(__bridge id)kSecPropertyKeyValue];
     if ((ku.unsignedIntValue & kSecKeyUsageNonRepudiation) == 0) {
-        return @{@"result": @"invalid_argument"};
+        return @{@"result": @"invalid_argument", @"message": @"Selected certificate requires 'non repudiation' key usage."};
     }
 
     bool isInitialCheck = true;
@@ -199,7 +208,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
         NSString *label = [_L(selected.pinpad ? "sign PIN pinpad" : "sign PIN") stringByReplacingOccurrencesOfString:@"@PIN@" withString:@(p11.signPINLabel.c_str())];
         PINPanel *dialog = [[PINPanel alloc] init:label pinpad:selected.pinpad];
         if (!dialog) {
-            return @{@"result": @"technical_error"};
+            return @{@"result": @"technical_error", @"message": @"Dialog could not be initialised."};
         }
         dialog->minPinLen = selected.minPinLen;
         for (NSDictionary *item in dict[(__bridge id)kSecOIDX509V1SubjectName][(__bridge id)kSecPropertyKeyValue]) {
@@ -235,7 +244,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
                 }
                 catch(const BaseException &e) {
                     _log("Exception: %s", e.what());
-                    pinpadresult = @{@"result": @(e.getErrorCode().c_str())};
+                    pinpadresult = @{@"result": @(e.getErrorCode().c_str()), @"message": @(e.runtime_error::what())};
                     [NSApp stopModal];
                 }
             });
@@ -283,7 +292,7 @@ static NSTouchBarItemIdentifier touchBarItemCancelId = @"ee.ria.chrome-token-sig
             }
             catch(const BaseException &e) {
                 _log("Exception: %s", e.what());
-                return @{@"result": @(e.getErrorCode().c_str())};
+                return @{@"result": @(e.getErrorCode().c_str()), @"message": @(e.runtime_error::what())};
             }
         }
     }
