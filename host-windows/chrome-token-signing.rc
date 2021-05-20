@@ -42,7 +42,7 @@ BEGIN
 			VALUE "FileDescription", "Chrome Token Signing Native Host"
 			VALUE "FileVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
 			VALUE "InternalName", "chrome-token-signing"
-			VALUE "LegalCopyright", "Copyright (C) 2015-2016 Estonian Information System Authority"
+			VALUE "LegalCopyright", "Copyright (C) 2015-2021 Estonian Information System Authority"
 			VALUE "OriginalFilename", "chrome-token-signing.exe"
 			VALUE "ProductName", "Chrome Token Signing Native Host"
 			VALUE "ProductVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
@@ -53,7 +53,7 @@ BEGIN
 			VALUE "FileDescription", "Chrome Token Signing Native Host"
 			VALUE "FileVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)
 			VALUE "InternalName", "chrome-token-signing"
-			VALUE "LegalCopyright", "Copyright (C) 2015-2016 Riigi Infosüsteemi Amet"
+			VALUE "LegalCopyright", "Copyright (C) 2015-2021 Riigi Infosüsteemi Amet"
 			VALUE "OriginalFilename", "chrome-token-signing.exe"
 			VALUE "ProductName", "Chrome Token Signing Native Host"
 			VALUE "ProductVersion", VER_STR(MAJOR_VER.MINOR_VER.RELEASE_VER.BUILD_VER)

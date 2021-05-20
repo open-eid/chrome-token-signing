@@ -532,6 +532,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -551,6 +552,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -561,6 +563,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = TokenSigningExtension/TokenSigningExtension.entitlements;
 				INFOPLIST_FILE = TokenSigningExtension/Info.plist;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp.SafariExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -572,6 +575,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = TokenSigningExtension/TokenSigningExtension.entitlements;
 				INFOPLIST_FILE = TokenSigningExtension/Info.plist;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp.SafariExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

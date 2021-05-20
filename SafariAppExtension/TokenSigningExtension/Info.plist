@@ -43,6 +43,8 @@
 			<string>All</string>
 		</dict>
 	</dict>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2018-2021 RIA. All rights reserved.</string>
 	<key>NSHumanReadableDescription</key>
 	<string>Use your eID smart card on the web</string>
 </dict>
