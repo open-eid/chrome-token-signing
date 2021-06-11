@@ -45,84 +45,99 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     window.postMessage(request, '*');
 });
 
-// inject content of page.js to the DOM of every page
-// FIXME: maybe not ?
-var s = document.createElement('script');
-s.type = 'text/javascript';
-s.innerHTML='// Promises \n\
-var _eid_promises = {}; \n\
-// Turn the incoming message from extension \n\
-// into pending Promise resolving \n\
-window.addEventListener("message", function(event) { \n\
-    if(event.source !== window) return; \n\
-    if(event.data.src && (event.data.src === "background.js")) { \n\
-        console.log("Page received: "); \n\
-        console.log(event.data); \n\
-        // Get the promise \n\
-        if(event.data.nonce) { \n\
-            var p = _eid_promises[event.data.nonce]; \n\
-            // resolve \n\
-            if(event.data.result === "ok") { \n\
-                if(event.data.signature !== undefined) { \n\
-                    p.resolve({hex: event.data.signature}); \n\
-                } else if(event.data.version !== undefined) { \n\
-                    p.resolve(event.data.extension + "/" + event.data.version); \n\
-                } else if(event.data.cert !== undefined) { \n\
-                    p.resolve({hex: event.data.cert}); \n\
-                } else { \n\
-                    console.log("No idea how to handle message"); \n\
-                    console.log(event.data); \n\
-                } \n\
-            } else { \n\
-                // reject \n\
-                p.reject(new Error(event.data.result)); \n\
-            } \n\
-            delete _eid_promises[event.data.nonce]; \n\
-        } else { \n\
-            console.log("No nonce in event msg"); \n\
-        } \n\
-    } \n\
-}, false); \n\
- \n\
- \n\
-function TokenSigning() { \n\
-    function nonce() { \n\
-        var val = ""; \n\
-        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; \n\
-        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); \n\
-        return val; \n\
-    } \n\
- \n\
-    function messagePromise(msg) { \n\
-        return new Promise(function(resolve, reject) { \n\
-            // amend with necessary metadata \n\
-            msg["nonce"] = nonce(); \n\
-            msg["src"] = "page.js"; \n\
-            // send message \n\
-            window.postMessage(msg, "*"); \n\
-            // and store promise callbacks \n\
-            _eid_promises[msg.nonce] = { \n\
-                resolve: resolve, \n\
-                reject: reject \n\
-            }; \n\
-        }); \n\
-    } \n\
-    this.getCertificate = function(options) { \n\
-        var msg = {type: "CERT", lang: options.lang, filter: options.filter}; \n\
-        console.log("getCertificate()"); \n\
-        return messagePromise(msg); \n\
-    }; \n\
-    this.sign = function(cert, hash, options) { \n\
-        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, info: options.info}; \n\
-        console.log("sign()"); \n\
-        return messagePromise(msg); \n\
-    }; \n\
-    this.getVersion = function() { \n\
-        console.log("getVersion()"); \n\
-        return messagePromise({ \n\
-            type: "VERSION" \n\
-        }); \n\
-    }; \n\
-}';
+var pageScript = function() {
+    // Promises
+    var _eid_promises = {};
+    // Turn the incoming message from extension
+    // into pending Promise resolving
+    window.addEventListener("message", function(event) {
+        if (event.source !== window) return;
+        if (event.data.src && (event.data.src === "background.js")) {
+            console.log("Page received: ");
+            console.log(event.data);
+            // Get the promise
+            if (event.data.nonce) {
+                var p = _eid_promises[event.data.nonce];
+                // resolve
+                if (event.data.result === "ok") {
+                    if (event.data.signature !== undefined) {
+                        p.resolve({hex: event.data.signature});
+                    } else if (event.data.version !== undefined) {
+                        p.resolve(event.data.extension + "/" + event.data.version);
+                    } else if (event.data.cert !== undefined) {
+                        p.resolve({hex: event.data.cert});
+                    } else {
+                        console.log("No idea how to handle message");
+                        console.log(event.data);
+                    }
+                } else {
+                    // reject
+                    p.reject(new Error(event.data.result));
+                }
+                delete _eid_promises[event.data.nonce];
+            } else {
+                console.log("No nonce in event msg");
+            }
+        }
+    }, false);
 
-(document.head || document.documentElement).appendChild(s);
+    window.TokenSigning = function() {
+        function nonce() {
+            var val = "";
+            var hex = "abcdefghijklmnopqrstuvwxyz0123456789";
+            for (var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length));
+            return val;
+        }
+
+        function messagePromise(msg) {
+            return new Promise(function(resolve, reject) {
+                // amend with necessary metadata
+                msg["nonce"] = nonce();
+                msg["src"] = "page.js";
+                // send message
+                window.postMessage(msg, "*");
+                // and store promise callbacks
+                _eid_promises[msg.nonce] = {
+                    resolve: resolve,
+                    reject: reject
+                };
+            });
+        }
+        this.getCertificate = function(options) {
+            var msg = {type: "CERT", lang: options.lang, filter: options.filter};
+            console.log("getCertificate()");
+            return messagePromise(msg);
+        };
+        this.sign = function(cert, hash, options) {
+            var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, info: options.info};
+            console.log("sign()");
+            return messagePromise(msg);
+        };
+        this.getVersion = function() {
+            console.log("getVersion()");
+            return messagePromise({
+                type: "VERSION"
+            });
+        };
+    };
+};
+
+/**
+ * Check the page for an existing TokenSigning page script.
+ * The script will be injected to the DOM of every page, which doesn't already have the script.
+ * To circumvent Content Security Policy issues, the website can include the script on its own.
+ *
+ * Example:
+ *   <script src="path-to/page.js" data-name="TokenSigning"></script>
+ *
+ * The page script can be found here:
+ *   https://github.com/open-eid/chrome-token-signing/blob/master/extension/page.js
+ */
+if (!document.querySelector("script[data-name='TokenSigning']")) {
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.dataset.name = "TokenSigning";
+    s.innerHTML = "(" + pageScript + ")();";
+
+    (document.head || document.documentElement).appendChild(s);
+}
