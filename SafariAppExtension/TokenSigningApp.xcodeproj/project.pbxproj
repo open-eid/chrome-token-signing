@@ -461,7 +461,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -512,7 +512,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp --options=runtime";
 				SDKROOT = macosx;
 			};
@@ -524,7 +524,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenSigningApp/TokenSigningApp.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = TokenSigningApp/Info.plist;
 				INSTALL_PATH = "$(LOCAL_APPS_DIR)/Utilities";
@@ -532,7 +531,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -544,7 +542,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenSigningApp/TokenSigningApp.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = TokenSigningApp/Info.plist;
 				INSTALL_PATH = "$(LOCAL_APPS_DIR)/Utilities";
@@ -552,7 +549,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -563,7 +559,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = TokenSigningExtension/TokenSigningExtension.entitlements;
 				INFOPLIST_FILE = TokenSigningExtension/Info.plist;
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp.SafariExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -575,7 +570,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = TokenSigningExtension/TokenSigningExtension.entitlements;
 				INFOPLIST_FILE = TokenSigningExtension/Info.plist;
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = ee.ria.TokenSigningApp.SafariExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

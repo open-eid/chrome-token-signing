@@ -6,7 +6,7 @@ Build-Depends:
  qtbase5-dev,
  debhelper (>= 10),
  libpcsclite-dev,
- python,
+ python3,
  xvfb,
  xauth,
  pkg-config
