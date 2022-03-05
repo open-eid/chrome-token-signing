@@ -47,6 +47,21 @@ class Signer: public QDialog {
 public:
     static QVariantMap sign(const QString &hash, const QString &cert) {
         std::vector<unsigned char> data = fromHex(cert);
+        QSslCertificate c(QByteArray::fromRawData((const char*)data.data(), int(data.size())), QSsl::Der);
+        bool isNonRepudiation = false;
+        for(const QSslCertificateExtension &ex: c.extensions())
+        {
+            if(ex.name() == QStringLiteral("keyUsage"))
+            {
+                for(const QVariant &item: ex.value().toList())
+                    if(item.toString() == QStringLiteral("Non Repudiation"))
+                        isNonRepudiation = true;
+            }
+        }
+        if (!isNonRepudiation) {
+            return {{"result", "invalid_argument"}};
+        }
+
         PKCS11CardManager::Token selected;
         PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
         PKCS11CardManager pkcs11(p11.path);
@@ -65,26 +80,8 @@ public:
         if(selected.cert.empty())
             return {{"result", "invalid_argument"}};
 
-        QSslCertificate c(QByteArray::fromRawData((const char*)data.data(), int(data.size())), QSsl::Der);
-        bool isNonRepudiation = false;
-        for(const QSslCertificateExtension &ex: c.extensions())
-        {
-            if(ex.name() == QStringLiteral("keyUsage"))
-            {
-                for(const QVariant &item: ex.value().toList())
-                    if(item.toString() == QStringLiteral("Non Repudiation"))
-                        isNonRepudiation = true;
-            }
-        }
-        QString label;
-        if (isNonRepudiation) {
-            label = Labels::l10n.get(selected.pinpad ? "sign PIN pinpad" : "sign PIN").c_str();
-            label.replace("@PIN@", p11.signPINLabel.c_str());
-        }
-        else {
-            label = Labels::l10n.get(selected.pinpad ? "auth PIN pinpad" : "auth PIN").c_str();
-            label.replace("@PIN@", p11.authPINLabel.c_str());
-        }
+        QString label = Labels::l10n.get(selected.pinpad ? "sign PIN pinpad" : "sign PIN").c_str();
+        label.replace("@PIN@", p11.signPINLabel.c_str());
 
         bool isInitialCheck = true;
         for (int retriesLeft = selected.retry; retriesLeft > 0; ) {
@@ -172,28 +169,26 @@ private:
 
     Signer(const QString &label, unsigned long minPinLen, bool isPinpad)
         : nameLabel(new QLabel(this))
-        , pinLabel(new QLabel(this))
         , errorLabel(new QLabel(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->addWidget(errorLabel);
         layout->addWidget(nameLabel);
-        layout->addWidget(pinLabel);
+        layout->addWidget(new QLabel(label, this));
 
         setMinimumWidth(400);
         setWindowFlags(Qt::WindowStaysOnTopHint);
-        pinLabel->setText(label);
         errorLabel->setTextFormat(Qt::RichText);
         errorLabel->hide();
 
         if(isPinpad) {
             setWindowFlags((windowFlags()|Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint);
-            progress = new QProgressBar(this);
+            QProgressBar *progress = new QProgressBar(this);
             progress->setRange(0, 30);
             progress->setValue(progress->maximum());
             progress->setTextVisible(false);
 
-            statusTimer = new QTimeLine(progress->maximum() * 1000, this);
+            QTimeLine *statusTimer = new QTimeLine(progress->maximum() * 1000, this);
             statusTimer->setCurveShape(QTimeLine::LinearCurve);
             statusTimer->setFrameRange(progress->maximum(), progress->minimum());
             connect(statusTimer, &QTimeLine::frameChanged, progress, &QProgressBar::setValue);
@@ -201,11 +196,11 @@ private:
 
             layout->addWidget(progress);
         } else {
-            buttons = new QDialogButtonBox(this);
+            QDialogButtonBox *buttons = new QDialogButtonBox(this);
             connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-            cancel = buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
-            ok = buttons->addButton("OK", QDialogButtonBox::AcceptRole);
+            buttons->addButton(Labels::l10n.get("cancel").c_str(), QDialogButtonBox::RejectRole);
+            QPushButton *ok = buttons->addButton("OK", QDialogButtonBox::AcceptRole);
             ok->setEnabled(false);
 
             pin = new QLineEdit(this);
@@ -213,7 +208,7 @@ private:
             pin->setFocus();
             pin->setValidator(new QRegExpValidator(QRegExp(QString("\\d{%1,12}").arg(minPinLen)), pin));
             pin->setMaxLength(12);
-            connect(pin, &QLineEdit::textEdited, [=](const QString &text){
+            connect(pin, &QLineEdit::textEdited, ok, [=](const QString &text) {
                 ok->setEnabled(text.size() >= int(minPinLen));
             });
 
@@ -223,10 +218,6 @@ private:
         show();
     }
 
-    QLabel *nameLabel, *pinLabel, *errorLabel;
-    QDialogButtonBox *buttons = nullptr;
-    QPushButton *ok = nullptr, *cancel = nullptr;
+    QLabel *nameLabel, *errorLabel;
     QLineEdit *pin = nullptr;
-    QProgressBar *progress = nullptr;
-    QTimeLine *statusTimer = nullptr;
 };

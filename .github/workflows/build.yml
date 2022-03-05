@@ -1,0 +1,94 @@
+name: CI
+on: [push, pull_request]
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
+jobs:
+  macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build
+      run: |
+        make test
+        cd host-osx
+        make pkg
+        cd -
+        cd SafariAppExtension
+        xcodebuild -target package CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CURRENT_PROJECT_VERSION=${BUILD_NUMBER} install
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: pkg
+        path: host-osx/*.pkg
+  ubuntu:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+    env:
+      MAKEFLAGS: -j3
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt update -qq && sudo apt install --no-install-recommends -y make qttools5-dev qttools5-dev-tools libpcsclite-dev xvfb
+    - name: Build
+      run: make test
+  windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x86, x64]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: 'true'
+    - name: Set ENV
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+    - name: Build
+      run: |
+        nmake /nologo test
+        nmake /nologo pkg-unsigned
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: msi
+        path: ./*.msi
+  coverity:
+    name: Run Coverity tests
+    if: contains(github.repository, 'open-eid/chrome-token-signing') && contains(github.ref, 'coverity_scan')
+    runs-on: ubuntu-latest
+    env:
+      MAKEFLAGS: -j3
+      TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+      PROJECTNAME: 'open-eid/chrome-token-signing'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt update -qq && sudo apt install --no-install-recommends -y qttools5-dev qttools5-dev-tools libpcsclite-dev
+    - name: Download Coverity Build Tool
+      run: |
+        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=$PROJECTNAME" -O cov-analysis-linux64.tar.gz
+        mkdir cov-analysis-linux64
+        tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+    - name: Build
+      run: |
+        export PATH=$PWD/cov-analysis-linux64/bin:$PATH
+        cov-build --dir cov-int make
+    - name: Submit the result to Coverity Scan
+      run: |
+        tar czvf upload.tgz cov-int
+        curl --silent \
+          --form project=$PROJECTNAME \
+          --form token=$TOKEN \
+          --form email=eid-teenusehaldus@ria.ee \
+          --form file=@upload.tgz \
+          --form version=master \
+          --form description="Github Actions CI build" \
+          https://scan.coverity.com/builds?project=$PROJECTNAME

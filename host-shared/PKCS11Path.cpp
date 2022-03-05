@@ -113,7 +113,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string litPath = access(lit1Path.c_str(), F_OK) == 0 ? lit1Path : lit2Path;
     static const std::string belPath("/usr/local/lib/beid-pkcs11.bundle/Contents/MacOS/libbeidpkcs11.dylib");
     static const std::string eTokenPath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
-    static const std::string IDPrimePath("/Library/Frameworks/eToken.framework/Versions/Current/libIDPrimePKCS11.dylib");
+    static const std::string IDPrimePath("/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib");
+    static const std::string IDPrimeFunc("C_GetFunctionList_IDPrime");
     static const std::string acsPath("/usr/local/lib/libacos5pkcs11.dylib");
     static const std::string akisPath("/usr/local/lib/libakisp11.dylib");
 #else
@@ -132,58 +133,61 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::string belPath("libbeidpkcs11.so.0");
     static const std::string eTokenPath("/usr/lib/libeTPkcs11.so");
     static const std::string IDPrimePath("/usr/lib/libIDPrimePKCS11.so");
+    static const std::string IDPrimeFunc("");
     static const std::string acsPath("/lib/libacospkcs11.so");
     static const std::string akisPath("/usr/lib/libpkcs11wrapper.so");
 #endif
     static const std::map<std::string, Params> m = {
 #ifdef _WIN32
-        {"3BFD1800008031FE4553434536302D43443134352D46CD", {"C:\\Windows\\System32\\aetpkss1.dll", "PIN", "PIN"}},
-
+        {"3BFD1800008031FE4553434536302D43443134352D46CD", {"C:\\Windows\\System32\\aetpkss1.dll", {}, "PIN", "PIN"}},
 #else
-        {"3BFE1800008031FE454573744549442076657220312E30A8", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3_COLD_DEV1_ATR
-        {"3BFE1800008031FE45803180664090A4561B168301900086", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV1_ATR
-        {"3BFE1800008031FE45803180664090A4162A0083019000E1", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV2_ATR
-        {"3BFE1800008031FE45803180664090A4162A00830F9000EF", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV3_ATR
-        {"3BFA1800008031FE45FE654944202F20504B4903", {estPath, "PIN1", "PIN2"}}, //ESTEID_V3.5_COLD_ATR
-        {"3BDB960080B1FE451F830012233F536549440F9000F1", {estPath, "PIN1", "PIN2"}}, // IDEMIA 2018
+        {"3BFE1800008031FE454573744549442076657220312E30A8", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3_COLD_DEV1_ATR
+        {"3BFE1800008031FE45803180664090A4561B168301900086", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV1_ATR
+        {"3BFE1800008031FE45803180664090A4162A0083019000E1", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV2_ATR
+        {"3BFE1800008031FE45803180664090A4162A00830F9000EF", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV3_ATR
+        {"3BFA1800008031FE45FE654944202F20504B4903", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3.5_COLD_ATR
+        {"3BDB960080B1FE451F830012233F536549440F9000F1", {estPath, {}, "PIN1", "PIN2"}}, // IDEMIA 2018
 
-        {"3BDD18008131FE45904C41545649412D65494490008C", {latPath, "PIN1", "PIN2"}},
-        {"3BDB960080B1FE451F830012428F536549440F900020", {latPath, "PIN1", "PIN2"}},
+        {"3BDD18008131FE45904C41545649412D65494490008C", {latPath, {}, "PIN1", "PIN2"}},
+        {"3BDB960080B1FE451F830012428F536549440F900020", {latPath, {}, "PIN1", "PIN2"}},
 
-        {"3B7B940000806212515646696E454944", {finPath, "PIN1", "PIN2"}},
-        {"3B7F9600008031B865B0850300EF1200F6829000", {finPath, "PIN1", "PIN2"}},
+        {"3B7B940000806212515646696E454944", {finPath, {}, "PIN1", "PIN2"}},
+        {"3B7F9600008031B865B0850300EF1200F6829000", {finPath, {}, "PIN1", "PIN2"}},
 
-        {"3B9813400AA503010101AD1311", {belPath, "PIN", "PIN"}},
+        {"3B9813400AA503010101AD1311", {belPath, {}, "PIN", "PIN"}},
 
-        {"3BD5180081313A7D8073C8211030", {eTokenPath, "PIN", "PIN"}},
-        {"3BD518008131FE7D8073C82110F4", {eTokenPath, "PIN", "PIN"}},
-        {"3BFF9600008131804380318065B0850300EF120FFE82900066", {IDPrimePath, "PIN", "PIN"}},
-        {"3BBE9600004105200000000000000000009000", {acsPath, "PIN", "PIN" }},
+        {"3BD5180081313A7D8073C8211030", {eTokenPath, {}, "PIN", "PIN"}},
+        {"3BD518008131FE7D8073C82110F4", {eTokenPath, {}, "PIN", "PIN"}},
+        {"3BFF9600008131804380318065B0850300EF120FFE82900066", {IDPrimePath, IDPrimeFunc, "PIN", "PIN"}},
+        {"3BBE9600004105200000000000000000009000", {acsPath, {}, "PIN", "PIN" }},
 #endif
-        {"3BF81300008131FE45536D617274417070F8", {litPath, "PIN", "PIN"}},
-        {"3B7D94000080318065B08311C0A983009000", {litPath, "PIN", "PIN"}},
-        {"3B7D94000080318065B0831100C883009000", {litPath, "PIN", "PIN"}},
-        {"3B9F9681B1FE451F070064051EB20031B0739621DB00900050", {litPath, "PIN", "PIN"}},
-        {"3B9F90801FC30068104405014649534531C800000000", {litPath, "PIN", "PIN"}},
-        {"3BBA11008131FE4D55454B41452056312E30AE", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451112318073B3A180E9", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451212318073B3A180EA", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451213318073B3A180EB", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451252318073B3A180AA", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451253318073B3A180AB", {akisPath, "PIN", "PIN"}},
-        {"3B9F158131FE45806755454B41451221318073B3A1805A", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451221318073B3A180D9", {akisPath, "PIN", "PIN"}},
-        {"3B9F138131FE45806755454B41451221318073B3A1805C", {akisPath, "PIN", "PIN"}},
-        {"3B9F138131FE45806755454B41451261318073B3A1801C", {akisPath, "PIN", "PIN"}},
-        {"3B9F158131FE45806755454B41451261318073B3A1801A", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451261318073B3A18099", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE458065544320201231C073F621808105B3", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451292318073B3A1806A", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451293318073B3A1806B", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B41451312318073B3A180EB", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B414512A4318073B3A1805C", {akisPath, "PIN", "PIN"}},
-        {"3B9F968131FE45806755454B414512A5318073B3A1805D", {akisPath, "PIN", "PIN"}},
-        {"3B9F978131FE458065544312210031C073F62180810593", {akisPath, "PIN", "PIN"}}
+        {"3BF81300008131FE45536D617274417070F8", {litPath, {}, "PIN", "PIN"}},
+        {"3B7D94000080318065B08311C0A983009000", {litPath, {}, "PIN", "PIN"}},
+        {"3B7D94000080318065B0831100C883009000", {litPath, {}, "PIN", "PIN"}},
+        {"3B9F9681B1FE451F070064051EB20031B0739621DB00900050", {litPath, {}, "PIN", "PIN"}},
+        {"3B9F90801FC30068104405014649534531C800000000", {litPath, {}, "PIN", "PIN"}},
+        {"3BBA11008131FE4D55454B41452056312E30AE", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451112318073B3A180E9", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451212318073B3A180EA", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451213318073B3A180EB", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451252318073B3A180AA", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451253318073B3A180AB", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F158131FE45806755454B41451221318073B3A1805A", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451221318073B3A180D9", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F138131FE45806755454B41451221318073B3A1805C", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F138131FE45806755454B41451261318073B3A1801C", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F158131FE45806755454B41451261318073B3A1801A", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451261318073B3A18099", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE458065544320201231C073F621808105B3", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451292318073B3A1806A", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451293318073B3A1806B", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B41451312318073B3A180EB", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B414512A4318073B3A1805C", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F968131FE45806755454B414512A5318073B3A1805D", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F978131FE4580655443D2210831C073F6218081055B", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F978131FE4580655443E4210831C073F6218081056D", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F978131FE458065544312210031C073F62180810593", {akisPath, {}, "PIN", "PIN"}},
+        {"3B9F978131FE4580655443D3228231C073F621808105D3", {akisPath, {}, "PIN", "PIN"}}
     };
 
     const std::vector<std::string> list = atrList();
@@ -197,6 +201,6 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
 #else
     if (!list.empty())
         _log("Unknown ATR '%s' using default module '%s'", list[0].c_str(), openscPath.c_str());
-    return {openscPath, "PIN", "PIN"};
+    return {openscPath, {}, "PIN", "PIN"};
 #endif
 }

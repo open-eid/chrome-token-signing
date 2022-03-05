@@ -43,6 +43,7 @@ private:
     void *library = nullptr;
 #endif
     CK_FUNCTION_LIST_PTR fl = nullptr;
+    bool isFinDriver = false;
 
     template <typename Func, typename... Args>
     void Call(const char *file, int line, const char *function, Func func, Args... args) const
@@ -98,7 +99,7 @@ private:
     }
 
 public:
-    PKCS11CardManager(const std::string &module) {
+    PKCS11CardManager(const std::string &module, const std::string &function = {}) {
         CK_C_GetFunctionList C_GetFunctionList = nullptr;
         std::string error;
 #ifdef _WIN32
@@ -116,7 +117,7 @@ public:
 #else
         library = dlopen(module.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (library)
-            C_GetFunctionList = CK_C_GetFunctionList(dlsym(library, "C_GetFunctionList"));
+            C_GetFunctionList = CK_C_GetFunctionList(dlsym(library, function.empty() ? "C_GetFunctionList" : function.c_str()));
         else
             error = dlerror();
 #endif
@@ -128,6 +129,14 @@ public:
         Call(__FILE__, __LINE__, "C_GetFunctionList", C_GetFunctionList, &fl);
         _log("initializing module %s", module.c_str());
         C(Initialize, nullptr);
+
+        CK_INFO info;
+        C(GetInfo, &info);
+        _log("%s (%u.%u)", info.manufacturerID, info.cryptokiVersion.major, info.cryptokiVersion.minor);
+        _log("%s (%u.%u)", info.libraryDescription, info.libraryVersion.major, info.libraryVersion.minor);
+        std::string desc((const char*)info.libraryDescription, sizeof(info.libraryDescription));
+        std::transform(desc.begin(), desc.end(), desc.begin(), ::toupper);
+        isFinDriver = desc.find("MPOLLUX") != std::string::npos;
     }
 
     ~PKCS11CardManager() {
@@ -158,7 +167,7 @@ public:
         if (!fl)
             throw DriverException();
         CK_ULONG slotCount = 0;
-        C(GetSlotList, CK_TRUE, nullptr, &slotCount);
+        C(GetSlotList, CK_BBOOL(CK_TRUE), nullptr, &slotCount);
         _log("slotCount = %lu", slotCount);
         std::vector<CK_SLOT_ID> slotIDs(slotCount);
         C(GetSlotList, CK_BBOOL(CK_TRUE), slotIDs.data(), &slotCount);
@@ -177,9 +186,15 @@ public:
             C(OpenSession, slotID, CKF_SERIAL_SESSION, nullptr, nullptr, &session);
 
             for (CK_OBJECT_HANDLE obj: findObject(session, CKO_CERTIFICATE)) {
+                std::vector<CK_BYTE> cert = attribute(session, obj, CKA_VALUE);
+                std::vector<CK_BYTE> id = attribute(session, obj, CKA_ID);
+                // Hack: Workaround broken FIN pkcs11 drivers showing non-repu certificates in auth slot
+                if(isFinDriver && findObject(session, CKO_PUBLIC_KEY, id).empty())
+                    continue;
+
                 result.push_back({ std::string((const char*)tokenInfo.label, sizeof(tokenInfo.label)), slotID,
-                    attribute(session, obj, CKA_VALUE),
-                    attribute(session, obj, CKA_ID),
+                    cert,
+                    id,
                     [&tokenInfo] {
                         if (tokenInfo.flags & CKF_USER_PIN_LOCKED) return 0;
                         if (tokenInfo.flags & CKF_USER_PIN_FINAL_TRY) return 1;
@@ -244,8 +259,11 @@ public:
         hashWithPadding.insert(hashWithPadding.end(), hash.cbegin(), hash.cend());
         CK_ULONG signatureLength = 0;
         C(Sign, session, hashWithPadding.data(), CK_ULONG(hashWithPadding.size()), nullptr, &signatureLength);
+        if (isFinDriver)
+            signatureLength *= 3;
         std::vector<CK_BYTE> signature(signatureLength);
         C(Sign, session, hashWithPadding.data(), CK_ULONG(hashWithPadding.size()), signature.data(), &signatureLength);
+        signature.resize(signatureLength);
         C(Logout, session);
         C(CloseSession, session);
 

@@ -56,7 +56,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
     return false;
 }
 
-- (instancetype)init:(bool)forSigning
+- (instancetype)init
 {
     if (self = [super init]) {
         certificates = [[NSMutableArray alloc] init];
@@ -65,7 +65,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
         NSDateComponents *components = [[NSDateComponents alloc] init];
         components.year = 2001;
         PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
-        for (const PKCS11CardManager::Token &token : PKCS11CardManager(p11.path).tokens()) {
+        for (const PKCS11CardManager::Token &token : PKCS11CardManager(p11.path, p11.function).tokens()) {
             CFDataRef data = CFDataCreateWithBytesNoCopy(nil, token.cert.data(), token.cert.size(), kCFAllocatorNull);
             SecCertificateRef cert = SecCertificateCreateWithData(nil, data);
             CFRelease(data);
@@ -73,9 +73,8 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
             CFRelease(cert);
 
             NSNumber *ku = dict[(__bridge id)kSecOIDKeyUsage][(__bridge id)kSecPropertyKeyValue];
-            const bool isNonRepudiation = ku.unsignedIntValue & kSecKeyUsageNonRepudiation;
-            if (forSigning != isNonRepudiation) {
-                _log("certificate is non-repu: %u, requesting signing certificate %u, moving on to next token...", isNonRepudiation, forSigning);
+            if ((ku.unsignedIntValue & kSecKeyUsageNonRepudiation) == 0) {
+                _log("certificate is not non-repu: moving on to next token...");
                 continue;
             }
 
@@ -125,7 +124,9 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
             return self;
         }
 
-        window.touchBar = [self makeTouchBar];
+        if (@available(macOS 10_12_2, *)) {
+            window.touchBar = [self makeTouchBar];
+        }
         window.title = _L("select certificate");
         cancelButton.title = _L("cancel");
         okButton.title = _L("select");
@@ -141,12 +142,12 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
     return self;
 }
 
-+ (NSDictionary *)show:(bool)forSigning
++ (NSDictionary *)show
 {
     try {
-        CertificateSelection *dialog = [[CertificateSelection alloc] init:forSigning];
+        CertificateSelection *dialog = [[CertificateSelection alloc] init];
         if (!dialog) {
-            return @{@"result": @"technical_error"};
+            return @{@"result": @"technical_error", @"message": @"Dialog could not be initialised."};
         }
         if (dialog->certificates.count == 0) {
             return @{@"result": @"no_certificates"};
@@ -160,7 +161,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
         return @{@"cert": dialog->certificates[dialog->certificateSelection.selectedRow][@"cert"]};
     } catch(const BaseException &e) {
         _log("Exception: %s", e.what());
-        return @{@"result": @(e.getErrorCode().c_str())};
+        return @{@"result": @(e.getErrorCode().c_str()), @"message": @(e.runtime_error::what())};
     }
 }
 
@@ -209,7 +210,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
 #pragma mark - NSTouchBarProvider
 
-- (NSTouchBar *)makeTouchBar
+- (NSTouchBar *)makeTouchBar NS_AVAILABLE_MAC(10_12_2)
 {
     NSTouchBar *touchBar = [[NSTouchBar alloc] init];
     touchBar.delegate = self;
@@ -220,7 +221,7 @@ static NSTouchBarItemIdentifier touchBarItemSegmentId = @"ee.ria.chrome-token-si
 
 #pragma mark - NSTouchBarDelegate
 
-- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier NS_AVAILABLE_MAC(10_12_2)
 {
     if ([identifier isEqualToString:touchBarItemGroupId])
     {

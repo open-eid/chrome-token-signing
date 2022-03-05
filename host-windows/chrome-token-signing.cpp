@@ -52,7 +52,7 @@ void sendMessage(const string &message)
 	cout << message;
 }
 
-int main(int argc, char **argv)
+int main(int /* argc */, char ** /* argv */)
 {
 	//Necessary for sending correct message length to stout (in Windows)
 	_setmode(_fileno(stdin), O_BINARY);
@@ -83,8 +83,10 @@ int main(int argc, char **argv)
 				throw NotAllowedException("Origin doesn't contain https");
 			else if (type == "CERT")
 			{
-				unique_ptr<CertificateSelector> certificateSelector(CertificateSelector::createCertificateSelector());
-				selectedCert = certificateSelector->getCert(!jsonRequest.has<string>("filter") || jsonRequest.get<string>("filter") != "AUTH");
+				if (jsonRequest.get<string>("filter", {}) == "AUTH")
+					throw InvalidArgumentException();
+
+				selectedCert = CertificateSelector::createCertificateSelector()->getCert();
 				jsonResponse << "cert" << BinaryUtils::bin2hex(selectedCert);
 			}
 			else if (type == "SIGN")
@@ -98,7 +100,8 @@ int main(int argc, char **argv)
 				if (cert != selectedCert)
 					throw NotSelectedCertificateException();
 
-				string info;
+                /* Multisigning */
+                string info;
 				string hashcountStr = "";
 				if (jsonRequest.has<string>("info")) {
 
@@ -111,8 +114,10 @@ int main(int argc, char **argv)
 						info.erase(0, firstSpace);
 					}
 				}
-				unique_ptr<Signer> signer(Signer::createSigner(cert));
-				if (!signer->showInfo(info))
+				/* Multisign */
+				unique_ptr<Signer> signer = Signer::createSigner(cert);
+				/* TODO: DO NOT SHOW INFO  DIALOG*/
+				if (!signer->showInfo(jsonRequest.get<string>("info", string())))
 					throw UserCancelledException();
 
 				if (hashcountStr.compare("") == 0) { //single signing
@@ -147,8 +152,10 @@ int main(int argc, char **argv)
 		// Only catch terminating exceptions here
 		catch (const InvalidArgumentException &e)
 		{
-			_log("Handling exception: %s", e.getErrorCode());
+			_log("Handling exception: %s", e.getErrorCode().c_str());
 			jsonResponse << "result" << e.getErrorCode() << "message" << e.what();
+			if (jsonRequest.has<string>("nonce"))
+				jsonResponse << "nonce" << jsonRequest.get<string>("nonce");
 			sendMessage(jsonResponse.json());
 			return EXIT_FAILURE;
 		}

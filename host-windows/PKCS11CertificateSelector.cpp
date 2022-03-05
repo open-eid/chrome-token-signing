@@ -25,14 +25,14 @@ PKCS11CertificateSelector::PKCS11CertificateSelector(std::string _driverPath)
 	, driverPath(std::move(_driverPath))
 {}
 
-std::vector<unsigned char> PKCS11CertificateSelector::getCert(bool forSigning) const {
+std::vector<unsigned char> PKCS11CertificateSelector::getCert() const {
 	for (const auto &token : PKCS11CardManager(driverPath).tokens()) {
 		PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, token.cert.data(), token.cert.size());
 		if (!cert)
 			continue;
 		_log("new certificate handle created.");
 
-		if (!isValid(cert, forSigning)) {
+		if (!isValid(cert)) {
 			CertFreeCertificateContext(cert);
 			continue;
 		}

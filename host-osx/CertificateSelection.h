@@ -20,6 +20,6 @@
 
 @interface CertificateSelection : NSObject
 
-+ (NSDictionary *)show:(bool)forSigning;
++ (NSDictionary *)show;
 
 @end

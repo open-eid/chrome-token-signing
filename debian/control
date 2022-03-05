@@ -1,12 +1,12 @@
 Source: chrome-token-signing
 Section: web
-Priority: extra
+Priority: optional
 Maintainer: RIA <info@ria.ee>
 Build-Depends:
  qtbase5-dev,
- debhelper (>= 7),
+ debhelper (>= 10),
  libpcsclite-dev,
- python,
+ python3,
  xvfb,
  xauth,
  pkg-config

@@ -56,13 +56,6 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest)
 	}
 
 	wstring label = Labels::l10n.get("sign PIN");
-	if (PCCERT_CONTEXT certificate = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert.data(), cert.size())) {
-		BYTE keyUsage = 0;
-		CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificate->pCertInfo, &keyUsage, 1);
-		if (!(keyUsage & CERT_NON_REPUDIATION_KEY_USAGE))
-			label = Labels::l10n.get("auth PIN");
-		CertFreeCertificateContext(certificate);
-	}
 	size_t start_pos = 0;
 	while ((start_pos = label.find(L"@PIN@", start_pos)) != std::string::npos) {
 		label.replace(start_pos, 5, L"PIN");
@@ -81,7 +74,7 @@ vector<unsigned char> Pkcs11Signer::sign(const vector<unsigned char> &digest)
 				msg += Labels::l10n.get("tries left") + L" " + to_wstring(pinTriesLeft);
 			}
 			_log("Showing pin entry dialog");
-			std::string pin = PinDialog::getPin(label, msg);
+			std::string pin = PinDialog::getPin(label, msg, nullptr, WORD(selected.minPinLen), WORD(selected.maxPinLen));
 			if (pin.empty()) {
 				_log("User cancelled");
 				throw UserCancelledException();

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ class Signer {
 public:
 	virtual ~Signer() = default;
 
-	static Signer* createSigner(const std::vector<unsigned char> &cert);
+	static std::unique_ptr<Signer> createSigner(const std::vector<unsigned char> &cert);
 	bool showInfo(const std::string &msg);
 	virtual std::vector<unsigned char> sign(const std::vector<unsigned char> &digest) = 0;
 	virtual std::vector<unsigned char> multisign(const std::vector<unsigned char> &digest, int hashcount) = 0;

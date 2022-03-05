@@ -26,12 +26,22 @@
 
 using namespace std;
 
-Signer * Signer::createSigner(const vector<unsigned char> &cert){
+std::unique_ptr<Signer> Signer::createSigner(const vector<unsigned char> &cert) {
+	if (PCCERT_CONTEXT certificate = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cert.data(), cert.size())) {
+		BYTE keyUsage = 0;
+		CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificate->pCertInfo, &keyUsage, 1);
+		CertFreeCertificateContext(certificate);
+		if ((keyUsage & CERT_NON_REPUDIATION_KEY_USAGE) == 0)
+			throw InvalidArgumentException();
+	}
+	else
+		throw InvalidArgumentException();
+
 	PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
 	if (!p11.path.empty()) {
-		return new Pkcs11Signer(p11.path, cert);
+		return std::unique_ptr<Signer>(new Pkcs11Signer(p11.path, cert));
 	}
-	return new NativeSigner(cert);
+	return std::unique_ptr<Signer>(new NativeSigner(cert));
 }
 
 bool Signer::showInfo(const string &msg)

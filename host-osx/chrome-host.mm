@@ -80,8 +80,9 @@ int main(int argc, const char * argv[]) {
                     _log("Message size: %u", size);
                 }
                 if (size > 8*1024) {
-                    _log("Size (%u) exceeds allowed size", size, 8*1024);
-                    write(@{@"result": @"invalid_argument"}, nil);
+                    NSString *message = [NSString stringWithFormat:@"Size (%u) exceeds allowed size %u.", size, 8*1024];
+                    _log(message.UTF8String);
+                    write(@{@"result": @"invalid_argument",@"message": message}, nil);
                     return exit(1);
                 }
                 if (data.length < pos + size) {
@@ -99,19 +100,30 @@ int main(int argc, const char * argv[]) {
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
                 NSDictionary *result;
                 if (dict == nil || error) {
-                    write(@{@"result": @"invalid_argument"}, nil);
+                    write(@{@"result": @"invalid_argument",@"message": error != nil ? error.localizedDescription : nil}, nil);
                     return exit(1);
                 }
 
-                if(!dict[@"nonce"] || !dict[@"type"] || !dict[@"origin"]) {
-                    write(@{@"result": @"invalid_argument"}, dict[@"nonce"]);
+                if(!dict[@"nonce"]) {
+                    write(@{@"result": @"invalid_argument",@"message": @"'nonce' attribute is missing."}, dict[@"nonce"]);
+                    return exit(1);
+                }
+
+                if(!dict[@"type"]) {
+                    write(@{@"result": @"invalid_argument",@"message": @"'type' attribute is missing."}, dict[@"nonce"]);
+                    return exit(1);
+                }
+
+                if(!dict[@"origin"]) {
+                    write(@{@"result": @"invalid_argument",@"message": @"'origin' attribute is missing."}, dict[@"nonce"]);
                     return exit(1);
                 }
 
                 if (!origin) {
                     origin = dict[@"origin"];
                 } else if (![origin isEqualToString:dict[@"origin"]]) {
-                    write(@{@"result": @"invalid_argument"}, nil);
+                    NSString *message = [NSString stringWithFormat:@"Origin '%@' is not equal to '%@'.", origin, dict[@"origin"]];
+                    write(@{@"result": @"invalid_argument",@"message": message}, nil);
                     return exit(1);
                 }
 
@@ -123,26 +135,36 @@ int main(int argc, const char * argv[]) {
                     result = @{@"version": version};
                 }
                 else if ([dict[@"origin"] compare:@"https" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 5)]) {
-                    result = @{@"result": @"not_allowed"};
+                    NSString *message = [NSString stringWithFormat:@"Origin '%@' does not contain 'https'.", dict[@"origin"]];
+                    result = @{@"result": @"not_allowed",@"message": message};
                 }
                 else if([dict[@"type"] isEqualToString:@"CERT"]) {
-                    result = [CertificateSelection show:![@"AUTH" isEqualToString:dict[@"filter"]]];
-                    cert = (NSString*)result[@"cert"];
+                    if ([@"AUTH" isEqualToString:dict[@"filter"]]) {
+                        result = @{@"result": @"invalid_argument",@"message": @"Filter cannot be 'AUTH' when type is 'CERT'."};
+                    } else {
+                        result = [CertificateSelection show];
+                        cert = (NSString*)result[@"cert"];
+                    }
                 }
                 else if ([dict[@"type"] isEqualToString:@"SIGN"]) {
-                    NSMutableDictionary *mutableDictionary = [dict mutableCopy];
-                    /* Get hashcount from info parameter until extension is ready */
-                    NSArray<NSString *> *infos =  [dict[@"info"] componentsSeparatedByString:@" "];
-                    if(infos.count >= 1 && [[ infos objectAtIndex:0 ] hasPrefix:@"hashcount=" ] ){
-                        //NSUInteger hashStringSize = [[ infos objectAtIndex:0 ] length ];
-                        NSString *hashCountStr = [[ infos objectAtIndex:0 ] substringFromIndex:10 ];
-                        mutableDictionary[@"hashcount"] = hashCountStr;
+                    if (cert == nil) {
+                        result = @{@"result": @"invalid_argument", @"message": @"Type 'CERT' must be called before type 'SIGN'."};
+                    } else {
+                        NSMutableDictionary *mutableDictionary = [dict mutableCopy];
+                        /* Get hashcount from info parameter until extension is ready */
+                        NSArray<NSString *> *infos =  [dict[@"info"] componentsSeparatedByString:@" "];
+                        if(infos.count >= 1 && [[ infos objectAtIndex:0 ] hasPrefix:@"hashcount=" ] ){
+                            //NSUInteger hashStringSize = [[ infos objectAtIndex:0 ] length ];
+                            NSString *hashCountStr = [[ infos objectAtIndex:0 ] substringFromIndex:10 ];
+                            mutableDictionary[@"hashcount"] = hashCountStr;
 
+                        }
+                        result = [PINPanel show:dict cert:cert];
                     }
-                    result = [PINPanel show:mutableDictionary cert:cert];
                 }
                 else {
-                    result = @{@"result": @"invalid_argument"};
+                    NSString *message = [NSString stringWithFormat:@"Type '%@' is not recognised.", dict[@"type"]];
+                    result = @{@"result": @"invalid_argument", @"message": message};
                 }
 
                 write(result, dict[@"nonce"]);

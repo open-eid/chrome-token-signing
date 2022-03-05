@@ -20,21 +20,21 @@
 #include "Exceptions.h"
 #include "Logger.h"
 
-std::vector<unsigned char> NativeCertificateSelector::getCert(bool forSigning) const {
+std::vector<unsigned char> NativeCertificateSelector::getCert() const {
 	HCERTSTORE sys = CertOpenStore(CERT_STORE_PROV_SYSTEM,
 		X509_ASN_ENCODING, 0, CERT_SYSTEM_STORE_CURRENT_USER | CERT_STORE_READONLY_FLAG, L"MY");
 	if (!sys)
 		throw TechnicalException("Failed to open Cert Store");
 
 	PCCERT_CONTEXT cert = nullptr;
-	while (cert = CertEnumCertificatesInStore(sys, cert)) {
-		if (!isValid(cert, forSigning))
+	while ((cert = CertEnumCertificatesInStore(sys, cert)) != nullptr) {
+		if (!isValid(cert))
 			continue;
 		DWORD flags = CRYPT_ACQUIRE_CACHE_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG | CRYPT_ACQUIRE_SILENT_FLAG | CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG;
 		HCRYPTPROV_OR_NCRYPT_KEY_HANDLE key = 0;
 		DWORD spec = 0;
 		BOOL freeKey = FALSE;
-		CryptAcquireCertificatePrivateKey(cert, flags, 0, &key, &spec, &freeKey);
+		CryptAcquireCertificatePrivateKey(cert, flags, nullptr, &key, &spec, &freeKey);
 		if (!key)
 			continue;
 		switch (spec)
