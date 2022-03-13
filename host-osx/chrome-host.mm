@@ -159,7 +159,7 @@ int main(int argc, const char * argv[]) {
                             mutableDictionary[@"hashcount"] = hashCountStr;
 
                         }
-                        result = [PINPanel show:dict cert:cert];
+                        result = [PINPanel show:mutableDictionary cert:cert];
                     }
                 }
                 else {

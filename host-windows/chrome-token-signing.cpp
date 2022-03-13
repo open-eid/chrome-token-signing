@@ -117,8 +117,8 @@ int main(int /* argc */, char ** /* argv */)
 				/* Multisign */
 				unique_ptr<Signer> signer = Signer::createSigner(cert);
 				/* TODO: DO NOT SHOW INFO  DIALOG*/
-				if (!signer->showInfo(jsonRequest.get<string>("info", string())))
-					throw UserCancelledException();
+				//if (!signer->showInfo(jsonRequest.get<string>("info", string())))
+				//	throw UserCancelledException();
 
 				if (hashcountStr.compare("") == 0) { //single signing
 				    jsonResponse << "signature" << BinaryUtils::bin2hex(signer->sign(digest));

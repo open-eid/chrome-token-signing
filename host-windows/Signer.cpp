@@ -21,6 +21,7 @@
 #include "NativeSigner.h"
 #include "Pkcs11Signer.h"
 #include "PKCS11Path.h"
+#include "Logger.h"
 
 #include <Windows.h>
 
@@ -39,8 +40,10 @@ std::unique_ptr<Signer> Signer::createSigner(const vector<unsigned char> &cert) 
 
 	PKCS11Path::Params p11 = PKCS11Path::getPkcs11ModulePath();
 	if (!p11.path.empty()) {
+	    _log("Created Pkcs11Signer");
 		return std::unique_ptr<Signer>(new Pkcs11Signer(p11.path, cert));
 	}
+	_log("Created NativeSigner");
 	return std::unique_ptr<Signer>(new NativeSigner(cert));
 }
 

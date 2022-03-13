@@ -103,6 +103,7 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
         return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(path);
     }();
     static const std::string akisPath("C:\\Windows\\System32\\akisp11.dll");
+    static const std::string eTokenPath("C:\\Windows\\System32\\eToken.dll");
 #elif defined __APPLE__
     static const std::string openscPath("/Library/OpenSC/lib/opensc-pkcs11.so");
     static const std::string estPath = openscPath;
@@ -140,6 +141,8 @@ PKCS11Path::Params PKCS11Path::getPkcs11ModulePath() {
     static const std::map<std::string, Params> m = {
 #ifdef _WIN32
         {"3BFD1800008031FE4553434536302D43443134352D46CD", {"C:\\Windows\\System32\\aetpkss1.dll", {}, "PIN", "PIN"}},
+        {"3BD5180081313A7D8073C8211030", {eTokenPath, {}, "PIN", "PIN"}},
+        {"3BD518008131FE7D8073C82110F4", {eTokenPath, {}, "PIN", "PIN"}},
 #else
         {"3BFE1800008031FE454573744549442076657220312E30A8", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3_COLD_DEV1_ATR
         {"3BFE1800008031FE45803180664090A4561B168301900086", {estPath, {}, "PIN1", "PIN2"}}, //ESTEID_V3_WARM_DEV1_ATR

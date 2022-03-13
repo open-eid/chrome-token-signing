@@ -252,7 +252,7 @@ public:
                     hashWithPadding = {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
                     break;
                 default:
-                    _log("incorrect digest length");
+                    _log("incorrect digest length: %d", hash.size());
                     throw InvalidHashException();
             }
         }
@@ -273,6 +273,7 @@ public:
     std::vector<CK_BYTE> multisign(const Token &token, const std::vector<CK_BYTE> &hashes, const char *pin, int hashCount) const {
         std::vector<CK_BYTE> signatures {};
         unsigned long hashSize = hashes.size() / hashCount;
+        _log("PKCS11 Card Manager Mutisign for hashcount: %d",hashCount);
         for ( int i=0; i< hashCount; i++){
 
                 std::vector<CK_BYTE> hash(hashes.begin()+ hashSize * i, hashes.begin()+ hashSize * (i + 1) );
