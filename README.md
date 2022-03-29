@@ -2,8 +2,9 @@
 
 ![European Regional Development Fund](https://github.com/open-eid/DigiDoc4-Client/blob/master/client/images/EL_Regionaalarengu_Fond.png "European Regional Development Fund - DO NOT REMOVE THIS IMAGE BEFORE 05.03.2020")
 
-**NB! A new Web eID project is in development, which will replace Chrome Token Signing in the near future.
-More information about the Web eID solution is available [here](https://github.com/web-eid).**
+**NB! Please note that the active development and management of the Token Signing component has ended due to the transition to the new web authentication and signing solution (Web eID).  
+We are happy to accept your proposals in the new Web eID project repository: https://github.com/web-eid.  
+We won't be accepting pull requests or responding to issues for this project anymore.**
 
 Chrome Token signing is available from [Chrome Web Store](https://chrome.google.com/webstore/detail/ckjefchnfjhjfedoccjbhjpbncimppeg) and [Microsoft Edge add-ons store](https://microsoftedge.microsoft.com/addons/detail/fofaekogmodbjplbmlbmjiglndceaajh)
 
