@@ -1,0 +1,6 @@
+{
+  "content": {
+    "message": "Token Signing komponendi aktiivne arendamine ja haldamine on lõppenud seoses üleminekuga uuele veebis autentimise ja allkirjastamise lahendusele <a href=\"https://www.id.ee/artikkel/id-tarkvara-varske-versioon-sai-uuendusliku-web-eid-liidese/\" target=\"_blank\">Web eID</a>.<br />Token Signing laiendus eemaldatakse laienduste poodidest 1. juunil 2023.<br />Web eID komponendid sisalduvad ID-tarkvara paigalduspaketis, mille saab alla laadida veebilehelt www.id.ee.<br />NB! Palun eemaldage Token Signing laiendus, et Web eID töötaks.<br />Token Signingu eemaldamiseks järgige <a href=\"https://www.id.ee/include/token-signing-laienduse-eemaldamine-veebilehitsejatest/\" target=\"_blank\">neid juhiseid</a>.",
+    "description": "Content"
+  }
+}
