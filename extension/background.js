@@ -92,7 +92,7 @@ function _testNativeComponent() {
 typeof chrome.runtime.onInstalled !== 'undefined' && chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason === "install" || details.reason === "update") {
 		_testNativeComponent().then(function(result) {
-				var url = null;
+				var url = chrome.runtime.getURL('deprecated.html');
 				if (result === "ok" && details.reason === "install") {
 					// Also set the flag, onStartup() shall be called only
 					// on next startup
@@ -101,12 +101,12 @@ typeof chrome.runtime.onInstalled !== 'undefined' && chrome.runtime.onInstalled.
 					// once there is a nice tutorial
 					// url = HELLO_URL;
 				} else if (result === "forbidden") {
-					url = DEVELOPER_URL;
+					//url = DEVELOPER_URL;
 				} else if (result === "missing"){
-					url = NO_NATIVE_URL;
+					//url = NO_NATIVE_URL;
 				}
 				if (url) {
-					chrome.tabs.create({'url': url + "?" + details.reason});
+					chrome.tabs.create({'url': url + "?" + details.reason, 'active': true});
 				}
 		});
 	}

@@ -1,0 +1,6 @@
+{
+  "content": {
+    "message": "Активная разработка и поддержка компонента \"Token Signing\" завершилась в связи с переходом на новое решение для веб-аутентификации и подписи <a href=\"https://www.id.ee/ru/artikkel/poslednyaya-versiya-programmnogo-obespecheniya-dlya-id-karty-poluchila-innovaczionnyj-veb-interfejs-web-eid/\" target=\"_blank\">Web eID</a>.<br />Расширение \"Token Signing\" будет удалено из магазинов расширений 1 июня 2023 г.<br />Компоненты Web eID включены в установочный пакет ID программного обеспечения, которые можно загрузить с веб-сайта www.id.ee.<br />Обратите внимание! Удалите расширение \"Token Signing\" для работы Web eID.<br />Следуйте этим инструкциям, чтобы удалить <a href=\"https://www.id.ee/ru/include/udalenie-rasshireniya-tokensigning-iz-raznyh-brauzerov/\" target=\"_blank\">\"Token Signing\"</a>.",
+    "description": "Content"
+  }
+}
